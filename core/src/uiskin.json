@@ -1,0 +1,177 @@
+{
+  "com.badlogic.gdx.graphics.g2d.BitmapFont": { 
+    "default-font": { "file": "default.fnt" },
+    "droidsans14": { "file": "fonts/droidsans14.fnt" },
+    "garuda12": { "file": "fonts/garuda12.fnt" },
+  },
+  
+  "com.badlogic.gdx.graphics.Color": {
+    "white": { "a": 1, "r": 1, "g": 1, "b": 1 },
+    "black": { "a": 0, "r": 0, "g": 0, "b": 0 },
+    "actions_unselected": { "a": 0.63, "r": 0.63, "g": 0.59, "b": 0.45 },
+  },
+
+  "com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle": {
+      "default": 
+      { 
+        "font": "default-font", 
+        "fontColor": "white", 
+      },
+
+      "base_ui":
+      {
+        "font": "garuda12", 
+        "fontColor": "white",
+      },
+
+      "equipment":
+      {
+        "font": "garuda12", 
+        "fontColor": "white",
+      },
+
+      "status":
+      {
+        "font": "garuda12", 
+        "fontColor": "white",
+      },
+
+      "inventory":
+      {
+        "font": "garuda12", 
+        "fontColor": "white",
+      },
+
+      "actions":
+      {
+        "font": "garuda12", 
+        "fontColor": "white",
+      },
+
+      "actions_title":
+      {
+        "font": "default-font", 
+        "fontColor": "white",
+      },
+
+      "skills_score":
+      {
+        "font": "garuda12", 
+        "fontColor": "white",
+      },
+  },
+
+  "com.badlogic.gdx.scenes.scene2d.ui.Button$ButtonStyle": {
+    "actions_button":
+    {
+      "up": "ui/button1",
+    },
+
+    "actions_left_arrow_button":
+    {
+      "up": "ui/button_left1",
+      "down": "ui/button_left_down1",
+    },
+
+    "actions_right_arrow_button":
+    {
+      "up": "ui/button_right1",
+      "down": "ui/button_right_down1",
+    },
+  },
+
+  "com.badlogic.gdx.scenes.scene2d.ui.ImageButton$ImageButtonStyle": {
+    "base_slot":
+    {
+      "up": "ui/base_slot",
+    },
+
+    "inv_slot":
+    {
+      "up": "ui/inv_slot",
+    },
+
+    "status_bars":
+    {
+      "up": "ui/status_bar",
+    },
+  },
+
+  "com.badlogic.gdx.scenes.scene2d.ui.TextButton$TextButtonStyle": {
+    "actions_button":
+    {
+      "up": "ui/button1", 
+      "checked": "ui/button1_pressed",
+      "font": "default-font", 
+      "fontColor": "white",
+    },
+  },
+
+  "com.badlogic.gdx.scenes.scene2d.ui.ProgressBar$ProgressBarStyle": {
+    "status_bars":
+    {
+      "background": "ui/status_bar",
+    },
+  },
+
+  "com.badlogic.gdx.scenes.scene2d.ui.Window$WindowStyle": {
+    "window1": 
+    {
+      "background": "ui/window_background1",
+      "titleFont": "default-font", 
+      "titleFontColor": "white",
+    },
+  },
+
+  "com.badlogic.gdx.scenes.scene2d.ui.SplitPane$SplitPaneStyle": {
+    "actions_split_pane": 
+    {
+      "handle": "ui/scroll_handle1",
+    },
+  },
+
+  "com.badlogic.gdx.scenes.scene2d.ui.ScrollPane$ScrollPaneStyle": {
+    "actions":
+    {
+      "background": "ui/scrollpane_background1",
+      "vScroll": "ui/window_scroll1",
+      "vScrollKnob": "ui/window_scroll_knob1",
+    },
+
+    "equipment":
+    {
+      "background": "ui/selectbox_background1",
+      "vScroll": "ui/window_scroll1",
+      "vScrollKnob": "ui/window_scroll_knob1",
+    },
+  },
+
+  "com.badlogic.gdx.scenes.scene2d.ui.List$ListStyle": {
+    "actions":
+    {
+      "font": "garuda12",
+      "selection": "ui/list_selection", 
+      "fontColorSelected": "white", 
+      "fontColorUnselected": "actions_unselected",
+    },
+
+    "equipment":
+    {
+      "font": "garuda12",
+      "selection": "ui/list_selection",
+      "fontColorSelected": "white",
+      "fontColorUnselected": "actions_unselected",
+    }
+  },
+
+  "com.badlogic.gdx.scenes.scene2d.ui.SelectBox$SelectBoxStyle": {
+    "equipment":
+    {
+      "background": "ui/selectbox_background1",
+      "font": "garuda12",
+      "fontColor": "white",
+      "listStyle": "equipment",
+      "scrollStyle": "equipment",
+    },
+  },
+}
