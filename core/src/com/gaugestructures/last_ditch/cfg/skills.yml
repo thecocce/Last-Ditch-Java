@@ -1,0 +1,54 @@
+skill_list:
+  - mechanical
+  - electrical
+  - computer
+  - lockpicking
+  - martial
+  - firearms
+  - technical
+  - first_aid
+  - munitions
+  - security
+  - metalworking
+  - cooking
+  - agriculture
+
+mechanical:
+  name: 'mechanical'
+
+electrical:
+  name: 'electrical'
+
+computer:
+  name: 'computer'
+
+lockpicking:
+  name: 'lockpicking'
+
+martial:
+  name: 'martial'
+
+firearms:
+  name: 'firearms'
+
+technical:
+  name: 'technical'
+
+first_aid:
+  name: 'first Aid'
+
+munitions:
+  name: 'munitions'
+
+security:
+  name: 'security'
+
+metalworking:
+  name: 'metalworking'
+
+cooking:
+  name: 'cooking'
+
+agriculture:
+  name: 'agriculture'
+

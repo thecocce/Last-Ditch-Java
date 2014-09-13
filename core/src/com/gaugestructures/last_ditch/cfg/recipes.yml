@@ -1,0 +1,65 @@
+recipe_list:
+  - water
+  - energy1
+  - energy2
+  - canteen1_water
+  - canister1_water
+  - battery_basic
+
+water:
+  name: 'water'
+  desc: ''
+  station: purification_station
+  ingredients:
+    - canister1_waste: 1
+  requirements:
+    - mechanical: 0.02
+
+energy1:
+  name: 'energy'
+  desc: ''
+  station: incinerator
+  ingredients:
+    - canister1_waste: 1
+  requirements:
+    - mechanical: 0.06
+
+energy2:
+  name: 'energy '
+  desc: ''
+  station: incinerator
+  ingredients:
+    - overgrowth1: 1
+  requirements:
+    - mechanical: 0.06
+
+canteen1_water:
+  name: 'canteen, water'
+  desc: ''
+  station: purification_station
+  ingredients:
+    - canteen1_empty: 1
+    - water: 1.0
+  requirements:
+    - mechanical: 0.04
+
+canister1_water:
+  name: 'canister, water'
+  desc: ''
+  station: purification_station
+  ingredients:
+    - canister1_empty: 1
+    - water: 3.0
+  requirements:
+    - mechanical: 0.05
+
+battery_basic:
+  name: 'battery, basic'
+  desc: ''
+  station: charging_station
+  ingredients:
+    - battery_empty: 1
+    - energy: 0.2
+  requirements:
+    - mechanical: 0.04
+    - electrical: 0.02

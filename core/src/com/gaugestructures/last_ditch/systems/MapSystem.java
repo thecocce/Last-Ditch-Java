@@ -8,7 +8,12 @@ import com.gaugestructures.last_ditch.C;
 import com.gaugestructures.last_ditch.Manager;
 import com.gaugestructures.last_ditch.components.PositionComp;
 import com.gaugestructures.last_ditch.components.Room;
+import org.yaml.snakeyaml.Yaml;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
@@ -16,6 +21,7 @@ import java.util.Random;
 public class MapSystem extends GameSystem {
     private Manager mgr;
     private String player;
+    private Yaml yaml = new Yaml();
     private PositionComp focus;
     private TextureAtlas atlas;
     private Room master;
@@ -54,10 +60,14 @@ public class MapSystem extends GameSystem {
             }
         }
 
-        generate_rooms();
-        generate_items();
-        generate_doors();
-        generate_stations();
+        try {
+            generate_rooms();
+            generate_items();
+            generate_doors();
+            generate_stations();
+        } catch(FileNotFoundException not_found) {
+            not_found.printStackTrace();
+        }
 
         update();
     }
@@ -85,20 +95,20 @@ public class MapSystem extends GameSystem {
             if (room.getW() < 5 || room.getH() < 5) {
                 degenerate_rooms.add(room);
             } else {
-                for(int xx = room.getX1(); xx < room.getX2(); xx++) {
-                    for(int yy = room.getY1(); yy < room.getY2(); yy++) {
-                        if(xx == room.getX1() || xx == room.getX2() - 1) {
-                            solid[xx][yy] = true;
-                            rot[xx][yy] = 0;
-                            tiles[xx][yy] = atlas.findRegion("environ/wall1");
-                        } else if(yy == room.getY1() || yy == room.getY2() - 1) {
-                            solid[xx][yy] = true;
-                            rot[xx][yy] = 0;
-                            tiles[xx][yy] = atlas.findRegion("environ/wall1");
+                for(x = room.getX1(); x < room.getX2(); x++) {
+                    for(y = room.getY1(); y < room.getY2(); y++) {
+                        if(x == room.getX1() || x == room.getX2() - 1) {
+                            solid[x][y] = true;
+                            rot[x][y] = 0;
+                            tiles[x][y] = atlas.findRegion("environ/wall1");
+                        } else if(y == room.getY1() || y == room.getY2() - 1) {
+                            solid[x][y] = true;
+                            rot[x][y] = 0;
+                            tiles[x][y] = atlas.findRegion("environ/wall1");
                         } else {
-                            solid[xx][yy] = false;
-                            rot[xx][yy] = 0;
-                            tiles[xx][yy] = atlas.findRegion("environ/floor2");
+                            solid[x][y] = false;
+                            rot[x][y] = 0;
+                            tiles[x][y] = atlas.findRegion("environ/floor2");
                         }
                     }
                 }
@@ -108,8 +118,12 @@ public class MapSystem extends GameSystem {
         rooms.removeAll(degenerate_rooms);
     }
 
-    public void generate_items() {
+    public void generate_items() throws FileNotFoundException {
+        InputStream input = new FileInputStream(new File("../src/com/gaugestructures/last_ditch/cfg/items.yml"));
 
+        for(Object data : yaml.loadAll(input)) {
+            System.out.println(data);
+        }
     }
 
     public void generate_doors() {
@@ -201,7 +215,8 @@ public class MapSystem extends GameSystem {
                     C.BTW / 2, C.BTW / 2,
                     C.BTW, C.BTW,
                     1, 1,
-                    rot[x][y]);
+                    rot[x][y]
+                );
             }
         }
     }

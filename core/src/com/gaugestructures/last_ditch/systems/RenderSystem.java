@@ -10,7 +10,6 @@ import com.gaugestructures.last_ditch.C;
 import com.gaugestructures.last_ditch.Manager;
 import com.gaugestructures.last_ditch.components.*;
 
-import javax.swing.text.Position;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;

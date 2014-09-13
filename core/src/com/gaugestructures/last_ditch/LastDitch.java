@@ -6,7 +6,6 @@ import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.gaugestructures.last_ditch.components.*;
@@ -22,7 +21,6 @@ public class LastDitch extends ApplicationAdapter {
     private SpriteBatch batch;
     private TextureAtlas atlas;
     private Box2DDebugRenderer debug;
-    private Matrix4 debug_matrix;
 
     private Manager mgr = new Manager();
     private InputSystem input;
@@ -34,7 +32,7 @@ public class LastDitch extends ApplicationAdapter {
 	public void create () {
         batch = new SpriteBatch();
         atlas = new TextureAtlas(Gdx.files.internal("gfx/graphics.atlas"));
-        skin = new Skin(Gdx.files.internal("../src/uiskin.json"), atlas);
+        skin = new Skin(Gdx.files.internal("com/gaugestructures/last_ditch/cfg/uiskin.json"), atlas);
 
         String player = mgr.create_entity();
 
@@ -46,13 +44,10 @@ public class LastDitch extends ApplicationAdapter {
         physics = new PhysicsSystem(mgr, player, map);
 
         debug = new Box2DDebugRenderer();
-        debug_matrix = new Matrix4(map.get_cam().combined);
-        debug_matrix.scale(C.BTW, C.BTW, 1f);
 
         InputMultiplexer multiplexer = new InputMultiplexer(input);
 
         Gdx.input.setInputProcessor(multiplexer);
-
 	}
 
     public void update() {

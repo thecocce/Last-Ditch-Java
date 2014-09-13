@@ -1,0 +1,23 @@
+stations:
+  - incinerator 
+  - purification_station
+  - programming_desk
+  - charging_station
+
+incinerator:
+  name: 'incinerator'
+  resources:
+    - energy
+
+purification_station:
+  name: 'purification System'
+  resources:
+    - water
+
+programming_desk:
+  name: 'programming Desk'
+  resources:
+
+charging_station:
+  name: 'charging Station'
+  resources:
