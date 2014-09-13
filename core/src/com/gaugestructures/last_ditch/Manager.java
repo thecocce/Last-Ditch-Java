@@ -66,6 +66,12 @@ public class Manager {
         return null;
     }
 
+    public final boolean has_comp(String entity, Class<?> comp_class) {
+        HashMap<String, Component> store = component_stores.get(comp_class);
+
+        return store != null;
+    }
+
     public final Set<String> entities_with(Class<?> comp_class) {
         HashMap<String, Component> store = component_stores.get(comp_class);
 

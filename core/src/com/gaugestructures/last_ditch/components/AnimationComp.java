@@ -9,6 +9,7 @@ import java.util.HashMap;
 
 public class AnimationComp extends Component {
     private String cur;
+    private float scale = 1f;
     private float state_time = 0;
     private float duration = 0.1f;
     private Animation cur_anim;
@@ -33,17 +34,18 @@ public class AnimationComp extends Component {
 
     public void set_cur(String cur) {
         this.cur = cur;
+        cur_anim = anims.get(cur);
     }
 
     public void update_state_time(float dt) {
         state_time += dt;
     }
 
-    public float get_width() {
+    public float getW() {
         return get_key_frame().getRegionWidth();
     }
 
-    public float get_height() {
+    public float getH() {
         return get_key_frame().getRegionHeight();
     }
 
@@ -70,5 +72,13 @@ public class AnimationComp extends Component {
 
     public TextureRegion get_key_frame() {
         return cur_anim.getKeyFrame(state_time, true);
+    }
+
+    public float get_scale() {
+        return scale;
+    }
+
+    public void set_scale(float scale) {
+        this.scale = scale;
     }
 }

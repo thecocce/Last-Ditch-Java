@@ -10,6 +10,7 @@ import com.gaugestructures.last_ditch.C;
 import com.gaugestructures.last_ditch.Manager;
 import com.gaugestructures.last_ditch.components.*;
 
+import javax.swing.text.Position;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
@@ -53,10 +54,10 @@ public class RenderSystem extends GameSystem {
             while (it.hasNext()) {
                 Array<TextureRegion> frame_list = new Array<TextureRegion>();
 
-                Map.Entry pairs = (Map.Entry) it.next();
+                Map.Entry pairs = (Map.Entry)it.next();
 
                 @SuppressWarnings("unchecked")
-                ArrayList<String> frames = (ArrayList<String>) pairs.getValue();
+                ArrayList<String> frames = (ArrayList<String>)pairs.getValue();
 
                 for (String frame : frames) {
                     if (frame.endsWith("-f")) {
@@ -71,13 +72,14 @@ public class RenderSystem extends GameSystem {
 
                 anim_comp.get_anims().put(
                     (String) pairs.getKey(),
-                    new Animation(anim_comp.get_duration(), frame_list));
+                    new Animation(anim_comp.get_duration(), frame_list)
+                );
 
                 if (first) {
                     first = false;
-                    anim_comp.set_cur_anim((String) pairs.getKey());
-
+                    anim_comp.set_cur((String) pairs.getKey());
                 }
+
                 it.remove();
             }
         }
@@ -120,12 +122,56 @@ public class RenderSystem extends GameSystem {
                 } else if (!anim_comp.get_cur().equals(String.format("%s1/walk", info_comp.get_gender()))) {
                     anim_comp.set_cur(String.format("%s1/walk", info_comp.get_gender()));
                 }
-
             }
         }
     }
 
     public void render(SpriteBatch batch) {
+        for(String entity : nearby_entities) {
+            if(mgr.has_comp(entity, RenderComp.class)) {
+                PositionComp pos_comp = mgr.comp(entity, PositionComp.class);
+                RotationComp rot_comp = mgr.comp(entity, RotationComp.class);
+                SizeComp size_comp = mgr.comp(entity, SizeComp.class);
+                RenderComp render_comp = mgr.comp(entity, RenderComp.class);
 
+                batch.draw(
+                    render_comp.get_region(),
+                    C.BTW * (pos_comp.getX() - size_comp.getW() / 2),
+                    C.BTW * (pos_comp.getY() - size_comp.getH() / 2),
+                    C.BTW * size_comp.getW() / 2, C.BTW * size_comp.getH() / 2,
+                    C.BTW * size_comp.getW(), C.BTW * size_comp.getH(),
+                    render_comp.get_scale(), render_comp.get_scale(),
+                    rot_comp.get_ang()
+                );
+            } else if(mgr.has_comp(entity, AnimationComp.class)) {
+                PositionComp pos_comp = mgr.comp(entity, PositionComp.class);
+                RotationComp rot_comp = mgr.comp(entity, RotationComp.class);
+                AnimationComp anim_comp = mgr.comp(entity, AnimationComp.class);
+
+                batch.draw(
+                    anim_comp.get_key_frame(),
+                    C.BTW * pos_comp.getX() - anim_comp.getW() / 2,
+                    C.BTW * pos_comp.getY() - anim_comp.getH() / 2,
+                    anim_comp.getW() / 2, anim_comp.getH() / 2,
+                    anim_comp.getW(), anim_comp.getH(),
+                    anim_comp.get_scale(), anim_comp.get_scale(),
+                    rot_comp.get_ang()
+                );
+            }
+        }
+
+        AnimationComp anim_comp = mgr.comp(player, AnimationComp.class);
+        PositionComp pos_comp = mgr.comp(player, PositionComp.class);
+        RotationComp rot_comp = mgr.comp(player, RotationComp.class);
+
+        batch.draw(
+            anim_comp.get_key_frame(),
+            C.BTW * pos_comp.getX() - anim_comp.getW() / 2,
+            C.BTW * pos_comp.getY() - anim_comp.getH() / 2,
+            anim_comp.getW() / 2, anim_comp.getH() / 2,
+            anim_comp.getW(), anim_comp.getH(),
+            anim_comp.get_scale(), anim_comp.get_scale(),
+            rot_comp.get_ang()
+        );
     }
 }

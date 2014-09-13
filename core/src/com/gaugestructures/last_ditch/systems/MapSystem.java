@@ -175,9 +175,6 @@ public class MapSystem extends GameSystem {
                 test_room.setY2(test_room.getY2() - fix);
                 break;
         }
-
-        System.out.printf("%d, %d, %d, %d\n", test_room.getX(), test_room.getY(),
-                test_room.getW(), test_room.getH());
     }
 
     public boolean intersects(Room r1, Room r2) {
@@ -207,6 +204,10 @@ public class MapSystem extends GameSystem {
                     rot[x][y]);
             }
         }
+    }
+
+    public boolean is_solid(int x, int y) {
+        return solid[x][y];
     }
 
     public OrthographicCamera get_cam() {

@@ -6,6 +6,7 @@ import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.gaugestructures.last_ditch.components.*;
@@ -21,6 +22,7 @@ public class LastDitch extends ApplicationAdapter {
     private SpriteBatch batch;
     private TextureAtlas atlas;
     private Box2DDebugRenderer debug;
+    private Matrix4 debug_matrix;
 
     private Manager mgr = new Manager();
     private InputSystem input;
@@ -31,7 +33,6 @@ public class LastDitch extends ApplicationAdapter {
 	@Override
 	public void create () {
         batch = new SpriteBatch();
-        debug = new Box2DDebugRenderer();
         atlas = new TextureAtlas(Gdx.files.internal("gfx/graphics.atlas"));
         skin = new Skin(Gdx.files.internal("../src/uiskin.json"), atlas);
 
@@ -43,6 +44,10 @@ public class LastDitch extends ApplicationAdapter {
         map = new MapSystem(mgr, player, atlas);
         render = new RenderSystem(mgr, player, atlas);
         physics = new PhysicsSystem(mgr, player, map);
+
+        debug = new Box2DDebugRenderer();
+        debug_matrix = new Matrix4(map.get_cam().combined);
+        debug_matrix.scale(C.BTW, C.BTW, 1f);
 
         InputMultiplexer multiplexer = new InputMultiplexer(input);
 
@@ -104,8 +109,5 @@ public class LastDitch extends ApplicationAdapter {
             "female1/walk1-f");
         mgr.add_comp(player, anim_comp);
         mgr.add_comp(player, new InfoComp("Kadijah"));
-
-        System.out.println();
     }
-
 }

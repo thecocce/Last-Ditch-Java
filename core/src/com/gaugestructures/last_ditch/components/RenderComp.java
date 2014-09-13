@@ -3,6 +3,7 @@ package com.gaugestructures.last_ditch.components;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 public class RenderComp extends Component {
+    private float scale = 1f;
     private String region_name;
     private TextureRegion region;
 
@@ -29,5 +30,13 @@ public class RenderComp extends Component {
 
     public void set_region(TextureRegion region) {
         this.region = region;
+    }
+
+    public float get_scale() {
+        return scale;
+    }
+
+    public void set_scale(float scale) {
+        this.scale = scale;
     }
 }

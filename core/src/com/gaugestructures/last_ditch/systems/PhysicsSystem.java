@@ -36,8 +36,8 @@ public class PhysicsSystem extends GameSystem {
             AnimationComp anim_comp = mgr.comp(entity, AnimationComp.class);
             CollisionComp col_comp = mgr.comp(entity, CollisionComp.class);
 
-            float w = anim_comp.get_width() * C.WTB;
-            float h = anim_comp.get_height() * C.WTB;
+            float w = anim_comp.getW() * C.WTB;
+            float h = anim_comp.getH() * C.WTB;
 
             BodyDef body_def = new BodyDef();
             body_def.type = BodyDef.BodyType.DynamicBody;
@@ -70,7 +70,24 @@ public class PhysicsSystem extends GameSystem {
     }
 
     private void generate_tile_bodies() {
+        for(int x = 0; x < C.MAP_WIDTH; x++) {
+            for(int y = 0; y < C.MAP_HEIGHT; y++) {
+                if(map.is_solid(x, y)) {
+                    BodyDef body_def = new BodyDef();
+                    body_def.position.set(x + 0.6f, y + 0.5f);
 
+                    PolygonShape shape = new PolygonShape();
+                    shape.setAsBox(0.5f, 0.5f);
+
+                    FixtureDef fixture_def = new FixtureDef();
+                    fixture_def.shape = shape;
+
+                    Body body = world.createBody(body_def);
+                    body.createFixture(fixture_def);
+                    body.setUserData(new Vector2(x, y));
+                }
+            }
+        }
     }
 
     private void generate_door_bodies() {
@@ -122,5 +139,9 @@ public class PhysicsSystem extends GameSystem {
 
     public void render(SpriteBatch batch) {
 
+    }
+
+    public World get_world() {
+        return world;
     }
 }
