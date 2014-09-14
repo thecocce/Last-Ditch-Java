@@ -82,6 +82,12 @@ public class PhysicsSystem extends GameSystem {
                     FixtureDef fixture_def = new FixtureDef();
                     fixture_def.shape = shape;
 
+                    if(map.has_sight(x, y)) {
+                        fixture_def.filter.categoryBits = C.BIT_WINDOW;
+                    } else {
+                        fixture_def.filter.categoryBits = C.BIT_WALL;
+                    }
+
                     Body body = world.createBody(body_def);
                     body.createFixture(fixture_def);
                     body.setUserData(new Vector2(x, y));
@@ -145,5 +151,9 @@ public class PhysicsSystem extends GameSystem {
 
     public World get_world() {
         return world;
+    }
+
+    public Body get_player_body() {
+        return player_body;
     }
 }

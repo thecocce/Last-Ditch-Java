@@ -21,11 +21,13 @@ public class LastDitch extends ApplicationAdapter {
     private Box2DDebugRenderer debug;
 
     private Manager mgr = new Manager();
+    private TimeSystem time;
     private InputSystem input;
     private InventorySystem inventory;
     private MapSystem map;
     private RenderSystem render;
     private PhysicsSystem physics;
+    private LightingSystem lighting;
 
 	@Override
 	public void create () {
@@ -37,11 +39,13 @@ public class LastDitch extends ApplicationAdapter {
 
         setup_player(player);
 
+        time = new TimeSystem();
         input = new InputSystem(mgr, player);
         inventory = new InventorySystem(mgr, player, atlas);
         map = new MapSystem(mgr, player, atlas, inventory);
         render = new RenderSystem(mgr, player, atlas);
         physics = new PhysicsSystem(mgr, player, map);
+        lighting = new LightingSystem(map.get_cam(), physics);
 
         debug = new Box2DDebugRenderer();
 
@@ -61,6 +65,7 @@ public class LastDitch extends ApplicationAdapter {
             inventory.update();
 
             if (!mgr.is_paused()) {
+                time.update();
                 render.update();
                 physics.update();
             }
@@ -84,10 +89,12 @@ public class LastDitch extends ApplicationAdapter {
         render.render(batch);
 
         batch.end();
+
+        lighting.render();
 	}
 
     private void setup_player(String player) {
-        mgr.add_comp(player, new PositionComp(100, 100));
+        mgr.add_comp(player, new PositionComp(12, 12));
         mgr.add_comp(player, new RotationComp(0));
         mgr.add_comp(player, new TypeComp("player"));
         mgr.add_comp(player, new InventoryComp(C.INVENTORY_SLOTS));

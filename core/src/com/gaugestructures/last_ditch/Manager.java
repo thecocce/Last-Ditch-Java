@@ -10,26 +10,12 @@ import java.io.InputStream;
 import java.util.*;
 
 public class Manager {
+    private boolean paused = false;
     private Yaml yaml = new Yaml();
     private Random rnd = new Random();
-    private boolean paused = false;
     private HashSet<String> entities = new HashSet<String>();
     private HashMap<Class<?>, HashMap<String, Component>> component_stores = new HashMap<Class<?>, HashMap<String, Component>>();
 
-    public Map<String, Object> get_data(String data_type) {
-        try {
-            InputStream input = new FileInputStream(new File(String.format("../src/com/gaugestructures/last_ditch/cfg/%s.yml", data_type)));
-
-            @SuppressWarnings("unchecked")
-            Map<String, Object> data = (Map<String, Object>)yaml.load(input);
-
-            return data;
-        } catch(FileNotFoundException exception) {
-            exception.printStackTrace();
-        }
-
-        return null;
-    }
 
     public final String create_entity() {
         String entity = java.util.UUID.randomUUID().toString();
@@ -39,7 +25,7 @@ public class Manager {
         return entity;
     }
 
-    public final Component add_comp(String entity, Component comp) {
+    public final <T extends Component> T add_comp(String entity, T comp) {
         HashMap<String, Component> store = component_stores.get(comp.getClass());
 
         if (store == null) {
@@ -50,7 +36,8 @@ public class Manager {
         if (store.containsKey(entity)) {
             return null;
         } else {
-            return store.put(entity, comp);
+            store.put(entity, comp);
+            return comp;
         }
     }
 
@@ -142,6 +129,21 @@ public class Manager {
         float scaled = rnd.nextFloat() * range;
 
         return scaled + start;
+    }
+
+    public Map<String, Object> get_data(String data_type) {
+        try {
+            InputStream input = new FileInputStream(new File(String.format("../src/com/gaugestructures/last_ditch/cfg/%s.yml", data_type)));
+
+            @SuppressWarnings("unchecked")
+            Map<String, Object> data = (Map<String, Object>)yaml.load(input);
+
+            return data;
+        } catch(FileNotFoundException exception) {
+            exception.printStackTrace();
+        }
+
+        return null;
     }
 }
 

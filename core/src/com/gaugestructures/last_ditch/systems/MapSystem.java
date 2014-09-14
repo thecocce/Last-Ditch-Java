@@ -31,6 +31,7 @@ public class MapSystem extends GameSystem {
     private ArrayList<String> doors = new ArrayList<String>();
     private ArrayList<String> stations = new ArrayList<String>();
     private boolean[][] solid = new boolean[C.MAP_WIDTH][C.MAP_HEIGHT];
+    private boolean[][] sight = new boolean[C.MAP_WIDTH][C.MAP_HEIGHT];
     private float[][] rot = new float[C.MAP_WIDTH][C.MAP_HEIGHT];
     private TextureRegion[][] tiles = new TextureRegion[C.MAP_WIDTH][C.MAP_HEIGHT];
     private OrthographicCamera cam = new OrthographicCamera();
@@ -52,6 +53,7 @@ public class MapSystem extends GameSystem {
             for (int y = 0; y < height; y++) {
                 if (x == 0 || y == 0 || x == width - 1 || y == height - 1) {
                     solid[x][y] = true;
+                    sight[x][y] = true;
                     tiles[x][y] = atlas.findRegion("environ/empty");
                 }
             }
@@ -96,14 +98,17 @@ public class MapSystem extends GameSystem {
                     for(y = room.getY1(); y < room.getY2(); y++) {
                         if(x == room.getX1() || x == room.getX2() - 1) {
                             solid[x][y] = true;
+                            sight[x][y] = false;
                             rot[x][y] = 0;
                             tiles[x][y] = atlas.findRegion("environ/wall1");
                         } else if(y == room.getY1() || y == room.getY2() - 1) {
                             solid[x][y] = true;
+                            sight[x][y] = false;
                             rot[x][y] = 0;
                             tiles[x][y] = atlas.findRegion("environ/wall1");
                         } else {
                             solid[x][y] = false;
+                            sight[x][y] = true;
                             rot[x][y] = 0;
                             tiles[x][y] = atlas.findRegion("environ/floor2");
                         }
@@ -129,13 +134,10 @@ public class MapSystem extends GameSystem {
             } while(is_solid((int)x, (int)y));
 
             String choice = item_list.get(rnd.nextInt(item_list.size()));
-
             String item = inventory.create_item(choice, x, y);
+
             items.add(item);
-
-
         }
-
     }
 
     public void generate_doors() {
@@ -235,6 +237,10 @@ public class MapSystem extends GameSystem {
 
     public boolean is_solid(int x, int y) {
         return solid[x][y];
+    }
+
+    public boolean has_sight(int x, int y) {
+        return sight[x][y];
     }
 
     public OrthographicCamera get_cam() {

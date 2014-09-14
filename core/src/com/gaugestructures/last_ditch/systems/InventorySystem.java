@@ -69,37 +69,27 @@ public class InventorySystem extends GameSystem {
         @SuppressWarnings("unchecked")
         Map<String, Object> type_data = (Map<String, Object>)item_data.get(type);
 
-        PositionComp pos_comp = new PositionComp(x, y);
-        RotationComp rot_comp = new RotationComp(0);
-        TypeComp type_comp = new TypeComp(type);
-        InfoComp info_comp = new InfoComp((String)type_data.get("name"));
-        info_comp.set_desc((String)type_data.get("desc"));
+        mgr.add_comp(item, new PositionComp(x, y));
+        mgr.add_comp(item, new RotationComp(0));
+        mgr.add_comp(item, new TypeComp(type));
 
-        mgr.add_comp(item, pos_comp);
-        mgr.add_comp(item, rot_comp);
-        mgr.add_comp(item, type_comp);
-        mgr.add_comp(item, info_comp);
+        InfoComp info_comp = mgr.add_comp(item, new InfoComp((String)type_data.get("name")));
+        info_comp.set_desc((String)type_data.get("desc"));
 
         float quality = mgr.rand_float(0.2f, 0.5f);
         float condition = mgr.rand_float(0.1f, 0.4f);
 
-        ItemComp item_comp = new ItemComp(quality, condition);
+        ItemComp item_comp = mgr.add_comp(item, new ItemComp(quality, condition));
         item_comp.set_base_value(((Double)type_data.get("base_value")).floatValue());
         item_comp.set_usable((Boolean)type_data.get("usable"));
 
-        mgr.add_comp(item, item_comp);
-
         //Equippable types
 
-        RenderComp render_comp = new RenderComp("");
+        RenderComp render_comp = mgr.add_comp(item, new RenderComp(""));
         render_comp.set_region_name(String.format("items/%s", type));
         render_comp.set_region(atlas.findRegion(render_comp.get_region_name()));
 
-        mgr.add_comp(item, render_comp);
-
-        SizeComp size_comp = new SizeComp(render_comp.get_width() * C.WTB, render_comp.get_height() * C.WTB);
-
-        mgr.add_comp(item, size_comp);
+        mgr.add_comp(item, new SizeComp(render_comp.get_width() * C.WTB, render_comp.get_height() * C.WTB));
 
         return item;
     }

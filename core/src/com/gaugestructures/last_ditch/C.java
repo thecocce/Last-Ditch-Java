@@ -15,6 +15,11 @@ public class C {
     public static final int INVENTORY_SLOTS = 32;
     public static final float PLAYER_SPD = 1.7f, PLAYER_ROT_SPD = 4.4f;
 
+    public static final short BIT_ZERO = 0;
     public static final short BIT_PLAYER = 2;
-    public static final short BIT_ENTITY = 4;
+    public static final short BIT_LIGHT = 4;
+    public static final short BIT_WALL = 8;
+    public static final short BIT_WINDOW = 16;
+    public static final short BIT_ENTITY = 32;
+
 }
