@@ -1,14 +1,35 @@
 package com.gaugestructures.last_ditch;
 
 import com.gaugestructures.last_ditch.components.Component;
+import org.yaml.snakeyaml.Yaml;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.*;
 
 public class Manager {
-
+    private Yaml yaml = new Yaml();
+    private Random rnd = new Random();
     private boolean paused = false;
     private HashSet<String> entities = new HashSet<String>();
     private HashMap<Class<?>, HashMap<String, Component>> component_stores = new HashMap<Class<?>, HashMap<String, Component>>();
+
+    public Map<String, Object> get_data(String data_type) {
+        try {
+            InputStream input = new FileInputStream(new File(String.format("../src/com/gaugestructures/last_ditch/cfg/%s.yml", data_type)));
+
+            @SuppressWarnings("unchecked")
+            Map<String, Object> data = (Map<String, Object>)yaml.load(input);
+
+            return data;
+        } catch(FileNotFoundException exception) {
+            exception.printStackTrace();
+        }
+
+        return null;
+    }
 
     public final String create_entity() {
         String entity = java.util.UUID.randomUUID().toString();
@@ -66,10 +87,19 @@ public class Manager {
         return null;
     }
 
-    public final boolean has_comp(String entity, Class<?> comp_class) {
+    public final <T extends Component> boolean has_comp(String entity, Class<T> comp_class) {
         HashMap<String, Component> store = component_stores.get(comp_class);
 
-        return store != null;
+        if(store != null) {
+            @SuppressWarnings("unchecked")
+            T comp = (T)store.get(entity);
+
+            if(comp != null && comp_class == comp.getClass()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public final Set<String> entities_with(Class<?> comp_class) {
@@ -98,6 +128,20 @@ public class Manager {
 
     public boolean is_paused() {
         return paused;
+    }
+
+    public int rand_int(int start, int end) {
+        long range = (long)end - (long)start + 1;
+        long fraction = (long)(range * rnd.nextDouble());
+
+        return (int)(fraction + start);
+    }
+
+    public float rand_float(float start, float end) {
+        long range = (long)end - (long)start + 1;
+        float scaled = rnd.nextFloat() * range;
+
+        return scaled + start;
     }
 }
 

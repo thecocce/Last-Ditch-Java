@@ -113,10 +113,12 @@ public class PhysicsSystem extends GameSystem {
             if(vel_comp.get_spd() != 0) {
                 Vector2 vel_vec = new Vector2(
                     vel_comp.get_spd() * rot_comp.getX(),
-                    vel_comp.get_spd() * rot_comp.getY());
+                    vel_comp.get_spd() * rot_comp.getY()
+                );
 
                 col_comp.get_body().applyLinearImpulse(
-                    vel_vec, col_comp.get_body().getWorldCenter(), true);
+                    vel_vec, col_comp.get_body().getWorldCenter(), true
+                );
             }
 
             rot_comp.set_prev_ang(rot_comp.get_ang());

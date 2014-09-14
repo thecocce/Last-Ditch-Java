@@ -27,7 +27,7 @@ public class RenderSystem extends GameSystem {
         this.atlas = atlas;
 
         for (String entity : mgr.entities_with(RenderComp.class)) {
-            RenderComp render_comp = mgr.comp(player, RenderComp.class);
+            RenderComp render_comp = mgr.comp(entity, RenderComp.class);
             render_comp.set_region(atlas.findRegion(render_comp.get_region_name()));
 
             PositionComp pos_comp = mgr.comp(entity, PositionComp.class);
@@ -132,6 +132,7 @@ public class RenderSystem extends GameSystem {
                 RotationComp rot_comp = mgr.comp(entity, RotationComp.class);
                 SizeComp size_comp = mgr.comp(entity, SizeComp.class);
                 RenderComp render_comp = mgr.comp(entity, RenderComp.class);
+                TypeComp type_comp = mgr.comp(entity, TypeComp.class);
 
                 batch.draw(
                     render_comp.get_region(),

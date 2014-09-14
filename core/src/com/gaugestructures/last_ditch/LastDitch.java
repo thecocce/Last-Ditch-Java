@@ -9,10 +9,7 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.gaugestructures.last_ditch.components.*;
-import com.gaugestructures.last_ditch.systems.InputSystem;
-import com.gaugestructures.last_ditch.systems.MapSystem;
-import com.gaugestructures.last_ditch.systems.PhysicsSystem;
-import com.gaugestructures.last_ditch.systems.RenderSystem;
+import com.gaugestructures.last_ditch.systems.*;
 
 public class LastDitch extends ApplicationAdapter {
     private float timer = 0;
@@ -20,10 +17,12 @@ public class LastDitch extends ApplicationAdapter {
     private Skin skin;
     private SpriteBatch batch;
     private TextureAtlas atlas;
+    private String player;
     private Box2DDebugRenderer debug;
 
     private Manager mgr = new Manager();
     private InputSystem input;
+    private InventorySystem inventory;
     private MapSystem map;
     private RenderSystem render;
     private PhysicsSystem physics;
@@ -34,12 +33,13 @@ public class LastDitch extends ApplicationAdapter {
         atlas = new TextureAtlas(Gdx.files.internal("gfx/graphics.atlas"));
         skin = new Skin(Gdx.files.internal("com/gaugestructures/last_ditch/cfg/uiskin.json"), atlas);
 
-        String player = mgr.create_entity();
+        player = mgr.create_entity();
 
         setup_player(player);
 
         input = new InputSystem(mgr, player);
-        map = new MapSystem(mgr, player, atlas);
+        inventory = new InventorySystem(mgr, player, atlas);
+        map = new MapSystem(mgr, player, atlas, inventory);
         render = new RenderSystem(mgr, player, atlas);
         physics = new PhysicsSystem(mgr, player, map);
 
@@ -58,6 +58,7 @@ public class LastDitch extends ApplicationAdapter {
         int steps = Math.min(n, C.MAX_STEPS);
 
         while (steps > 0) {
+            inventory.update();
 
             if (!mgr.is_paused()) {
                 render.update();
@@ -88,6 +89,8 @@ public class LastDitch extends ApplicationAdapter {
     private void setup_player(String player) {
         mgr.add_comp(player, new PositionComp(100, 100));
         mgr.add_comp(player, new RotationComp(0));
+        mgr.add_comp(player, new TypeComp("player"));
+        mgr.add_comp(player, new InventoryComp(C.INVENTORY_SLOTS));
         mgr.add_comp(player, new VelocityComp(0, 0, C.PLAYER_SPD, C.PLAYER_ROT_SPD));
         mgr.add_comp(player, new CollisionComp());
 

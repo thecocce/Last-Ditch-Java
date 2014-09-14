@@ -1,14 +1,14 @@
 package com.gaugestructures.last_ditch.components;
 
 public class SizeComp extends Component {
-    private int w = 0, h = 0;
+    private float w = 0, h = 0;
 
-    private SizeComp(int w, int h) {
+    public SizeComp(float w, float h) {
         this.w = w;
         this.h = h;
     }
 
-    public int getW() {
+    public float getW() {
         return w;
     }
 
@@ -16,7 +16,7 @@ public class SizeComp extends Component {
         this.w = w;
     }
 
-    public int getH() {
+    public float getH() {
         return h;
     }
 

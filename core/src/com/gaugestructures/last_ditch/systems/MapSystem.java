@@ -10,13 +10,8 @@ import com.gaugestructures.last_ditch.components.PositionComp;
 import com.gaugestructures.last_ditch.components.Room;
 import org.yaml.snakeyaml.Yaml;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Random;
+import java.util.*;
 
 public class MapSystem extends GameSystem {
     private Manager mgr;
@@ -30,6 +25,7 @@ public class MapSystem extends GameSystem {
     private int iterations = 120;
     private int num_of_rooms = 200;
     private int num_of_items = 3200;
+    private InventorySystem inventory;
     private ArrayList<Room> rooms = new ArrayList<Room>();
     private ArrayList<String> items = new ArrayList<String>();
     private ArrayList<String> doors = new ArrayList<String>();
@@ -40,10 +36,11 @@ public class MapSystem extends GameSystem {
     private OrthographicCamera cam = new OrthographicCamera();
     private int width = C.MAP_WIDTH, height = C.MAP_HEIGHT;
 
-    public MapSystem(Manager mgr, String player, TextureAtlas atlas) {
+    public MapSystem(Manager mgr, String player, TextureAtlas atlas, InventorySystem inventory) {
         this.mgr = mgr;
         this.atlas = atlas;
         this.player = player;
+        this.inventory = inventory;
 
         for(TextureRegion[] row : tiles)
             Arrays.fill(row, atlas.findRegion("environ/floor1"));
@@ -77,8 +74,8 @@ public class MapSystem extends GameSystem {
         master = new Room(10, 10, C.MAP_WIDTH - 10, C.MAP_HEIGHT - 10);
 
         for (int i = 0; i < num_of_rooms; i++) {
-            x = rand_int(master.getX1(), master.getX2() - 1);
-            y = rand_int(master.getY1(), master.getY2() - 1);
+            x = mgr.rand_int(master.getX1(), master.getX2() - 1);
+            y = mgr.rand_int(master.getY1(), master.getY2() - 1);
 
             rooms.add(new Room(x, y, 1, 1));
         }
@@ -119,11 +116,26 @@ public class MapSystem extends GameSystem {
     }
 
     public void generate_items() throws FileNotFoundException {
-        InputStream input = new FileInputStream(new File("../src/com/gaugestructures/last_ditch/cfg/items.yml"));
+        Map<String, Object> item_data = mgr.get_data("items");
 
-        for(Object data : yaml.loadAll(input)) {
-            System.out.println(data);
+        @SuppressWarnings("unchecked")
+        List<String> item_list = (List<String>) item_data.get("item_list");
+
+        float x = 0, y = 0;
+        for(int i = 0; i < num_of_items; i++) {
+            do {
+                x = mgr.rand_float(10f, width - 10f);
+                y = mgr.rand_float(10f, height - 10f);
+            } while(is_solid((int)x, (int)y));
+
+            String choice = item_list.get(rnd.nextInt(item_list.size()));
+
+            String item = inventory.create_item(choice, x, y);
+            items.add(item);
+
+
         }
+
     }
 
     public void generate_doors() {
@@ -229,10 +241,5 @@ public class MapSystem extends GameSystem {
         return cam;
     }
 
-    public int rand_int(int start, int end) {
-        long range = (long)end - (long)start + 1;
-        long fraction = (long)(range * rnd.nextDouble());
 
-        return (int)(fraction + start);
-    }
 }

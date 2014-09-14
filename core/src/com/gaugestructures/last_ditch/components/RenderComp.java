@@ -16,6 +16,14 @@ public class RenderComp extends Component {
         this.region = region;
     }
 
+    public float get_width() {
+        return region.getRegionWidth();
+    }
+
+    public float get_height() {
+        return region.getRegionHeight();
+    }
+
     public String get_region_name() {
         return region_name;
     }
