@@ -7,11 +7,11 @@ public class TypeComp extends Component {
         this.type = type;
     }
 
-    public String get_type() {
+    public String getType() {
         return type;
     }
 
-    public void set_type(String type) {
+    public void setType(String type) {
         this.type = type;
     }
 }

@@ -10,35 +10,35 @@ public class InfoComp extends Component {
         desc = "";
     }
 
-    public String get_name() {
+    public String getName() {
         return name;
     }
 
-    public void set_name(String name) {
+    public void setName(String name) {
         this.name = name;
     }
 
-    public String get_occupation() {
+    public String getOccupation() {
         return occupation;
     }
 
-    public void set_occupation(String occupation) {
+    public void setOccupation(String occupation) {
         this.occupation = occupation;
     }
 
-    public String get_gender() {
+    public String getGender() {
         return gender;
     }
 
-    public void set_gender(String gender) {
+    public void setGender(String gender) {
         this.gender = gender;
     }
 
-    public String get_desc() {
+    public String getDesc() {
         return desc;
     }
 
-    public void set_desc(String desc) {
+    public void setDesc(String desc) {
         this.desc = desc;
     }
 }

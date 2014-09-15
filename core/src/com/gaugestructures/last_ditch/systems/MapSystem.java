@@ -59,14 +59,10 @@ public class MapSystem extends GameSystem {
             }
         }
 
-        try {
-            generate_rooms();
-            generate_items();
-            generate_doors();
-            generate_stations();
-        } catch(FileNotFoundException not_found) {
-            not_found.printStackTrace();
-        }
+        generate_rooms();
+        generate_items();
+        generate_doors();
+        generate_stations();
 
         update();
     }
@@ -76,8 +72,8 @@ public class MapSystem extends GameSystem {
         master = new Room(10, 10, C.MAP_WIDTH - 10, C.MAP_HEIGHT - 10);
 
         for (int i = 0; i < num_of_rooms; i++) {
-            x = mgr.rand_int(master.getX1(), master.getX2() - 1);
-            y = mgr.rand_int(master.getY1(), master.getY2() - 1);
+            x = mgr.randInt(master.getX1(), master.getX2() - 1);
+            y = mgr.randInt(master.getY1(), master.getY2() - 1);
 
             rooms.add(new Room(x, y, 1, 1));
         }
@@ -120,8 +116,8 @@ public class MapSystem extends GameSystem {
         rooms.removeAll(degenerate_rooms);
     }
 
-    public void generate_items() throws FileNotFoundException {
-        Map<String, Object> item_data = mgr.get_data("items");
+    public void generate_items() {
+        Map<String, Object> item_data = mgr.getData("items");
 
         @SuppressWarnings("unchecked")
         List<String> item_list = (List<String>) item_data.get("item_list");
@@ -129,8 +125,8 @@ public class MapSystem extends GameSystem {
         float x = 0, y = 0;
         for(int i = 0; i < num_of_items; i++) {
             do {
-                x = mgr.rand_float(10f, width - 10f);
-                y = mgr.rand_float(10f, height - 10f);
+                x = mgr.randFloat(10f, width - 10f);
+                y = mgr.randFloat(10f, height - 10f);
             } while(is_solid((int)x, (int)y));
 
             String choice = item_list.get(rnd.nextInt(item_list.size()));
@@ -243,7 +239,7 @@ public class MapSystem extends GameSystem {
         return sight[x][y];
     }
 
-    public OrthographicCamera get_cam() {
+    public OrthographicCamera getCam() {
         return cam;
     }
 

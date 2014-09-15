@@ -22,8 +22,14 @@ public class LastDitch extends ApplicationAdapter {
 
     private Manager mgr = new Manager();
     private TimeSystem time;
-    private InputSystem input;
+    private ActionsSystem actions;
+    private CraftingSystem crafting;
     private InventorySystem inventory;
+    private EquipmentSystem equipment;
+    private StatusSystem status;
+
+    private UISystem ui;
+    private InputSystem input;
     private MapSystem map;
     private RenderSystem render;
     private PhysicsSystem physics;
@@ -35,23 +41,28 @@ public class LastDitch extends ApplicationAdapter {
         atlas = new TextureAtlas(Gdx.files.internal("gfx/graphics.atlas"));
         skin = new Skin(Gdx.files.internal("com/gaugestructures/last_ditch/cfg/uiskin.json"), atlas);
 
-        player = mgr.create_entity();
+        player = mgr.createEntity();
 
-        setup_player(player);
+        setupPlayer(player);
 
         time = new TimeSystem();
-        input = new InputSystem(mgr, player);
+        actions = new ActionsSystem(mgr, player);
+        crafting = new CraftingSystem(mgr, player);
         inventory = new InventorySystem(mgr, player, atlas);
+        equipment = new EquipmentSystem();
+        status = new StatusSystem();
+
+        ui = new UISystem(mgr, inventory, player, atlas, skin, crafting);
+        inventory.setUIActions(ui.getActions());
+        input = new InputSystem(mgr, player, ui, actions, time);
         map = new MapSystem(mgr, player, atlas, inventory);
         render = new RenderSystem(mgr, player, atlas);
         physics = new PhysicsSystem(mgr, player, map);
-        lighting = new LightingSystem(map.get_cam(), physics);
+        lighting = new LightingSystem(map.getCam(), physics);
 
         debug = new Box2DDebugRenderer();
 
-        InputMultiplexer multiplexer = new InputMultiplexer(input);
-
-        Gdx.input.setInputProcessor(multiplexer);
+        Gdx.input.setInputProcessor(new InputMultiplexer(ui.getStage(), input));
 	}
 
     public void update() {
@@ -62,9 +73,13 @@ public class LastDitch extends ApplicationAdapter {
         int steps = Math.min(n, C.MAX_STEPS);
 
         while (steps > 0) {
+            actions.update();
+            crafting.update();
             inventory.update();
+            equipment.update();
+            status.update();
 
-            if (!mgr.is_paused()) {
+            if (!mgr.isPaused()) {
                 time.update();
                 render.update();
                 physics.update();
@@ -81,7 +96,7 @@ public class LastDitch extends ApplicationAdapter {
         update();
 
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        batch.setProjectionMatrix(map.get_cam().combined);
+        batch.setProjectionMatrix(map.getCam().combined);
 
         batch.begin();
 
@@ -91,28 +106,29 @@ public class LastDitch extends ApplicationAdapter {
         batch.end();
 
         lighting.render();
+        ui.render();
 	}
 
-    private void setup_player(String player) {
-        mgr.add_comp(player, new PositionComp(12, 12));
-        mgr.add_comp(player, new RotationComp(0));
-        mgr.add_comp(player, new TypeComp("player"));
-        mgr.add_comp(player, new InventoryComp(C.INVENTORY_SLOTS));
-        mgr.add_comp(player, new VelocityComp(0, 0, C.PLAYER_SPD, C.PLAYER_ROT_SPD));
-        mgr.add_comp(player, new CollisionComp());
+    private void setupPlayer(String player) {
+        mgr.addComp(player, new PositionComp(12, 12));
+        mgr.addComp(player, new RotationComp(0));
+        mgr.addComp(player, new TypeComp("player"));
+        mgr.addComp(player, new InventoryComp(C.INVENTORY_SLOTS));
+        mgr.addComp(player, new VelocityComp(0, 0, C.PLAYER_SPD, C.PLAYER_ROT_SPD));
+        mgr.addComp(player, new CollisionComp());
 
-        AnimationComp anim_comp = new AnimationComp(0.1f);
-        anim_comp.add_animation("female1/idle", "female1/idle1");
-        anim_comp.add_animation(
-            "female1/walk",
-            "female1/walk1",
-            "female1/walk2",
-            "female1/walk1",
-            "female1/idle1",
-            "female1/walk1-f",
-            "female1/walk2-f",
-            "female1/walk1-f");
-        mgr.add_comp(player, anim_comp);
-        mgr.add_comp(player, new InfoComp("Kadijah"));
+        AnimationComp animComp = new AnimationComp(0.1f);
+        animComp.addAnimation("female1/idle", "female1/idle1");
+        animComp.addAnimation(
+                "female1/walk",
+                "female1/walk1",
+                "female1/walk2",
+                "female1/walk1",
+                "female1/idle1",
+                "female1/walk1-f",
+                "female1/walk2-f",
+                "female1/walk1-f");
+        mgr.addComp(player, animComp);
+        mgr.addComp(player, new InfoComp("Kadijah"));
     }
 }

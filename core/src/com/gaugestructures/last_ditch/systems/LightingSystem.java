@@ -10,7 +10,7 @@ public class LightingSystem extends GameSystem {
     private OrthographicCamera cam;
     private PhysicsSystem physics;
     private RayHandler handler;
-    private PointLight central_light;
+    private PointLight centralLight;
 
     public LightingSystem(OrthographicCamera cam, PhysicsSystem physics) {
         this.cam = cam;
@@ -21,12 +21,12 @@ public class LightingSystem extends GameSystem {
         RayHandler.isDiffuse = true;
         Light.setContactFilter(C.BIT_LIGHT, C.BIT_ZERO, C.BIT_WALL);
 
-        central_light = new PointLight(handler, 600);
-        central_light.setSoft(true);
-        central_light.setSoftnessLength(1.2f);
-        central_light.setColor(0.8f, 0.8f, 0.8f, 1f);
-        central_light.setDistance(1000f);
-        central_light.attachToBody(physics.get_player_body(), 0, 0);
+        centralLight = new PointLight(handler, 600);
+        centralLight.setSoft(true);
+        centralLight.setSoftnessLength(1.2f);
+        centralLight.setColor(0.8f, 0.8f, 0.8f, 1f);
+        centralLight.setDistance(1000f);
+        centralLight.attachToBody(physics.getPlayerBody(), 0, 0);
     }
 
     public void render() {

@@ -14,10 +14,10 @@ public class Manager {
     private Yaml yaml = new Yaml();
     private Random rnd = new Random();
     private HashSet<String> entities = new HashSet<String>();
-    private HashMap<Class<?>, HashMap<String, Component>> component_stores = new HashMap<Class<?>, HashMap<String, Component>>();
+    private HashMap<Class<?>, HashMap<String, Component>> componentStores = new HashMap<Class<?>, HashMap<String, Component>>();
 
 
-    public final String create_entity() {
+    public final String createEntity() {
         String entity = java.util.UUID.randomUUID().toString();
 
         entities.add(entity);
@@ -25,12 +25,12 @@ public class Manager {
         return entity;
     }
 
-    public final <T extends Component> T add_comp(String entity, T comp) {
-        HashMap<String, Component> store = component_stores.get(comp.getClass());
+    public final <T extends Component> T addComp(String entity, T comp) {
+        HashMap<String, Component> store = componentStores.get(comp.getClass());
 
         if (store == null) {
             store = new HashMap<String, Component>();
-            component_stores.put(comp.getClass(), store);
+            componentStores.put(comp.getClass(), store);
         }
 
         if (store.containsKey(entity)) {
@@ -41,8 +41,8 @@ public class Manager {
         }
     }
 
-    public final boolean remove_comp(String entity, Class<?> comp_type) {
-        HashMap<String, Component> store = component_stores.get(comp_type);
+    public final boolean removeComp(String entity, Class<?> comp_type) {
+        HashMap<String, Component> store = componentStores.get(comp_type);
 
         if (store != null) {
             Component comp = store.get(entity);
@@ -55,14 +55,14 @@ public class Manager {
         return false;
     }
 
-    public final boolean remove_comp(String entity, Component comp) {
-        HashMap<String, Component> store = component_stores.get(comp.getClass());
+    public final boolean removeComp(String entity, Component comp) {
+        HashMap<String, Component> store = componentStores.get(comp.getClass());
 
         return store != null && store.remove(entity, comp);
     }
 
-    public final <T extends Component> T comp(String entity, Class<T> comp_type) {
-        HashMap<String, Component> store = component_stores.get(comp_type);
+    public final <T extends Component> T comp(String entity, Class<T> compClass) {
+        HashMap<String, Component> store = componentStores.get(compClass);
 
         if (store != null) {
             @SuppressWarnings("unchecked")
@@ -74,14 +74,14 @@ public class Manager {
         return null;
     }
 
-    public final <T extends Component> boolean has_comp(String entity, Class<T> comp_class) {
-        HashMap<String, Component> store = component_stores.get(comp_class);
+    public final <T extends Component> boolean hasComp(String entity, Class<T> compClass) {
+        HashMap<String, Component> store = componentStores.get(compClass);
 
         if(store != null) {
             @SuppressWarnings("unchecked")
             T comp = (T)store.get(entity);
 
-            if(comp != null && comp_class == comp.getClass()) {
+            if(comp != null && compClass == comp.getClass()) {
                 return true;
             }
         }
@@ -89,8 +89,8 @@ public class Manager {
         return false;
     }
 
-    public final Set<String> entities_with(Class<?> comp_class) {
-        HashMap<String, Component> store = component_stores.get(comp_class);
+    public final Set<String> entitiesWith(Class<?> compClass) {
+        HashMap<String, Component> store = componentStores.get(compClass);
 
         if (store != null) {
             return store.keySet();
@@ -99,41 +99,41 @@ public class Manager {
         }
     }
 
-    public final Set<String> entities_with_all(Class<?>... comp_classes) {
-        HashSet<String> found_entities = new HashSet<String>(entities);
+    public final Set<String> entitiesWithAll(Class<?>... compClasses) {
+        HashSet<String> foundEntities = new HashSet<String>(entities);
 
-        for (Class<?> comp_class : comp_classes) {
-            found_entities.retainAll(entities_with(comp_class));
+        for (Class<?> compClass : compClasses) {
+            foundEntities.retainAll(entitiesWith(compClass));
         }
 
-        return found_entities;
+        return foundEntities;
     }
 
-    public void set_paused(boolean pause) {
+    public void setPaused(boolean pause) {
         this.paused = pause;
     }
 
-    public boolean is_paused() {
+    public boolean isPaused() {
         return paused;
     }
 
-    public int rand_int(int start, int end) {
+    public int randInt(int start, int end) {
         long range = (long)end - (long)start + 1;
         long fraction = (long)(range * rnd.nextDouble());
 
         return (int)(fraction + start);
     }
 
-    public float rand_float(float start, float end) {
+    public float randFloat(float start, float end) {
         long range = (long)end - (long)start + 1;
         float scaled = rnd.nextFloat() * range;
 
         return scaled + start;
     }
 
-    public Map<String, Object> get_data(String data_type) {
+    public Map<String, Object> getData(String dataType) {
         try {
-            InputStream input = new FileInputStream(new File(String.format("../src/com/gaugestructures/last_ditch/cfg/%s.yml", data_type)));
+            InputStream input = new FileInputStream(new File(String.format("../src/com/gaugestructures/last_ditch/cfg/%s.yml", dataType)));
 
             @SuppressWarnings("unchecked")
             Map<String, Object> data = (Map<String, Object>)yaml.load(input);

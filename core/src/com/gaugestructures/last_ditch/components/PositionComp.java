@@ -9,19 +9,19 @@ public class PositionComp extends Component {
         this.y = y;
     }
 
-    public float get_prev_x() {
+    public float getPrevX() {
         return px;
     }
 
-    public void set_prev_x(float px) {
+    public void setPrevX(float px) {
         this.px = px;
     }
 
-    public float get_prev_y() {
+    public float getPrevY() {
         return py;
     }
 
-    public void set_prev_y(float py) {
+    public void setPrevY(float py) {
         this.py = py;
     }
 

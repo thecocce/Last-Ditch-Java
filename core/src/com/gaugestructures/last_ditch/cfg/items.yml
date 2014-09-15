@@ -1,89 +1,89 @@
 item_list:
-  - canteen1_water
-  - canteen1_empty
-  - canister1_water
-  - canister1_waste
-  - canister1_fuel
-  - canister1_empty
-  - battery_basic
-  - battery_empty
+  - canteen1Water
+  - canteen1Empty
+  - canister1Water
+  - canister1Waste
+  - canister1Fuel
+  - canister1Empty
+  - batteryBasic
+  - batteryEmpty
   - rations1
-  - rations1_empty
+  - rations1Empty
   - handgun1
   - headset
-  - flak_light
+  - flakLight
   - scrap1
   - overgrowth1
   - ruffage1
 
-canteen1_water:
+canteen1Water:
   name: canteen, water
   desc: >
     This is a canteen of clean drinking water.
   usable: true
   weight: 0.6
-  base_value: 0.07
+  baseValue: 0.07
 
-canteen1_empty:
+canteen1Empty:
   name: canteen, empty
   desc: >
     This is an empty canteen. It can be refilled
     or used for scrap material.
   usable: false
   weight: 0.2
-  base_value: 0.02
+  baseValue: 0.02
 
-canister1_water:
+canister1Water:
   name: canister, water
   desc: >
     This is a large canister of clean water.
   usable: true
   weight: 1.4
-  base_value: 0.21
+  baseValue: 0.21
 
-canister1_waste:
+canister1Waste:
   name: canister, waste
   desc: >
     This is a canister of waste. It can be used to generate
     energy or some useful chemicals.
   usable: false
   weight: 1.1
-  base_value: 0.03
+  baseValue: 0.03
 
-canister1_fuel:
+canister1Fuel:
   name: canister, fuel
   desc: >
     This is a canister of fuel. It can be used for
     generating energy.
   usable: false
   weight: 1.3
-  base_value: 0.34
+  baseValue: 0.34
 
-canister1_empty:
+canister1Empty:
   name: canister, empty
   desc: >
     This is an empty canister. It can hold corrosive materials.
   usable: false
   weight: 0.8
-  base_value: 0.07
+  baseValue: 0.07
 
-battery_basic:
+batteryBasic:
   name: battery, basic
   desc: >
     This is a basic battery for energy storage. It has a
     minimal capacity.
   usable: false
   weight: 1.2
-  base_value: 0.26
+  baseValue: 0.26
 
-battery_empty:
+batteryEmpty:
   name: battery, empty
   desc: >
     This is a battery that has been drained. It can be recharged
     or used for scrap material.
   usable: false
   weight: 1.2
-  base_value: 0.12
+  baseValue: 0.12
 
 rations1:
   name: rations
@@ -91,16 +91,16 @@ rations1:
     These are basic rations.
   usable: true
   weight: 0.5
-  base_value: 0.06
+  baseValue: 0.06
 
-rations1_empty:
+rations1Empty:
   name: rations, empty
   desc: >
     This is an empty rations container. It can be
     used for scrap or cleaned and refilled.
   usable: false
   weight: 0.2
-  base_value: 0.02
+  baseValue: 0.02
 
 handgun1:
   name: handgun
@@ -110,14 +110,14 @@ handgun1:
   stats:
     dmg: 1.0
   equippable: 
-    - l_hand
-    - r_hand
+    - lHand
+    - rHand
   dmg: 1.0 
-  dmg_type: projectile
+  dmgType: projectile
   weight: 0.36
-  base_value: 0.54
+  baseValue: 0.54
 
-flak_light:
+flakLight:
   name: flak, light
   desc: >
     A very light flak jacket offering minimal protection.
@@ -129,7 +129,7 @@ flak_light:
   equippable:
     - torso
   weight: 4.3
-  base_value: 0.94
+  baseValue: 0.94
 
 headset:
   name: headset
@@ -140,10 +140,10 @@ headset:
     intelligence: 0.2
     dexterity: 0.3
   equippable:
-    - l_head
-    - r_head
+    - lHead
+    - rHead
   weight: 0.03
-  base_value: 0.13
+  baseValue: 0.13
 
 scrap1:
   name: scrap
@@ -152,7 +152,7 @@ scrap1:
     recycled and used to produce new items.
   usable: false
   weight: 1.4
-  base_value: 0.1
+  baseValue: 0.1
 
 overgrowth1:
   name: overgrowth
@@ -161,7 +161,7 @@ overgrowth1:
     burned for energy.
   usable: false
   weight: 0.4
-  base_value: 0.01
+  baseValue: 0.01
 
 ruffage1:
   name: ruffage
@@ -169,4 +169,4 @@ ruffage1:
     These are stray twigs and vines from some overgrowth.
   usable: false
   weight: 0.2
-  base_value: 0.005
+  baseValue: 0.005

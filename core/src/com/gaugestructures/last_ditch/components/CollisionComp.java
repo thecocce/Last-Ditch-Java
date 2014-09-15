@@ -5,19 +5,17 @@ import com.badlogic.gdx.physics.box2d.Body;
 public class CollisionComp extends Component {
     private Body body;
 
-    public CollisionComp() {
-
-    }
+    public CollisionComp() {}
 
     public CollisionComp(Body body) {
         this.body = body;
     }
 
-    public Body get_body() {
+    public Body getBody() {
         return body;
     }
 
-    public void set_body(Body body) {
+    public void setBody(Body body) {
         this.body = body;
     }
 }

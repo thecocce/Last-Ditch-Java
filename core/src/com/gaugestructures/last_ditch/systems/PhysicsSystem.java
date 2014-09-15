@@ -31,7 +31,7 @@ public class PhysicsSystem extends GameSystem {
     }
 
     private void generate_entity_bodies() {
-        for (String entity : mgr.entities_with_all(AnimationComp.class, CollisionComp.class)) {
+        for (String entity : mgr.entitiesWithAll(AnimationComp.class, CollisionComp.class)) {
             PositionComp pos_comp = mgr.comp(entity, PositionComp.class);
             AnimationComp anim_comp = mgr.comp(entity, AnimationComp.class);
             CollisionComp col_comp = mgr.comp(entity, CollisionComp.class);
@@ -58,13 +58,13 @@ public class PhysicsSystem extends GameSystem {
                 fixture_def.filter.categoryBits = C.BIT_ENTITY;
             }
 
-            col_comp.set_body(world.createBody(body_def));
-            col_comp.get_body().createFixture(fixture_def);
-            col_comp.get_body().setFixedRotation(true);
-            col_comp.get_body().setUserData(entity);
+            col_comp.setBody(world.createBody(body_def));
+            col_comp.getBody().createFixture(fixture_def);
+            col_comp.getBody().setFixedRotation(true);
+            col_comp.getBody().setUserData(entity);
 
             if (entity.equals(player)) {
-                player_body = col_comp.get_body();
+                player_body = col_comp.getBody();
             }
         }
     }
@@ -105,7 +105,7 @@ public class PhysicsSystem extends GameSystem {
     }
 
     public void update() {
-        Set<String> entities = mgr.entities_with(VelocityComp.class);
+        Set<String> entities = mgr.entitiesWith(VelocityComp.class);
 
         for(String entity : entities) {
             PositionComp pos_comp = mgr.comp(entity, PositionComp.class);
@@ -113,24 +113,24 @@ public class PhysicsSystem extends GameSystem {
             RotationComp rot_comp = mgr.comp(entity, RotationComp.class);
             CollisionComp col_comp = mgr.comp(entity, CollisionComp.class);
 
-            pos_comp.set_prev_x(pos_comp.getX());
-            pos_comp.set_prev_y(pos_comp.getY());
+            pos_comp.setPrevX(pos_comp.getX());
+            pos_comp.setPrevY(pos_comp.getY());
 
-            if(vel_comp.get_spd() != 0) {
+            if(vel_comp.getSpd() != 0) {
                 Vector2 vel_vec = new Vector2(
-                    vel_comp.get_spd() * rot_comp.getX(),
-                    vel_comp.get_spd() * rot_comp.getY()
+                    vel_comp.getSpd() * rot_comp.getX(),
+                    vel_comp.getSpd() * rot_comp.getY()
                 );
 
-                col_comp.get_body().applyLinearImpulse(
-                    vel_vec, col_comp.get_body().getWorldCenter(), true
+                col_comp.getBody().applyLinearImpulse(
+                    vel_vec, col_comp.getBody().getWorldCenter(), true
                 );
             }
 
-            rot_comp.set_prev_ang(rot_comp.get_ang());
+            rot_comp.setPrevAng(rot_comp.getAng());
 
-            if(vel_comp.get_ang_spd() != 0) {
-                rot_comp.rotate(vel_comp.get_ang_spd());
+            if(vel_comp.getAngSpd() != 0) {
+                rot_comp.rotate(vel_comp.getAngSpd());
             }
         }
 
@@ -140,8 +140,8 @@ public class PhysicsSystem extends GameSystem {
             PositionComp pos_comp = mgr.comp(entity, PositionComp.class);
             CollisionComp col_comp = mgr.comp(entity, CollisionComp.class);
 
-            pos_comp.setX(col_comp.get_body().getPosition().x);
-            pos_comp.setY(col_comp.get_body().getPosition().y);
+            pos_comp.setX(col_comp.getBody().getPosition().x);
+            pos_comp.setY(col_comp.getBody().getPosition().y);
         }
     }
 
@@ -153,7 +153,7 @@ public class PhysicsSystem extends GameSystem {
         return world;
     }
 
-    public Body get_player_body() {
+    public Body getPlayerBody() {
         return player_body;
     }
 }

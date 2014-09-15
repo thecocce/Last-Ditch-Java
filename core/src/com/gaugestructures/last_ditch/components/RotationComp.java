@@ -2,30 +2,30 @@ package com.gaugestructures.last_ditch.components;
 
 public class RotationComp extends Component {
     private float x = 0, y = 0;
-    private float ang = 0, prev_ang = 0;
+    private float ang = 0, prevAng = 0;
 
     public RotationComp(float ang) {
-        this.ang = this.prev_ang = ang;
+        this.ang = this.prevAng = ang;
         x = (float)Math.cos(ang * Math.PI / 180);
         y = (float)Math.sin(ang * Math.PI / 180);
     }
 
-    public float get_ang() {
+    public float getAng() {
         return ang;
     }
 
-    public void set_ang(float ang) {
+    public void setAng(float ang) {
         this.ang = ang;
         x = (float)Math.cos(ang * Math.PI / 180);
         y = (float)Math.sin(ang * Math.PI / 180);
     }
 
-    public float get_prev_ang() {
-        return prev_ang;
+    public float getPrevAng() {
+        return prevAng;
     }
 
-    public void set_prev_ang(float prev_ang) {
-        this.prev_ang = prev_ang;
+    public void setPrevAng(float prevAng) {
+        this.prevAng = prevAng;
     }
 
     public float getX() {
@@ -52,4 +52,3 @@ public class RotationComp extends Component {
         y = (float)Math.sin(ang * Math.PI / 180);
     }
 }
-

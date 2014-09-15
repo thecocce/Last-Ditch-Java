@@ -7,6 +7,10 @@ public class TimeSystem extends GameSystem {
     private float game_delta = 0, rate = 1f, elapsed = 0;
     private int minute = 0, hour = 0, day = 1, month = 1, year = 3127;
 
+    public void toggleActive() {
+        active = !active;
+    }
+
     public void set_active(boolean active) {
         this.active = active;
     }

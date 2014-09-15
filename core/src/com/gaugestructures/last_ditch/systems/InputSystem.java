@@ -10,11 +10,17 @@ import com.gaugestructures.last_ditch.components.VelocityComp;
 public class InputSystem extends GameSystem implements InputProcessor {
     private Manager mgr;
     private String player;
+    private UISystem ui;
+    private TimeSystem time;
+    private ActionsSystem actions;
     private boolean ctrl = false, shift = false;
 
-    public InputSystem(Manager mgr, String player) {
+    public InputSystem(Manager mgr, String player, UISystem ui, ActionsSystem actions, TimeSystem time) {
         this.player = player;
         this.mgr = mgr;
+        this.ui = ui;
+        this.time = time;
+        this.actions = actions;
     }
 
     @Override
@@ -22,28 +28,45 @@ public class InputSystem extends GameSystem implements InputProcessor {
         VelocityComp vel_comp;
 
         switch (keycode) {
-            case Keys.ESCAPE:
-                Gdx.app.exit();
-                break;
+            case Keys.TAB:
+                if(ctrl) {
+                    ui.getBase().toggleActive();
+                } else {
+                    VelocityComp velComp = mgr.comp(player, VelocityComp.class);
+                    velComp.setSpd(0);
+                    velComp.setAngSpd(0);
+
+                    mgr.setPaused(!mgr.isPaused());
+                    time.toggleActive();
+                    actions.clearCurStation();
+
+                    if(ui.isActive()) {
+                        ui.deactivate();
+
+                    } else {
+                        ui.activate(ui.getFocus());
+                    }
+
+                }
             case Keys.W:
             case Keys.UP:
                 vel_comp = mgr.comp(player, VelocityComp.class);
-                vel_comp.set_spd(C.PLAYER_SPD);
+                vel_comp.setSpd(C.PLAYER_SPD);
                 break;
             case Keys.S:
             case Keys.DOWN:
                 vel_comp = mgr.comp(player, VelocityComp.class);
-                vel_comp.set_spd(-C.PLAYER_SPD * 0.5f);
+                vel_comp.setSpd(-C.PLAYER_SPD * 0.5f);
                 break;
             case Keys.A:
             case Keys.RIGHT:
                 vel_comp = mgr.comp(player, VelocityComp.class);
-                vel_comp.set_ang_spd(C.PLAYER_ROT_SPD);
+                vel_comp.setAngSpd(C.PLAYER_ROT_SPD);
                 break;
             case Keys.D:
             case Keys.LEFT:
                 vel_comp = mgr.comp(player, VelocityComp.class);
-                vel_comp.set_ang_spd(-C.PLAYER_ROT_SPD);
+                vel_comp.setAngSpd(-C.PLAYER_ROT_SPD);
                 break;
             case Keys.CONTROL_LEFT:
             case Keys.CONTROL_RIGHT:
@@ -52,6 +75,9 @@ public class InputSystem extends GameSystem implements InputProcessor {
             case Keys.SHIFT_LEFT:
             case Keys.SHIFT_RIGHT:
                 shift = true;
+                break;
+            case Keys.ESCAPE:
+                Gdx.app.exit();
                 break;
         }
 
@@ -68,14 +94,14 @@ public class InputSystem extends GameSystem implements InputProcessor {
             case Keys.UP:
             case Keys.DOWN:
                 vel_comp = mgr.comp(player, VelocityComp.class);
-                vel_comp.set_spd(0);
+                vel_comp.setSpd(0);
                 break;
             case Keys.A:
             case Keys.D:
             case Keys.LEFT:
             case Keys.RIGHT:
                 vel_comp = mgr.comp(player, VelocityComp.class);
-                vel_comp.set_ang_spd(0);
+                vel_comp.setAngSpd(0);
                 break;
             case Keys.CONTROL_LEFT:
             case Keys.CONTROL_RIGHT:

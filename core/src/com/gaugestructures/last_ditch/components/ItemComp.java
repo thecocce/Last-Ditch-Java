@@ -3,8 +3,8 @@ package com.gaugestructures.last_ditch.components;
 public class ItemComp extends Component {
     private boolean usable = false;
     private float quality = 0.5f, condition = 1f, weight = 0.5f;
-    private float base_value = 1f, decay_rate = 0.01f;
-    private float value = base_value * (2 * quality + 1 * condition);
+    private float baseValue = 1f, decayRate = 0.01f;
+    private float value = baseValue * (2 * quality + 1 * condition);
 
     public ItemComp() {}
 
@@ -13,58 +13,58 @@ public class ItemComp extends Component {
         this.condition = condition;
     }
 
-    public boolean is_usable() {
+    public boolean isUsable() {
         return usable;
     }
 
-    public void set_usable(boolean usable) {
+    public void setUsable(boolean usable) {
         this.usable = usable;
     }
 
-    public float get_quality() {
+    public float getQuality() {
         return quality;
     }
 
-    public float get_condition() {
+    public float getCondition() {
         return condition;
     }
 
-    public float get_weight() {
+    public float getWeight() {
         return weight;
     }
 
-    public void set_weight(float weight) {
+    public void setWeight(float weight) {
         this.weight = weight;
     }
 
-    public float get_base_value() {
-        return base_value;
+    public float getBaseValue() {
+        return baseValue;
     }
 
-    public void set_base_value(float base_value) {
-        this.base_value = base_value;
-        value = base_value * (2 * quality + 1 * condition);
+    public void setBaseValue(float baseValue) {
+        this.baseValue = baseValue;
+        value = baseValue * (2 * quality + 1 * condition);
     }
 
-    public float get_decay_rate() {
-        return decay_rate;
+    public float getDecayRate() {
+        return decayRate;
     }
 
-    public void set_decay_rate(float decay_rate) {
-        this.decay_rate = decay_rate;
+    public void setDecayRate(float decayRate) {
+        this.decayRate = decayRate;
     }
 
-    public float get_value() {
+    public float getValue() {
         return value;
     }
 
-    public void set_condition(float condition) {
+    public void setCondition(float condition) {
         this.condition = condition;
-        value = base_value * (2 * quality + 1 * condition);
+        value = baseValue * (2 * quality + 1 * condition);
     }
 
-    public void set_quality(float quality) {
+    public void setQuality(float quality) {
         this.quality = quality;
-        value = base_value * (2 * quality + 1 * condition);
+        value = baseValue * (2 * quality + 1 * condition);
     }
 }

@@ -26,9 +26,9 @@ public class RenderSystem extends GameSystem {
         this.player = player;
         this.atlas = atlas;
 
-        for (String entity : mgr.entities_with(RenderComp.class)) {
+        for (String entity : mgr.entitiesWith(RenderComp.class)) {
             RenderComp render_comp = mgr.comp(entity, RenderComp.class);
-            render_comp.set_region(atlas.findRegion(render_comp.get_region_name()));
+            render_comp.setRegion(atlas.findRegion(render_comp.getRegionName()));
 
             PositionComp pos_comp = mgr.comp(entity, PositionComp.class);
             PositionComp player_pos_comp = mgr.comp(player, PositionComp.class);
@@ -43,12 +43,12 @@ public class RenderSystem extends GameSystem {
             }
         }
 
-        for (String entity : mgr.entities_with(AnimationComp.class)) {
+        for (String entity : mgr.entitiesWith(AnimationComp.class)) {
             boolean first = true;
 
             AnimationComp anim_comp = mgr.comp(entity, AnimationComp.class);
 
-            Iterator it = anim_comp.get_names_and_frames().entrySet().iterator();
+            Iterator it = anim_comp.getNamesAndFrames().entrySet().iterator();
 
             while (it.hasNext()) {
                 Array<TextureRegion> frame_list = new Array<TextureRegion>();
@@ -69,14 +69,14 @@ public class RenderSystem extends GameSystem {
                     }
                 }
 
-                anim_comp.get_anims().put(
+                anim_comp.getAnims().put(
                     (String) pairs.getKey(),
-                    new Animation(anim_comp.get_duration(), frame_list)
+                    new Animation(anim_comp.getDuration(), frame_list)
                 );
 
                 if (first) {
                     first = false;
-                    anim_comp.set_cur((String) pairs.getKey());
+                    anim_comp.setCur((String) pairs.getKey());
                 }
 
                 it.remove();
@@ -91,7 +91,7 @@ public class RenderSystem extends GameSystem {
             update_timer = 0;
             nearby_entities.clear();
 
-            for (String entity : mgr.entities_with(PositionComp.class)) {
+            for (String entity : mgr.entitiesWith(PositionComp.class)) {
                 PositionComp pos_comp = mgr.comp(entity, PositionComp.class);
                 PositionComp player_pos_comp = mgr.comp(player, PositionComp.class);
 
@@ -106,20 +106,20 @@ public class RenderSystem extends GameSystem {
             }
         }
 
-        for (String entity : mgr.entities_with(VelocityComp.class)) {
+        for (String entity : mgr.entitiesWith(VelocityComp.class)) {
             AnimationComp anim_comp = mgr.comp(entity, AnimationComp.class);
             CollisionComp col_comp = mgr.comp(entity, CollisionComp.class);
 
-            anim_comp.update_state_time(C.BOX_STEP);
-            Vector2 vel_vec = col_comp.get_body().getLinearVelocity();
+            anim_comp.updateStateTime(C.BOX_STEP);
+            Vector2 vel_vec = col_comp.getBody().getLinearVelocity();
 
             if (entity.equals(player)) {
                 InfoComp info_comp = mgr.comp(player, InfoComp.class);
 
                 if (Math.abs(vel_vec.x) < 0.02f && Math.abs(vel_vec.y) < 0.02f) {
-                    anim_comp.set_cur(String.format("%s1/idle", info_comp.get_gender()));
-                } else if (!anim_comp.get_cur().equals(String.format("%s1/walk", info_comp.get_gender()))) {
-                    anim_comp.set_cur(String.format("%s1/walk", info_comp.get_gender()));
+                    anim_comp.setCur(String.format("%s1/idle", info_comp.getGender()));
+                } else if (!anim_comp.getCur().equals(String.format("%s1/walk", info_comp.getGender()))) {
+                    anim_comp.setCur(String.format("%s1/walk", info_comp.getGender()));
                 }
             }
         }
@@ -127,7 +127,7 @@ public class RenderSystem extends GameSystem {
 
     public void render(SpriteBatch batch) {
         for(String entity : nearby_entities) {
-            if(mgr.has_comp(entity, RenderComp.class)) {
+            if(mgr.hasComp(entity, RenderComp.class)) {
                 PositionComp pos_comp = mgr.comp(entity, PositionComp.class);
                 RotationComp rot_comp = mgr.comp(entity, RotationComp.class);
                 SizeComp size_comp = mgr.comp(entity, SizeComp.class);
@@ -135,27 +135,27 @@ public class RenderSystem extends GameSystem {
                 TypeComp type_comp = mgr.comp(entity, TypeComp.class);
 
                 batch.draw(
-                    render_comp.get_region(),
+                    render_comp.getRegion(),
                     C.BTW * (pos_comp.getX() - size_comp.getW() / 2),
                     C.BTW * (pos_comp.getY() - size_comp.getH() / 2),
                     C.BTW * size_comp.getW() / 2, C.BTW * size_comp.getH() / 2,
                     C.BTW * size_comp.getW(), C.BTW * size_comp.getH(),
-                    render_comp.get_scale(), render_comp.get_scale(),
-                    rot_comp.get_ang()
+                    render_comp.getScale(), render_comp.getScale(),
+                    rot_comp.getAng()
                 );
-            } else if(mgr.has_comp(entity, AnimationComp.class)) {
+            } else if(mgr.hasComp(entity, AnimationComp.class)) {
                 PositionComp pos_comp = mgr.comp(entity, PositionComp.class);
                 RotationComp rot_comp = mgr.comp(entity, RotationComp.class);
                 AnimationComp anim_comp = mgr.comp(entity, AnimationComp.class);
 
                 batch.draw(
-                    anim_comp.get_key_frame(),
+                    anim_comp.getKeyFrame(),
                     C.BTW * pos_comp.getX() - anim_comp.getW() / 2,
                     C.BTW * pos_comp.getY() - anim_comp.getH() / 2,
                     anim_comp.getW() / 2, anim_comp.getH() / 2,
                     anim_comp.getW(), anim_comp.getH(),
-                    anim_comp.get_scale(), anim_comp.get_scale(),
-                    rot_comp.get_ang()
+                    anim_comp.getScale(), anim_comp.getScale(),
+                    rot_comp.getAng()
                 );
             }
         }
@@ -165,13 +165,13 @@ public class RenderSystem extends GameSystem {
         RotationComp rot_comp = mgr.comp(player, RotationComp.class);
 
         batch.draw(
-            anim_comp.get_key_frame(),
+            anim_comp.getKeyFrame(),
             C.BTW * pos_comp.getX() - anim_comp.getW() / 2,
             C.BTW * pos_comp.getY() - anim_comp.getH() / 2,
             anim_comp.getW() / 2, anim_comp.getH() / 2,
             anim_comp.getW(), anim_comp.getH(),
-            anim_comp.get_scale(), anim_comp.get_scale(),
-            rot_comp.get_ang()
+            anim_comp.getScale(), anim_comp.getScale(),
+            rot_comp.getAng()
         );
     }
 }

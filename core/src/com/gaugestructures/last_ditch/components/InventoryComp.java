@@ -11,11 +11,11 @@ public class InventoryComp extends Component {
         items = new String[size];
     }
 
-    public void add_money(float amt) {
+    public void addMoney(float amt) {
         money += amt;
     }
 
-    public boolean remove_money(float amt) {
+    public boolean removeMoney(float amt) {
         if(money > 0) {
             money -= amt;
             return true;
@@ -24,19 +24,19 @@ public class InventoryComp extends Component {
         }
     }
 
-    public int get_size() {
+    public int getSize() {
         return size;
     }
 
-    public float get_weight() {
+    public float getWeight() {
         return weight;
     }
 
-    public float get_money() {
+    public float getMoney() {
         return money;
     }
 
-    public String get_item(int i) {
+    public String getItem(int i) {
         return items[i];
     }
 }
