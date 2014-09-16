@@ -32,7 +32,7 @@ public class UISystem extends GameSystem {
 
     private TextButton actionsButton, inventoryButton, equipmentButton, statusButton;
 
-    public UISystem(Manager mgr, InventorySystem inventory, String player, TextureAtlas atlas, Skin skin, CraftingSystem crafting) {
+    public UISystem(Manager mgr, EquipmentSystem equipment, InventorySystem inventory, String player, TextureAtlas atlas, Skin skin, CraftingSystem crafting) {
         this.mgr = mgr;
         this.player = player;
         this.atlas = atlas;
@@ -49,7 +49,7 @@ public class UISystem extends GameSystem {
         base = new UIBaseSystem(mgr, stage);
         uiActions = new UIActionsSystem(mgr, crafting, skin, window);
         uiInventory = new UIInventorySystem(mgr, inventory, player, atlas, skin, window);
-        uiEquipment = new UIEquipSystem(mgr, window);
+        uiEquipment = new UIEquipSystem(mgr, equipment, inventory, player, skin, window);
         uiStatus = new UIStatusSystem(mgr, window);
 
         setupButtons();

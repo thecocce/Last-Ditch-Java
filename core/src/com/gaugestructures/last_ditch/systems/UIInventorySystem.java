@@ -23,7 +23,6 @@ public class UIInventorySystem extends GameSystem {
     private Window window;
     private Table table;
     private Skin skin;
-    private ImageButton slot;
     private String player;
     private TextureAtlas atlas;
     private InventorySystem inventory;
@@ -77,7 +76,7 @@ public class UIInventorySystem extends GameSystem {
         slots = new ArrayList<ImageButton>();
 
         for(int i = 1; i <= C.INVENTORY_SLOTS; i++) {
-            slot = new ImageButton(skin, "invSlot");
+            final ImageButton slot = new ImageButton(skin, "invSlot");
 
             slots.add(slot);
 
@@ -128,7 +127,7 @@ public class UIInventorySystem extends GameSystem {
             String item = invComp.getItem(index);
             ItemComp itemComp = mgr.comp(item, ItemComp.class);
 
-            if(itemComp.isUsable()) {
+            if(itemComp != null && itemComp.isUsable()) {
                 TypeComp typeComp = mgr.comp(item, TypeComp.class);
                 InfoComp infoComp = mgr.comp(item, InfoComp.class);
 
@@ -143,7 +142,6 @@ public class UIInventorySystem extends GameSystem {
                 return true;
             }
         }
-
 
         return false;
     }
@@ -204,5 +202,44 @@ public class UIInventorySystem extends GameSystem {
 
     public Table getTable() {
         return table;
+    }
+
+    public void update() {
+        if(active) {
+            if(selection != prevSelection) {
+                if(selection != null) {
+                    InventoryComp invComp = mgr.comp(player, InventoryComp.class);
+                    int index = slots.indexOf(selection);
+
+                    if (index != -1) {
+                        String item = invComp.getItem(index);
+
+                        if (!item.equals("")) {
+                            ItemComp itemComp = mgr.comp(item, ItemComp.class);
+                            InfoComp infoComp = mgr.comp(item, InfoComp.class);
+
+                            setItemName(infoComp.getName());
+                            setItemQualAndCond(itemComp.getQuality(), itemComp.getCondition());
+                            setItemValue(itemComp.getValue());
+                            setItemWeight(itemComp.getWeight());
+                            setItemDesc(infoComp.getDesc());
+                        } else {
+                            resetInfo();
+                        }
+                    }
+                } else {
+                    resetInfo();
+                }
+            }
+        }
+        prevSelection = selection;
+    }
+
+    private void resetInfo() {
+        setItemName("");
+        setItemQualAndCond(-1, -1);
+        setItemValue(-1);
+        setItemWeight(-1);
+        setItemDesc("");
     }
 }

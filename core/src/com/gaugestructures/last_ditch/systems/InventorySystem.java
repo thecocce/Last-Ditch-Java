@@ -8,6 +8,7 @@ import com.gaugestructures.last_ditch.Manager;
 import com.gaugestructures.last_ditch.components.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Map;
 
 public class InventorySystem extends GameSystem {
@@ -16,8 +17,9 @@ public class InventorySystem extends GameSystem {
     private TextureAtlas atlas;
 
     private ArrayList<ImageButton> inv_slots = new ArrayList<ImageButton>();
-    private boolean update_slots = true;
+    private boolean updateSlots = true;
     private Map<String, Object> item_data;
+    private UIEquipSystem uiEquipment;
     private UIActionsSystem uiActions;
 
     public InventorySystem(Manager mgr, String player, TextureAtlas atlas) {
@@ -28,13 +30,33 @@ public class InventorySystem extends GameSystem {
         item_data = mgr.getData("items");
     }
 
+    public void setUIEquipmentSystem(UIEquipSystem uiEquipment) {
+        this.uiEquipment = uiEquipment;
+    }
+
+    public String addItem(InventoryComp invComp, String item) {
+        for(int i = 0; i < invComp.getSize(); i++) {
+            if(invComp.getItem(i) == null) {
+                updateSlots = true;
+                invComp.setItem(i, item);
+                ItemComp itemComp = mgr.comp(item, ItemComp.class);
+                invComp.setWeight(invComp.getWeight() + itemComp.getWeight());
+                uiEquipment.setupEquipmentLists();
+
+                return item;
+            }
+        }
+
+        return null;
+    }
+
     public void setUIActions(UIActionsSystem uiActions) {
         this.uiActions = uiActions;
     }
 
     public void update() {
-        if(update_slots) {
-            update_slots = false;
+        if(updateSlots) {
+            updateSlots = false;
 
             InventoryComp inv_comp = mgr.comp(player, InventoryComp.class);
 
@@ -56,20 +78,35 @@ public class InventorySystem extends GameSystem {
         }
     }
 
-    public void destroy_item(String item) {
+    public String removeItem(InventoryComp invComp, String item) {
+        int index = Arrays.asList(invComp.getItems()).indexOf(item);
+
+        if(index != -1) {
+            updateSlots = true;
+            invComp.setItem(index, null);
+            ItemComp itemComp = mgr.comp(item, ItemComp.class);
+            invComp.setWeight(invComp.getWeight() - itemComp.getWeight());
+            uiEquipment.setupEquipmentLists();
+
+            return item;
+        }
+        return null;
+    }
+
+    public void destroyItem(String item) {
         InfoComp info_comp = mgr.comp(item, InfoComp.class);
         ItemComp item_comp = mgr.comp(item, ItemComp.class);
 
         item_comp.setUsable(false);
         item_comp.setCondition(0);
         info_comp.setDesc(
-            "This item is junk. It can only be used " +
-            "as scrap at this point."
+                "This item is junk. It can only be used " +
+                        "as scrap at this point."
         );
     }
 
     public void useItem(String entity, String item, String type) {
-        update_slots = true;
+        updateSlots = true;
         NeedsComp needsComp = mgr.comp(entity, NeedsComp.class);
 
         if(type.equals("rations1")) {
@@ -91,15 +128,15 @@ public class InventorySystem extends GameSystem {
         Map<String, Object> typeData = (Map<String, Object>)item_data.get(type);
 
         typeComp.setType(type);
-        infoComp.setName((String)typeData.get("name"));
-        infoComp.setDesc((String)typeData.get("desc"));
-        itemComp.setUsable((Boolean)typeData.get("usable"));
-        itemComp.setWeight(((Double)typeData.get("weight")).floatValue());
-        itemComp.setBaseValue(((Double)typeData.get("base_value")).floatValue());
+        infoComp.setName((String) typeData.get("name"));
+        infoComp.setDesc((String) typeData.get("desc"));
+        itemComp.setUsable((Boolean) typeData.get("usable"));
+        itemComp.setWeight(((Double) typeData.get("weight")).floatValue());
+        itemComp.setBaseValue(((Double) typeData.get("base_value")).floatValue());
         itemComp.setCondition(itemComp.getCondition() - itemComp.getDecayRate());
 
         if(itemComp.getCondition() <= 0) {
-            destroy_item(item);
+            destroyItem(item);
         }
 
         uiActions.updateCraftingInfo();
@@ -116,14 +153,14 @@ public class InventorySystem extends GameSystem {
         mgr.addComp(item, new TypeComp(type));
 
         InfoComp info_comp = mgr.addComp(item, new InfoComp((String) type_data.get("name")));
-        info_comp.setDesc((String)type_data.get("desc"));
+        info_comp.setDesc((String) type_data.get("desc"));
 
         float quality = mgr.randFloat(0.2f, 0.5f);
         float condition = mgr.randFloat(0.1f, 0.4f);
 
         ItemComp item_comp = mgr.addComp(item, new ItemComp(quality, condition));
-        item_comp.setBaseValue(((Double)type_data.get("baseValue")).floatValue());
-        item_comp.setUsable((Boolean)type_data.get("usable"));
+        item_comp.setBaseValue(((Double) type_data.get("baseValue")).floatValue());
+        item_comp.setUsable((Boolean) type_data.get("usable"));
 
         //Equippable types
 

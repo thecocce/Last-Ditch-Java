@@ -17,6 +17,14 @@ public class UIStatusSystem extends GameSystem {
         table = new Table();
     }
 
+    public void updateStatsList() {
+
+    }
+
+    public void updateAttributesList() {
+
+    }
+
     public void activate() {
         active = true;
     }

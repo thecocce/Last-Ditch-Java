@@ -49,11 +49,13 @@ public class LastDitch extends ApplicationAdapter {
         actions = new ActionsSystem(mgr, player);
         crafting = new CraftingSystem(mgr, player);
         inventory = new InventorySystem(mgr, player, atlas);
-        equipment = new EquipmentSystem();
+        equipment = new EquipmentSystem(mgr, player);
         status = new StatusSystem();
 
-        ui = new UISystem(mgr, inventory, player, atlas, skin, crafting);
+        ui = new UISystem(mgr, equipment, inventory, player, atlas, skin, crafting);
         inventory.setUIActions(ui.getActions());
+        inventory.setUIEquipmentSystem(ui.getEquipment());
+        equipment.setUIStatusSystem(ui.getStatus());
         input = new InputSystem(mgr, player, ui, actions, time);
         map = new MapSystem(mgr, player, atlas, inventory);
         render = new RenderSystem(mgr, player, atlas);
