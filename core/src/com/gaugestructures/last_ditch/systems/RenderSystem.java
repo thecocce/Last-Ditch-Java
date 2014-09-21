@@ -19,7 +19,7 @@ public class RenderSystem extends GameSystem {
     private String player;
     private int update_timer = 0;
     private TextureAtlas atlas;
-    private ArrayList<String> nearby_entities = new ArrayList<String>();
+    private ArrayList<String> nearbyEntities = new ArrayList<String>();
 
     public RenderSystem(Manager mgr, String player, TextureAtlas atlas) {
         this.mgr = mgr;
@@ -38,7 +38,7 @@ public class RenderSystem extends GameSystem {
 
             if (-20 < x_dist && x_dist < 20) {
                 if (-20 < y_dist && y_dist < 20) {
-                    nearby_entities.add(entity);
+                    nearbyEntities.add(entity);
                 }
             }
         }
@@ -89,7 +89,7 @@ public class RenderSystem extends GameSystem {
             update_timer += 1;
         } else {
             update_timer = 0;
-            nearby_entities.clear();
+            nearbyEntities.clear();
 
             for (String entity : mgr.entitiesWith(PositionComp.class)) {
                 PositionComp pos_comp = mgr.comp(entity, PositionComp.class);
@@ -100,7 +100,7 @@ public class RenderSystem extends GameSystem {
 
                 if (-20 < x_dist && x_dist < 20) {
                     if (-20 < y_dist && y_dist < 20) {
-                        nearby_entities.add(entity);
+                        nearbyEntities.add(entity);
                     }
                 }
             }
@@ -126,7 +126,7 @@ public class RenderSystem extends GameSystem {
     }
 
     public void render(SpriteBatch batch) {
-        for(String entity : nearby_entities) {
+        for(String entity : nearbyEntities) {
             if(mgr.hasComp(entity, RenderComp.class)) {
                 PositionComp pos_comp = mgr.comp(entity, PositionComp.class);
                 RotationComp rot_comp = mgr.comp(entity, RotationComp.class);
@@ -173,5 +173,9 @@ public class RenderSystem extends GameSystem {
             anim_comp.getScale(), anim_comp.getScale(),
             rot_comp.getAng()
         );
+    }
+
+    public ArrayList<String> getNearbyEntities() {
+        return nearbyEntities;
     }
 }

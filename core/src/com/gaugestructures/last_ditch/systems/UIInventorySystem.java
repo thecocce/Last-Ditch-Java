@@ -235,6 +235,14 @@ public class UIInventorySystem extends GameSystem {
         prevSelection = selection;
     }
 
+    public ImageButton getPrevSelection() {
+        return prevSelection;
+    }
+
+    public void setPrevSelection(ImageButton prevSelection) {
+        this.prevSelection = prevSelection;
+    }
+
     private void resetInfo() {
         setItemName("");
         setItemQualAndCond(-1, -1);

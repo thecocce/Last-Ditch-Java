@@ -9,6 +9,7 @@ import com.gaugestructures.last_ditch.components.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 public class InventorySystem extends GameSystem {
@@ -19,8 +20,10 @@ public class InventorySystem extends GameSystem {
     private ArrayList<ImageButton> inv_slots = new ArrayList<ImageButton>();
     private boolean updateSlots = true;
     private Map<String, Object> item_data;
+    private MapSystem map;
     private UIEquipSystem uiEquipment;
     private UIActionsSystem uiActions;
+    private UIInventorySystem uiInventory;
 
     public InventorySystem(Manager mgr, String player, TextureAtlas atlas) {
         this.mgr = mgr;
@@ -28,6 +31,14 @@ public class InventorySystem extends GameSystem {
         this.atlas = atlas;
 
         item_data = mgr.getData("items");
+    }
+
+    public void setMap(MapSystem map) {
+        this.map = map;
+    }
+
+    public void setUIInventorySystem(UIInventorySystem uiInventory) {
+        this.uiInventory = uiInventory;
     }
 
     public void setUIEquipmentSystem(UIEquipSystem uiEquipment) {
@@ -48,6 +59,57 @@ public class InventorySystem extends GameSystem {
         }
 
         return null;
+    }
+
+    public String addItemByType(InventoryComp invComp, String type) {
+        String item = createInvItem(type);
+
+        for(int i = 0; i < invComp.getSize(); i++) {
+            if(invComp.getItem(i) == null) {
+                updateSlots = true;
+                invComp.setItem(i, item);
+                ItemComp itemComp = mgr.comp(item, ItemComp.class);
+                invComp.setWeight(invComp.getWeight() + itemComp.getWeight());
+
+                uiEquipment.setupEquipmentLists();
+            }
+        }
+        return null;
+    }
+
+    public String createInvItem(String type) {
+        updateSlots = true;
+
+        String item = mgr.createEntity();
+        @SuppressWarnings("unchecked")
+        Map<String, Object> type_data = (Map<String, Object>)item_data.get(type);
+
+        RotationComp rotComp = mgr.addComp(item, new RotationComp(0));
+        TypeComp typeComp = mgr.addComp(item, new TypeComp(type));
+        InfoComp infoComp = mgr.addComp(item, new InfoComp((String)type_data.get("name")));
+        infoComp.setDesc((String)type_data.get("desc"));
+
+        float quality = mgr.randFloat(0.2f, 0.5f);
+        float condition = mgr.randFloat(0.1f, 0.4f);
+
+        ItemComp itemComp = mgr.addComp(item, new ItemComp(quality, condition));
+        Double baseValue = (Double)type_data.get("baseValue");
+        itemComp.setBaseValue(baseValue.floatValue());
+        itemComp.setUsable((Boolean)type_data.get("usable"));
+
+        if(type_data.get("equippable") != null) {
+            @SuppressWarnings("unchecked")
+            ArrayList<String> equippableData = (ArrayList<String>) type_data.get("equippable");
+
+            mgr.addComp(item, new EquippableComp(equippableData));
+        }
+
+        RenderComp renderComp = new RenderComp("");
+        renderComp.setRegion(atlas.findRegion(String.format("items/%s", type)));
+
+        SizeComp sizeComp = mgr.addComp(item, new SizeComp(renderComp.getW() * C.WTB, renderComp.getH() * C.WTB));
+
+        return item;
     }
 
     public void setUIActions(UIActionsSystem uiActions) {
@@ -171,5 +233,34 @@ public class InventorySystem extends GameSystem {
         mgr.addComp(item, new SizeComp(render_comp.getW() * C.WTB, render_comp.getH() * C.WTB));
 
         return item;
+    }
+
+    public boolean pickupItemAt(String entity, int screenX, int screenY) {
+        PositionComp posComp = mgr.comp(entity, PositionComp.class);
+        InventoryComp invComp = mgr.comp(entity, InventoryComp.class);
+
+        float x = posComp.getX() + C.WTB * (screenX - C.WIDTH / 2);
+        float y = posComp.getY() - C.WTB * (screenY - C.HEIGHT / 2);
+
+        String item = map.getItem(x, y);
+
+        if(item != null) {
+            TypeComp type = mgr.comp(item, TypeComp.class);
+            String newItem = addItemByType(invComp, type.getType());
+
+            if(newItem != null) {
+                ItemComp itemComp = mgr.comp(item, ItemComp.class);
+
+                map.removeItem(item);
+                uiInventory.setPrevSelection(null);
+
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void setUpdateSlots(boolean updateSlots) {
+        this.updateSlots = updateSlots;
     }
 }

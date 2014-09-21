@@ -97,7 +97,46 @@ public class PhysicsSystem extends GameSystem {
     }
 
     private void generate_door_bodies() {
+        for(String door : map.getDoors()) {
+            PositionComp posComp = mgr.comp(door, PositionComp.class);
+            RotationComp rotComp = mgr.comp(door, RotationComp.class);
+            RenderComp renderComp = mgr.comp(door, RenderComp.class);
+            CollisionComp colComp = mgr.comp(door, CollisionComp.class);
 
+            float w = renderComp.getW() * C.WTB;
+            float h = renderComp.getH() * C.WTB;
+
+            Body body = createBody(
+                posComp.getX(), posComp.getY(),
+                w, h, false, rotComp.getAng());
+
+            colComp.setBody(body);
+        }
+    }
+
+    private Body createBody(float x, float y, float w, float h, boolean sight, float ang) {
+        BodyDef bodyDef = new BodyDef();
+        bodyDef.position.set(x, y);
+
+        PolygonShape shape = new PolygonShape();
+        shape.setAsBox(w / 2, h / 2);
+
+        FixtureDef fixtureDef = new FixtureDef();
+        fixtureDef.shape = shape;
+
+        if (sight) {
+            fixtureDef.filter.categoryBits = C.BIT_WINDOW;
+        } else {
+            fixtureDef.filter.categoryBits = C.BIT_WALL;
+        }
+
+        Body body = world.createBody(bodyDef);
+        body.createFixture(fixtureDef);
+        body.setTransform(x, y, (float)(ang * Math.PI / 180));
+
+        shape.dispose();
+
+        return body;
     }
 
     private void genderate_station_bodies() {

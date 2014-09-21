@@ -13,14 +13,40 @@ public class InputSystem extends GameSystem implements InputProcessor {
     private UISystem ui;
     private TimeSystem time;
     private ActionsSystem actions;
+    private InventorySystem inventory;
+    private MapSystem map;
     private boolean ctrl = false, shift = false;
 
-    public InputSystem(Manager mgr, String player, UISystem ui, ActionsSystem actions, TimeSystem time) {
+    public InputSystem(Manager mgr, String player, MapSystem map, UISystem ui, InventorySystem inventory, ActionsSystem actions, TimeSystem time) {
         this.player = player;
         this.mgr = mgr;
         this.ui = ui;
+        this.inventory = inventory;
+        this.map = map;
         this.time = time;
         this.actions = actions;
+    }
+
+    @Override
+    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+
+        if(button == 0) {
+            if(shift) {
+                if(ui.isActive()) {
+
+                } else {
+                    if(!inventory.pickupItemAt(player, screenX, screenY)) {
+                        map.useDoorAt(player, screenX, screenY);
+                    }
+
+
+                }
+            }
+        } else if(button == 1) {
+
+        }
+
+        return true;
     }
 
     @Override
@@ -118,11 +144,6 @@ public class InputSystem extends GameSystem implements InputProcessor {
 
     @Override
     public boolean keyTyped(char character) {
-        return false;
-    }
-
-    @Override
-    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         return false;
     }
 

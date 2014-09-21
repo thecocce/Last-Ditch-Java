@@ -55,10 +55,13 @@ public class LastDitch extends ApplicationAdapter {
         ui = new UISystem(mgr, equipment, inventory, player, atlas, skin, crafting);
         inventory.setUIActions(ui.getActions());
         inventory.setUIEquipmentSystem(ui.getEquipment());
+        inventory.setUIInventorySystem(ui.getInventory());
         equipment.setUIStatusSystem(ui.getStatus());
-        input = new InputSystem(mgr, player, ui, actions, time);
         map = new MapSystem(mgr, player, atlas, inventory);
+        inventory.setMap(map);
+        input = new InputSystem(mgr, player, map, ui, inventory, actions, time);
         render = new RenderSystem(mgr, player, atlas);
+        map.setRender(render);
         physics = new PhysicsSystem(mgr, player, map);
         lighting = new LightingSystem(map.getCam(), physics);
 
@@ -118,6 +121,7 @@ public class LastDitch extends ApplicationAdapter {
         mgr.addComp(player, new InventoryComp(C.INVENTORY_SLOTS));
         mgr.addComp(player, new VelocityComp(0, 0, C.PLAYER_SPD, C.PLAYER_ROT_SPD));
         mgr.addComp(player, new CollisionComp());
+        mgr.addComp(player, new EquipmentComp());
 
         AnimationComp animComp = new AnimationComp(0.1f);
         animComp.addAnimation("female1/idle", "female1/idle1");
