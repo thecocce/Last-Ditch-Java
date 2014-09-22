@@ -63,6 +63,7 @@ public class LastDitch extends ApplicationAdapter {
         render = new RenderSystem(mgr, player, atlas);
         map.setRender(render);
         physics = new PhysicsSystem(mgr, player, map);
+        map.setPhysicsSystem(physics);
         lighting = new LightingSystem(map.getCam(), physics);
 
         debug = new Box2DDebugRenderer();

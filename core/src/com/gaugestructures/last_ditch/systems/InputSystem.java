@@ -74,6 +74,16 @@ public class InputSystem extends GameSystem implements InputProcessor {
                     }
 
                 }
+
+            case Keys.E:
+                if (shift) {
+
+                } else {
+                    if(!map.useDoor(player)) {
+                        //map.useStation();
+                    }
+                }
+                break;
             case Keys.W:
             case Keys.UP:
                 vel_comp = mgr.comp(player, VelocityComp.class);
@@ -85,12 +95,12 @@ public class InputSystem extends GameSystem implements InputProcessor {
                 vel_comp.setSpd(-C.PLAYER_SPD * 0.5f);
                 break;
             case Keys.A:
-            case Keys.RIGHT:
+            case Keys.LEFT:
                 vel_comp = mgr.comp(player, VelocityComp.class);
                 vel_comp.setAngSpd(C.PLAYER_ROT_SPD);
                 break;
             case Keys.D:
-            case Keys.LEFT:
+            case Keys.RIGHT:
                 vel_comp = mgr.comp(player, VelocityComp.class);
                 vel_comp.setAngSpd(-C.PLAYER_ROT_SPD);
                 break;

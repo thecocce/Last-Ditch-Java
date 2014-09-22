@@ -33,6 +33,7 @@ public class MapSystem extends GameSystem {
     private boolean[][] sight = new boolean[C.MAP_WIDTH][C.MAP_HEIGHT];
     private float[][] rot = new float[C.MAP_WIDTH][C.MAP_HEIGHT];
     private RenderSystem render;
+    private PhysicsSystem physics;
     private TextureRegion[][] tiles = new TextureRegion[C.MAP_WIDTH][C.MAP_HEIGHT];
     private OrthographicCamera cam = new OrthographicCamera();
     private int width = C.MAP_WIDTH, height = C.MAP_HEIGHT;
@@ -67,6 +68,10 @@ public class MapSystem extends GameSystem {
         update();
     }
 
+    public void setPhysicsSystem(PhysicsSystem physics) {
+        this.physics = physics;
+    }
+
     public boolean useDoorAt(String entity, int screenX, int screenY) {
         PositionComp posComp = mgr.comp(entity, PositionComp.class);
         InventoryComp invComp = mgr.comp(entity, InventoryComp.class);
@@ -74,8 +79,106 @@ public class MapSystem extends GameSystem {
         float x = posComp.getX() + C.WTB * (screenX - C.WIDTH / 2);
         float y = posComp.getY() - C.WTB * (screenY - C.HEIGHT / 2);
 
+        String door = getDoor(x, y);
 
-        return false;
+        if(door == null)
+            return false;
+
+        DoorComp doorComp = mgr.comp(door, DoorComp.class);
+
+        if(doorComp.isLocked())
+            return false;
+
+        doorComp.setOpen(doorComp.isOpen());
+        updateDoor(door, doorComp.isOpen());
+
+        return true;
+    }
+
+    public boolean useDoor(String entity) {
+        PositionComp posComp = mgr.comp(entity, PositionComp.class);
+        InventoryComp invComp = mgr.comp(entity, InventoryComp.class);
+
+        String door = getNearDoor(posComp.getX(), posComp.getY());
+
+        if(door == null)
+            return false;
+
+        DoorComp doorComp = mgr.comp(door, DoorComp.class);
+
+        if(doorComp.isLocked())
+            return false;
+
+        doorComp.setOpen(!doorComp.isOpen());
+
+        updateDoor(door, doorComp.isOpen());
+
+        return true;
+    }
+
+    private void updateDoor(String door, boolean open) {
+        PositionComp posComp = mgr.comp(door, PositionComp.class);
+        RotationComp rotComp = mgr.comp(door, RotationComp.class);
+        SizeComp sizeComp = mgr.comp(door, SizeComp.class);
+        CollisionComp colComp = mgr.comp(door, CollisionComp.class);
+
+        if(open) {
+            mgr.removeComp(door, RenderComp.class);
+            physics.removeBody(colComp.getBody());
+        } else {
+            TypeComp typeComp = mgr.comp(door, TypeComp.class);
+
+            physics.createBody(
+                posComp.getX(), posComp.getY(),
+                sizeComp.getW(), sizeComp.getH(),
+                false, rotComp.getAng());
+
+            RenderComp renderComp = new RenderComp(
+                typeComp.getType(),
+                atlas.findRegion(
+                    String.format("environ/%s", typeComp.getType())));
+
+            mgr.addComp(door, renderComp);
+        }
+    }
+
+    private String getDoor(float x, float y) {
+        for(String entity : render.getNearbyEntities()) {
+            if(doors.contains(entity)) {
+                PositionComp posComp = mgr.comp(entity, PositionComp.class);
+                RenderComp renderComp = mgr.comp(entity, RenderComp.class);
+                SizeComp sizeComp = mgr.comp(entity, SizeComp.class);
+                RotationComp rotComp = mgr.comp(entity, RotationComp.class);
+
+                double c = Math.cos(-rotComp.getAng() * Math.PI / 180);
+                double s = Math.sin(-rotComp.getAng() * Math.PI / 180);
+                double rotX = posComp.getX() + c * (x - posComp.getX()) - s * (y - posComp.getY());
+                double rotY = posComp.getY() + s * (x - posComp.getX()) + c * (y - posComp.getY());
+
+                double left = posComp.getX() - sizeComp.getW();
+                double right = posComp.getX() + sizeComp.getW();
+                double top = posComp.getY() - sizeComp.getH();
+                double bottom = posComp.getY() + sizeComp.getH();
+
+                if(left <= rotX && rotX <= right && top <= rotY && rotY <= bottom) {
+                    return entity;
+                }
+            }
+        }
+        return null;
+    }
+
+    private String getNearDoor(float x, float y) {
+        for(String entity : render.getNearbyEntities()) {
+            if(doors.contains(entity)) {
+                PositionComp posComp = mgr.comp(entity, PositionComp.class);
+                double distSqr = Math.pow((posComp.getX() - x), 2) + Math.pow((posComp.getY() - y), 2);
+
+                if(distSqr < 2.6)
+                    return entity;
+            }
+        }
+        return null;
     }
 
     public void removeItem(String item) {
@@ -193,7 +296,7 @@ public class MapSystem extends GameSystem {
             float h = renderComp.getH() * C.WTB;
 
             mgr.addComp(door, renderComp);
-            mgr.addComp(door, new PositionComp(x + w / 2, y + h / 2));
+            mgr.addComp(door, new PositionComp(x + w/2, y + h/2));
             mgr.addComp(door, new SizeComp(w, h));
             mgr.addComp(door, new RotationComp(doorRot));
             mgr.addComp(door, new CollisionComp());
@@ -234,7 +337,7 @@ public class MapSystem extends GameSystem {
             mgr.addComp(door, renderComp);
 
             mgr.addComp(door, renderComp);
-            mgr.addComp(door, new PositionComp(x + h / 2, y + w / 2));
+            mgr.addComp(door, new PositionComp(x + h/2, y + w/2));
             mgr.addComp(door, new SizeComp(w, h));
             mgr.addComp(door, new RotationComp(doorRot));
             mgr.addComp(door, new CollisionComp());

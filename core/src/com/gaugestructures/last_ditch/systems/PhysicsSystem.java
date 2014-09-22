@@ -74,7 +74,7 @@ public class PhysicsSystem extends GameSystem {
             for(int y = 0; y < C.MAP_HEIGHT; y++) {
                 if(map.is_solid(x, y)) {
                     BodyDef body_def = new BodyDef();
-                    body_def.position.set(x + 0.6f, y + 0.5f);
+                    body_def.position.set(x + 0.5f, y + 0.5f);
 
                     PolygonShape shape = new PolygonShape();
                     shape.setAsBox(0.5f, 0.5f);
@@ -114,7 +114,7 @@ public class PhysicsSystem extends GameSystem {
         }
     }
 
-    private Body createBody(float x, float y, float w, float h, boolean sight, float ang) {
+    public Body createBody(float x, float y, float w, float h, boolean sight, float ang) {
         BodyDef bodyDef = new BodyDef();
         bodyDef.position.set(x, y);
 
@@ -186,6 +186,10 @@ public class PhysicsSystem extends GameSystem {
 
     public void render(SpriteBatch batch) {
 
+    }
+
+    public void removeBody(Body body) {
+        world.destroyBody(body);
     }
 
     public World get_world() {
