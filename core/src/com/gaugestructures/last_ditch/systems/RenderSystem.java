@@ -12,6 +12,7 @@ import com.gaugestructures.last_ditch.components.*;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 public class RenderSystem extends GameSystem {
@@ -100,36 +101,40 @@ public class RenderSystem extends GameSystem {
     public void render(SpriteBatch batch) {
         for (int cx = (int)focus.getX() - 1; cx <= focus.getX() + 1; cx++) {
             for (int cy = (int)focus.getY() - 1; cy <= focus.getY() + 1; cy++) {
-                for (String door : map.getDoors().get(map.getChunk(cx, cy))) {
-                    if (mgr.hasComp(door, RenderComp.class)) {
-                        PositionComp posComp = mgr.comp(door, PositionComp.class);
-                        RotationComp rotComp = mgr.comp(door, RotationComp.class);
-                        SizeComp sizeComp = mgr.comp(door, SizeComp.class);
-                        RenderComp renderComp = mgr.comp(door, RenderComp.class);
-                        TypeComp typeComp = mgr.comp(door, TypeComp.class);
+                int curChunk = map.getChunk(cx, cy);
 
-                        batch.draw(
-                            renderComp.getRegion(),
-                            C.BTW * (posComp.getX() - sizeComp.getW() / 2),
-                            C.BTW * (posComp.getY() - sizeComp.getH() / 2),
-                            C.BTW * sizeComp.getW() / 2, C.BTW * sizeComp.getH() / 2,
-                            C.BTW * sizeComp.getW(), C.BTW * sizeComp.getH(),
-                            renderComp.getScale(), renderComp.getScale(),
-                            rotComp.getAng());
+                if (curChunk != -1) {
+                    for (String door : map.getDoors().get(map.getChunk(cx, cy))) {
+                        if (mgr.hasComp(door, RenderComp.class)) {
+                            PositionComp posComp = mgr.comp(door, PositionComp.class);
+                            RotationComp rotComp = mgr.comp(door, RotationComp.class);
+                            SizeComp sizeComp = mgr.comp(door, SizeComp.class);
+                            RenderComp renderComp = mgr.comp(door, RenderComp.class);
+                            TypeComp typeComp = mgr.comp(door, TypeComp.class);
 
-                    } else if (mgr.hasComp(door, AnimationComp.class)) {
-                        PositionComp posComp = mgr.comp(door, PositionComp.class);
-                        RotationComp rotComp = mgr.comp(door, RotationComp.class);
-                        AnimationComp animComp = mgr.comp(door, AnimationComp.class);
+                            batch.draw(
+                                    renderComp.getRegion(),
+                                    C.BTW * (posComp.getX() - sizeComp.getW() / 2),
+                                    C.BTW * (posComp.getY() - sizeComp.getH() / 2),
+                                    C.BTW * sizeComp.getW() / 2, C.BTW * sizeComp.getH() / 2,
+                                    C.BTW * sizeComp.getW(), C.BTW * sizeComp.getH(),
+                                    renderComp.getScale(), renderComp.getScale(),
+                                    rotComp.getAng());
 
-                        batch.draw(
-                            animComp.getKeyFrame(),
-                            C.BTW * posComp.getX() - animComp.getW() / 2,
-                            C.BTW * posComp.getY() - animComp.getH() / 2,
-                            animComp.getW() / 2, animComp.getH() / 2,
-                            animComp.getW(), animComp.getH(),
-                            animComp.getScale(), animComp.getScale(),
-                            rotComp.getAng());
+                        } else if (mgr.hasComp(door, AnimationComp.class)) {
+                            PositionComp posComp = mgr.comp(door, PositionComp.class);
+                            RotationComp rotComp = mgr.comp(door, RotationComp.class);
+                            AnimationComp animComp = mgr.comp(door, AnimationComp.class);
+
+                            batch.draw(
+                                    animComp.getKeyFrame(),
+                                    C.BTW * posComp.getX() - animComp.getW() / 2,
+                                    C.BTW * posComp.getY() - animComp.getH() / 2,
+                                    animComp.getW() / 2, animComp.getH() / 2,
+                                    animComp.getW(), animComp.getH(),
+                                    animComp.getScale(), animComp.getScale(),
+                                    rotComp.getAng());
+                        }
                     }
                 }
             }

@@ -218,11 +218,11 @@ public class MapSystem extends GameSystem {
             }
         }
 
-        ArrayList<Room> degenerate_rooms = new ArrayList<Room>();
+        ArrayList<Room> degenerateRooms = new ArrayList<Room>();
 
         for (Room room : rooms) {
             if (room.getW() < 5 || room.getH() < 5) {
-                degenerate_rooms.add(room);
+                degenerateRooms.add(room);
             } else {
                 for(x = room.getX1(); x < room.getX2(); x++) {
                     for(y = room.getY1(); y < room.getY2(); y++) {
@@ -246,15 +246,14 @@ public class MapSystem extends GameSystem {
                 }
             }
         }
-
-        rooms.removeAll(degenerate_rooms);
+        rooms.removeAll(degenerateRooms);
     }
 
     public void generateItems() {
-        Map<String, Object> item_data = mgr.getData("items");
+        Map<String, Object> itemData = mgr.getData("items");
 
         @SuppressWarnings("unchecked")
-        List<String> itemList = (List<String>) item_data.get("itemList");
+        List<String> itemList = (List<String>) itemData.get("itemList");
 
         float x = 0, y = 0;
         for(int i = 0; i < numOfItems; i++) {
@@ -264,7 +263,7 @@ public class MapSystem extends GameSystem {
             } while(isSolid((int) x, (int) y));
 
             String choice = itemList.get(rnd.nextInt(itemList.size()));
-            String item = inventory.create_item(choice, x, y);
+            String item = inventory.createItem(choice, x, y);
 
             items.get(getChunk(x, y)).add(item);
         }
@@ -483,7 +482,6 @@ public class MapSystem extends GameSystem {
     }
 
     private void updateChunks() {
-
     }
 
     public OrthographicCamera getCam() {
@@ -493,6 +491,10 @@ public class MapSystem extends GameSystem {
     public List<List<String>> getDoors() {
         return doors;
     }
+
+    public List<List<String>> getItems() { return items; }
+
+    public List<List<String>> getStations() { return stations; }
 
     public int getW() {
         return width;
@@ -508,11 +510,17 @@ public class MapSystem extends GameSystem {
     }
 
     public int getChunk(int x, int y) {
-        return x / C.CHUNK_SIZE + (y / C.CHUNK_SIZE) * C.MAP_WIDTH;
+        int chunk = x / C.CHUNK_SIZE + (y / C.CHUNK_SIZE) * C.MAP_WIDTH;
+
+        if (chunk > -1 && chunk < numOfChunks) {
+            return chunk;
+        } else {
+            return -1;
+        }
     }
 
     public int getChunk(float x, float y) {
-        return (int)x / C.CHUNK_SIZE + ((int)y / C.CHUNK_SIZE) * C.MAP_WIDTH;
+        return getChunk((int)x, (int)y);
     }
 
     public void setSolid(int x, int y, boolean solid) {

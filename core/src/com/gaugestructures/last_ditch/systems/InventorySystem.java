@@ -9,7 +9,6 @@ import com.gaugestructures.last_ditch.components.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 
 public class InventorySystem extends GameSystem {
@@ -17,9 +16,9 @@ public class InventorySystem extends GameSystem {
     private String player;
     private TextureAtlas atlas;
 
-    private ArrayList<ImageButton> inv_slots = new ArrayList<ImageButton>();
+    private ArrayList<ImageButton> invSlots = new ArrayList<ImageButton>();
     private boolean updateSlots = true;
-    private Map<String, Object> item_data;
+    private Map<String, Object> itemData;
     private MapSystem map;
     private UIEquipSystem uiEquipment;
     private UIActionsSystem uiActions;
@@ -30,7 +29,7 @@ public class InventorySystem extends GameSystem {
         this.player = player;
         this.atlas = atlas;
 
-        item_data = mgr.getData("items");
+        itemData = mgr.getData("items");
     }
 
     public void setMap(MapSystem map) {
@@ -82,7 +81,7 @@ public class InventorySystem extends GameSystem {
 
         String item = mgr.createEntity();
         @SuppressWarnings("unchecked")
-        Map<String, Object> type_data = (Map<String, Object>)item_data.get(type);
+        Map<String, Object> type_data = (Map<String, Object>) itemData.get(type);
 
         RotationComp rotComp = mgr.addComp(item, new RotationComp(0));
         TypeComp typeComp = mgr.addComp(item, new TypeComp(type));
@@ -122,19 +121,19 @@ public class InventorySystem extends GameSystem {
 
             InventoryComp inv_comp = mgr.comp(player, InventoryComp.class);
 
-            for(int i = 0; i < inv_slots.size(); i++) {
+            for(int i = 0; i < invSlots.size(); i++) {
                 TypeComp type_comp = mgr.comp(inv_comp.getItem(i), TypeComp.class);
 
                 if(type_comp != null) {
-                    ImageButton.ImageButtonStyle style = new ImageButton.ImageButtonStyle(inv_slots.get(i).getStyle());
+                    ImageButton.ImageButtonStyle style = new ImageButton.ImageButtonStyle(invSlots.get(i).getStyle());
                     style.imageUp = new TextureRegionDrawable(atlas.findRegion(String.format("items/%s", type_comp.getType())));
 
-                    inv_slots.get(i).setStyle(style);
+                    invSlots.get(i).setStyle(style);
                 } else {
-                    ImageButton.ImageButtonStyle style = new ImageButton.ImageButtonStyle(inv_slots.get(i).getStyle());
+                    ImageButton.ImageButtonStyle style = new ImageButton.ImageButtonStyle(invSlots.get(i).getStyle());
                     style.imageUp = new TextureRegionDrawable(atlas.findRegion("environ/empty"));
 
-                    inv_slots.get(i).setStyle(style);
+                    invSlots.get(i).setStyle(style);
                 }
             }
         }
@@ -187,7 +186,7 @@ public class InventorySystem extends GameSystem {
         ItemComp itemComp = mgr.comp(item, ItemComp.class);
 
         @SuppressWarnings("unchecked")
-        Map<String, Object> typeData = (Map<String, Object>)item_data.get(type);
+        Map<String, Object> typeData = (Map<String, Object>) itemData.get(type);
 
         typeComp.setType(type);
         infoComp.setName((String) typeData.get("name"));
@@ -204,33 +203,33 @@ public class InventorySystem extends GameSystem {
         uiActions.updateCraftingInfo();
     }
 
-    public String create_item(String type, float x, float y) {
+    public String createItem(String type, float x, float y) {
         String item = mgr.createEntity();
 
         @SuppressWarnings("unchecked")
-        Map<String, Object> type_data = (Map<String, Object>)item_data.get(type);
+        Map<String, Object> typeData = (Map<String, Object>) itemData.get(type);
 
         mgr.addComp(item, new PositionComp(x, y));
         mgr.addComp(item, new RotationComp(0));
         mgr.addComp(item, new TypeComp(type));
 
-        InfoComp info_comp = mgr.addComp(item, new InfoComp((String) type_data.get("name")));
-        info_comp.setDesc((String) type_data.get("desc"));
+        InfoComp infoComp = mgr.addComp(item, new InfoComp((String) typeData.get("name")));
+        infoComp.setDesc((String) typeData.get("desc"));
 
         float quality = mgr.randFloat(0.2f, 0.5f);
         float condition = mgr.randFloat(0.1f, 0.4f);
 
-        ItemComp item_comp = mgr.addComp(item, new ItemComp(quality, condition));
-        item_comp.setBaseValue(((Double) type_data.get("baseValue")).floatValue());
-        item_comp.setUsable((Boolean) type_data.get("usable"));
+        ItemComp itemComp = mgr.addComp(item, new ItemComp(quality, condition));
+        itemComp.setBaseValue(((Double) typeData.get("baseValue")).floatValue());
+        itemComp.setUsable((Boolean) typeData.get("usable"));
 
         //Equippable types
 
-        RenderComp render_comp = mgr.addComp(item, new RenderComp(""));
-        render_comp.setRegionName(String.format("items/%s", type));
-        render_comp.setRegion(atlas.findRegion(render_comp.getRegionName()));
+        RenderComp renderComp = mgr.addComp(item, new RenderComp(""));
+        renderComp.setRegionName(String.format("items/%s", type));
+        renderComp.setRegion(atlas.findRegion(renderComp.getRegionName()));
 
-        mgr.addComp(item, new SizeComp(render_comp.getW() * C.WTB, render_comp.getH() * C.WTB));
+        mgr.addComp(item, new SizeComp(renderComp.getW() * C.WTB, renderComp.getH() * C.WTB));
 
         return item;
     }

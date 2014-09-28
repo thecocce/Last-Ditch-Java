@@ -14,7 +14,7 @@ public class PhysicsSystem extends GameSystem {
     private Manager mgr;
     private String player;
     private MapSystem map;
-    private Body player_body;
+    private Body playerBody;
     private ArrayList<Body> bodies = new ArrayList<Body>();
     private Vector2 gravity = new Vector2(0, 0);
     private World world = new World(gravity, false);
@@ -32,39 +32,39 @@ public class PhysicsSystem extends GameSystem {
 
     private void updateEntityBodies() {
         for (String entity : mgr.entitiesWithAll(AnimationComp.class, CollisionComp.class)) {
-            PositionComp pos_comp = mgr.comp(entity, PositionComp.class);
-            AnimationComp anim_comp = mgr.comp(entity, AnimationComp.class);
-            CollisionComp col_comp = mgr.comp(entity, CollisionComp.class);
+            PositionComp posComp = mgr.comp(entity, PositionComp.class);
+            AnimationComp animComp = mgr.comp(entity, AnimationComp.class);
+            CollisionComp colComp = mgr.comp(entity, CollisionComp.class);
 
-            float w = anim_comp.getW() * C.WTB;
-            float h = anim_comp.getH() * C.WTB;
+            float w = animComp.getW() * C.WTB;
+            float h = animComp.getH() * C.WTB;
 
-            BodyDef body_def = new BodyDef();
-            body_def.type = BodyDef.BodyType.DynamicBody;
-            body_def.linearDamping = 20.0f;
-            body_def.position.set(pos_comp.getX() + w/2, pos_comp.getY() + h/2);
+            BodyDef bodyDef = new BodyDef();
+            bodyDef.type = BodyDef.BodyType.DynamicBody;
+            bodyDef.linearDamping = 20.0f;
+            bodyDef.position.set(posComp.getX() + w/2, posComp.getY() + h/2);
 
             CircleShape shape = new CircleShape();
             shape.setRadius(w/2 - 0.01f);
 
-            FixtureDef fixture_def = new FixtureDef();
-            fixture_def.shape = shape;
-            fixture_def.friction = 0.2f;
-            fixture_def.density = 1f;
+            FixtureDef fixtureDef = new FixtureDef();
+            fixtureDef.shape = shape;
+            fixtureDef.friction = 0.2f;
+            fixtureDef.density = 1f;
 
             if (entity.equals(player)) {
-                fixture_def.filter.categoryBits = C.BIT_PLAYER;
+                fixtureDef.filter.categoryBits = C.BIT_PLAYER;
             } else {
-                fixture_def.filter.categoryBits = C.BIT_ENTITY;
+                fixtureDef.filter.categoryBits = C.BIT_ENTITY;
             }
 
-            col_comp.setBody(world.createBody(body_def));
-            col_comp.getBody().createFixture(fixture_def);
-            col_comp.getBody().setFixedRotation(true);
-            col_comp.getBody().setUserData(entity);
+            colComp.setBody(world.createBody(bodyDef));
+            colComp.getBody().createFixture(fixtureDef);
+            colComp.getBody().setFixedRotation(true);
+            colComp.getBody().setUserData(entity);
 
             if (entity.equals(player)) {
-                player_body = col_comp.getBody();
+                playerBody = colComp.getBody();
             }
         }
     }
@@ -156,12 +156,12 @@ public class PhysicsSystem extends GameSystem {
             posComp.setPrevY(posComp.getY());
 
             if(velComp.getSpd() != 0) {
-                Vector2 vel_vec = new Vector2(
+                Vector2 velVec = new Vector2(
                     velComp.getSpd() * rotComp.getX(),
                     velComp.getSpd() * rotComp.getY());
 
                 colComp.getBody().applyLinearImpulse(
-                    vel_vec, colComp.getBody().getWorldCenter(), true);
+                    velVec, colComp.getBody().getWorldCenter(), true);
             }
 
             rotComp.setPrevAng(rotComp.getAng());
@@ -174,11 +174,11 @@ public class PhysicsSystem extends GameSystem {
         world.step(C.BOX_STEP, C.BOX_VEL_ITER, C.BOX_POS_ITER);
 
         for(String entity : entities) {
-            PositionComp pos_comp = mgr.comp(entity, PositionComp.class);
-            CollisionComp col_comp = mgr.comp(entity, CollisionComp.class);
+            PositionComp posComp = mgr.comp(entity, PositionComp.class);
+            CollisionComp colComp = mgr.comp(entity, CollisionComp.class);
 
-            pos_comp.setX(col_comp.getBody().getPosition().x);
-            pos_comp.setY(col_comp.getBody().getPosition().y);
+            posComp.setX(colComp.getBody().getPosition().x);
+            posComp.setY(colComp.getBody().getPosition().y);
         }
     }
 
@@ -195,6 +195,6 @@ public class PhysicsSystem extends GameSystem {
     }
 
     public Body getPlayerBody() {
-        return player_body;
+        return playerBody;
     }
 }
