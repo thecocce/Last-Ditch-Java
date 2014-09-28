@@ -17,42 +17,36 @@ import java.util.Map;
 public class RenderSystem extends GameSystem {
     private Manager mgr;
     private String player;
-    private int update_timer = 0;
+    private int updateTimer = 0;
     private TextureAtlas atlas;
-    private ArrayList<String> nearbyEntities = new ArrayList<String>();
+    private MapSystem map;
+    private PositionComp focus;
 
-    public RenderSystem(Manager mgr, String player, TextureAtlas atlas) {
+    public RenderSystem(Manager mgr, String player, TextureAtlas atlas, MapSystem map) {
         this.mgr = mgr;
         this.player = player;
         this.atlas = atlas;
+        this.map = map;
+        focus = map.getFocus();
 
         for (String entity : mgr.entitiesWith(RenderComp.class)) {
-            RenderComp render_comp = mgr.comp(entity, RenderComp.class);
-            render_comp.setRegion(atlas.findRegion(render_comp.getRegionName()));
+            RenderComp renderComp = mgr.comp(entity, RenderComp.class);
+            renderComp.setRegion(atlas.findRegion(renderComp.getRegionName()));
 
-            PositionComp pos_comp = mgr.comp(entity, PositionComp.class);
-            PositionComp player_pos_comp = mgr.comp(player, PositionComp.class);
+            PositionComp posComp = mgr.comp(entity, PositionComp.class);
+            PositionComp playerPosComp = mgr.comp(player, PositionComp.class);
 
-            float x_dist = pos_comp.getX() - player_pos_comp.getX();
-            float y_dist = pos_comp.getY() - player_pos_comp.getY();
-
-            if (-20 < x_dist && x_dist < 20) {
-                if (-20 < y_dist && y_dist < 20) {
-                    nearbyEntities.add(entity);
-                }
-            }
+            float x_dist = posComp.getX() - playerPosComp.getX();
+            float y_dist = posComp.getY() - playerPosComp.getY();
         }
 
         for (String entity : mgr.entitiesWith(AnimationComp.class)) {
             boolean first = true;
-
-            AnimationComp anim_comp = mgr.comp(entity, AnimationComp.class);
-
-            Iterator it = anim_comp.getNamesAndFrames().entrySet().iterator();
+            AnimationComp animComp = mgr.comp(entity, AnimationComp.class);
+            Iterator it = animComp.getNamesAndFrames().entrySet().iterator();
 
             while (it.hasNext()) {
-                Array<TextureRegion> frame_list = new Array<TextureRegion>();
-
+                Array<TextureRegion> frameList = new Array<TextureRegion>();
                 Map.Entry pairs = (Map.Entry)it.next();
 
                 @SuppressWarnings("unchecked")
@@ -63,20 +57,19 @@ public class RenderSystem extends GameSystem {
                         frame = frame.replace("-f", "");
                         TextureRegion region = new TextureRegion(atlas.findRegion(frame));
                         region.flip(false, true);
-                        frame_list.add(region);
+                        frameList.add(region);
                     } else {
-                        frame_list.add(atlas.findRegion(frame));
+                        frameList.add(atlas.findRegion(frame));
                     }
                 }
 
-                anim_comp.getAnims().put(
+                animComp.getAnims().put(
                     (String) pairs.getKey(),
-                    new Animation(anim_comp.getDuration(), frame_list)
-                );
+                    new Animation(animComp.getDuration(), frameList));
 
                 if (first) {
                     first = false;
-                    anim_comp.setCur((String) pairs.getKey());
+                    animComp.setCur((String)pairs.getKey());
                 }
 
                 it.remove();
@@ -85,97 +78,74 @@ public class RenderSystem extends GameSystem {
     }
 
     public void update() {
-        if (update_timer < 100) {
-            update_timer += 1;
-        } else {
-            update_timer = 0;
-            nearbyEntities.clear();
-
-            for (String entity : mgr.entitiesWith(PositionComp.class)) {
-                PositionComp pos_comp = mgr.comp(entity, PositionComp.class);
-                PositionComp player_pos_comp = mgr.comp(player, PositionComp.class);
-
-                float x_dist = pos_comp.getX() - player_pos_comp.getX();
-                float y_dist = pos_comp.getY() - player_pos_comp.getY();
-
-                if (-20 < x_dist && x_dist < 20) {
-                    if (-20 < y_dist && y_dist < 20) {
-                        nearbyEntities.add(entity);
-                    }
-                }
-            }
-        }
-
         for (String entity : mgr.entitiesWith(VelocityComp.class)) {
-            AnimationComp anim_comp = mgr.comp(entity, AnimationComp.class);
-            CollisionComp col_comp = mgr.comp(entity, CollisionComp.class);
+            AnimationComp animComp = mgr.comp(entity, AnimationComp.class);
+            CollisionComp colComp = mgr.comp(entity, CollisionComp.class);
 
-            anim_comp.updateStateTime(C.BOX_STEP);
-            Vector2 vel_vec = col_comp.getBody().getLinearVelocity();
+            animComp.updateStateTime(C.BOX_STEP);
+            Vector2 velVec = colComp.getBody().getLinearVelocity();
 
             if (entity.equals(player)) {
-                InfoComp info_comp = mgr.comp(player, InfoComp.class);
+                InfoComp infoComp = mgr.comp(player, InfoComp.class);
 
-                if (Math.abs(vel_vec.x) < 0.02f && Math.abs(vel_vec.y) < 0.02f) {
-                    anim_comp.setCur(String.format("%s1/idle", info_comp.getGender()));
-                } else if (!anim_comp.getCur().equals(String.format("%s1/walk", info_comp.getGender()))) {
-                    anim_comp.setCur(String.format("%s1/walk", info_comp.getGender()));
+                if (Math.abs(velVec.x) < 0.02f && Math.abs(velVec.y) < 0.02f) {
+                    animComp.setCur(String.format("%s1/idle", infoComp.getGender()));
+                } else if (!animComp.getCur().equals(String.format("%s1/walk", infoComp.getGender()))) {
+                    animComp.setCur(String.format("%s1/walk", infoComp.getGender()));
                 }
             }
         }
     }
 
     public void render(SpriteBatch batch) {
-        for(String entity : nearbyEntities) {
-            if(mgr.hasComp(entity, RenderComp.class)) {
-                PositionComp pos_comp = mgr.comp(entity, PositionComp.class);
-                RotationComp rot_comp = mgr.comp(entity, RotationComp.class);
-                SizeComp size_comp = mgr.comp(entity, SizeComp.class);
-                RenderComp render_comp = mgr.comp(entity, RenderComp.class);
-                TypeComp type_comp = mgr.comp(entity, TypeComp.class);
+        for (int cx = (int)focus.getX() - 1; cx <= focus.getX() + 1; cx++) {
+            for (int cy = (int)focus.getY() - 1; cy <= focus.getY() + 1; cy++) {
+                for (String door : map.getDoors().get(map.getChunk(cx, cy))) {
+                    if (mgr.hasComp(door, RenderComp.class)) {
+                        PositionComp posComp = mgr.comp(door, PositionComp.class);
+                        RotationComp rotComp = mgr.comp(door, RotationComp.class);
+                        SizeComp sizeComp = mgr.comp(door, SizeComp.class);
+                        RenderComp renderComp = mgr.comp(door, RenderComp.class);
+                        TypeComp typeComp = mgr.comp(door, TypeComp.class);
 
-                batch.draw(
-                    render_comp.getRegion(),
-                    C.BTW * (pos_comp.getX() - size_comp.getW() / 2),
-                    C.BTW * (pos_comp.getY() - size_comp.getH() / 2),
-                    C.BTW * size_comp.getW() / 2, C.BTW * size_comp.getH() / 2,
-                    C.BTW * size_comp.getW(), C.BTW * size_comp.getH(),
-                    render_comp.getScale(), render_comp.getScale(),
-                    rot_comp.getAng()
-                );
-            } else if(mgr.hasComp(entity, AnimationComp.class)) {
-                PositionComp pos_comp = mgr.comp(entity, PositionComp.class);
-                RotationComp rot_comp = mgr.comp(entity, RotationComp.class);
-                AnimationComp anim_comp = mgr.comp(entity, AnimationComp.class);
+                        batch.draw(
+                            renderComp.getRegion(),
+                            C.BTW * (posComp.getX() - sizeComp.getW() / 2),
+                            C.BTW * (posComp.getY() - sizeComp.getH() / 2),
+                            C.BTW * sizeComp.getW() / 2, C.BTW * sizeComp.getH() / 2,
+                            C.BTW * sizeComp.getW(), C.BTW * sizeComp.getH(),
+                            renderComp.getScale(), renderComp.getScale(),
+                            rotComp.getAng());
 
-                batch.draw(
-                    anim_comp.getKeyFrame(),
-                    C.BTW * pos_comp.getX() - anim_comp.getW() / 2,
-                    C.BTW * pos_comp.getY() - anim_comp.getH() / 2,
-                    anim_comp.getW() / 2, anim_comp.getH() / 2,
-                    anim_comp.getW(), anim_comp.getH(),
-                    anim_comp.getScale(), anim_comp.getScale(),
-                    rot_comp.getAng()
-                );
+                    } else if (mgr.hasComp(door, AnimationComp.class)) {
+                        PositionComp posComp = mgr.comp(door, PositionComp.class);
+                        RotationComp rotComp = mgr.comp(door, RotationComp.class);
+                        AnimationComp animComp = mgr.comp(door, AnimationComp.class);
+
+                        batch.draw(
+                            animComp.getKeyFrame(),
+                            C.BTW * posComp.getX() - animComp.getW() / 2,
+                            C.BTW * posComp.getY() - animComp.getH() / 2,
+                            animComp.getW() / 2, animComp.getH() / 2,
+                            animComp.getW(), animComp.getH(),
+                            animComp.getScale(), animComp.getScale(),
+                            rotComp.getAng());
+                    }
+                }
             }
         }
 
-        AnimationComp anim_comp = mgr.comp(player, AnimationComp.class);
-        PositionComp pos_comp = mgr.comp(player, PositionComp.class);
-        RotationComp rot_comp = mgr.comp(player, RotationComp.class);
+        AnimationComp animComp = mgr.comp(player, AnimationComp.class);
+        PositionComp posComp = mgr.comp(player, PositionComp.class);
+        RotationComp rotComp = mgr.comp(player, RotationComp.class);
 
         batch.draw(
-            anim_comp.getKeyFrame(),
-            C.BTW * pos_comp.getX() - anim_comp.getW() / 2,
-            C.BTW * pos_comp.getY() - anim_comp.getH() / 2,
-            anim_comp.getW() / 2, anim_comp.getH() / 2,
-            anim_comp.getW(), anim_comp.getH(),
-            anim_comp.getScale(), anim_comp.getScale(),
-            rot_comp.getAng()
-        );
-    }
-
-    public ArrayList<String> getNearbyEntities() {
-        return nearbyEntities;
+            animComp.getKeyFrame(),
+            C.BTW * posComp.getX() - animComp.getW() / 2,
+            C.BTW * posComp.getY() - animComp.getH() / 2,
+            animComp.getW() / 2, animComp.getH() / 2,
+            animComp.getW(), animComp.getH(),
+            animComp.getScale(), animComp.getScale(),
+            rotComp.getAng());
     }
 }

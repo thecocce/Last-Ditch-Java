@@ -24,13 +24,13 @@ public class PhysicsSystem extends GameSystem {
         this.player = player;
         this.map = map;
 
-        generate_entity_bodies();
-        generate_tile_bodies();
-        generate_door_bodies();
-        genderate_station_bodies();
+        updateEntityBodies();
+        updateTileBodies();
+        updateDoorBodies();
+        updateStationBodies();
     }
 
-    private void generate_entity_bodies() {
+    private void updateEntityBodies() {
         for (String entity : mgr.entitiesWithAll(AnimationComp.class, CollisionComp.class)) {
             PositionComp pos_comp = mgr.comp(entity, PositionComp.class);
             AnimationComp anim_comp = mgr.comp(entity, AnimationComp.class);
@@ -69,49 +69,49 @@ public class PhysicsSystem extends GameSystem {
         }
     }
 
-    private void generate_tile_bodies() {
-        for(int x = 0; x < C.MAP_WIDTH; x++) {
-            for(int y = 0; y < C.MAP_HEIGHT; y++) {
-                if(map.is_solid(x, y)) {
-                    BodyDef body_def = new BodyDef();
-                    body_def.position.set(x + 0.5f, y + 0.5f);
-
-                    PolygonShape shape = new PolygonShape();
-                    shape.setAsBox(0.5f, 0.5f);
-
-                    FixtureDef fixture_def = new FixtureDef();
-                    fixture_def.shape = shape;
-
-                    if(map.has_sight(x, y)) {
-                        fixture_def.filter.categoryBits = C.BIT_WINDOW;
-                    } else {
-                        fixture_def.filter.categoryBits = C.BIT_WALL;
-                    }
-
-                    Body body = world.createBody(body_def);
-                    body.createFixture(fixture_def);
-                    body.setUserData(new Vector2(x, y));
-                }
-            }
-        }
+    private void updateTileBodies() {
+//        for(int x = 0; x < map.getW(); x++) {
+//            for(int y = 0; y < map.getH(); y++) {
+//                if(map.isSolid(x, y)) {
+//                    BodyDef bodyDef = new BodyDef();
+//                    bodyDef.position.set(x + 0.5f, y + 0.5f);
+//
+//                    PolygonShape shape = new PolygonShape();
+//                    shape.setAsBox(0.5f, 0.5f);
+//
+//                    FixtureDef fixtureDef = new FixtureDef();
+//                    fixtureDef.shape = shape;
+//
+//                    if(map.hasSight(x, y)) {
+//                        fixtureDef.filter.categoryBits = C.BIT_WINDOW;
+//                    } else {
+//                        fixtureDef.filter.categoryBits = C.BIT_WALL;
+//                    }
+//
+//                    Body body = world.createBody(bodyDef);
+//                    body.createFixture(fixtureDef);
+//                    body.setUserData(new Vector2(x, y));
+//                }
+//            }
+//        }
     }
 
-    private void generate_door_bodies() {
-        for(String door : map.getDoors()) {
-            PositionComp posComp = mgr.comp(door, PositionComp.class);
-            RotationComp rotComp = mgr.comp(door, RotationComp.class);
-            RenderComp renderComp = mgr.comp(door, RenderComp.class);
-            CollisionComp colComp = mgr.comp(door, CollisionComp.class);
-
-            float w = renderComp.getW() * C.WTB;
-            float h = renderComp.getH() * C.WTB;
-
-            Body body = createBody(
-                posComp.getX(), posComp.getY(),
-                w, h, false, rotComp.getAng());
-
-            colComp.setBody(body);
-        }
+    private void updateDoorBodies() {
+//        for(String door : map.getDoors()) {
+//            PositionComp posComp = mgr.comp(door, PositionComp.class);
+//            RotationComp rotComp = mgr.comp(door, RotationComp.class);
+//            RenderComp renderComp = mgr.comp(door, RenderComp.class);
+//            CollisionComp colComp = mgr.comp(door, CollisionComp.class);
+//
+//            float w = renderComp.getW() * C.WTB;
+//            float h = renderComp.getH() * C.WTB;
+//
+//            Body body = createBody(
+//                posComp.getX(), posComp.getY(),
+//                w, h, false, rotComp.getAng());
+//
+//            colComp.setBody(body);
+//        }
     }
 
     public Body createBody(float x, float y, float w, float h, boolean sight, float ang) {
@@ -139,7 +139,7 @@ public class PhysicsSystem extends GameSystem {
         return body;
     }
 
-    private void genderate_station_bodies() {
+    private void updateStationBodies() {
 
     }
 
@@ -147,29 +147,27 @@ public class PhysicsSystem extends GameSystem {
         Set<String> entities = mgr.entitiesWith(VelocityComp.class);
 
         for(String entity : entities) {
-            PositionComp pos_comp = mgr.comp(entity, PositionComp.class);
-            VelocityComp vel_comp = mgr.comp(entity, VelocityComp.class);
-            RotationComp rot_comp = mgr.comp(entity, RotationComp.class);
-            CollisionComp col_comp = mgr.comp(entity, CollisionComp.class);
+            PositionComp posComp = mgr.comp(entity, PositionComp.class);
+            VelocityComp velComp = mgr.comp(entity, VelocityComp.class);
+            RotationComp rotComp = mgr.comp(entity, RotationComp.class);
+            CollisionComp colComp = mgr.comp(entity, CollisionComp.class);
 
-            pos_comp.setPrevX(pos_comp.getX());
-            pos_comp.setPrevY(pos_comp.getY());
+            posComp.setPrevX(posComp.getX());
+            posComp.setPrevY(posComp.getY());
 
-            if(vel_comp.getSpd() != 0) {
+            if(velComp.getSpd() != 0) {
                 Vector2 vel_vec = new Vector2(
-                    vel_comp.getSpd() * rot_comp.getX(),
-                    vel_comp.getSpd() * rot_comp.getY()
-                );
+                    velComp.getSpd() * rotComp.getX(),
+                    velComp.getSpd() * rotComp.getY());
 
-                col_comp.getBody().applyLinearImpulse(
-                    vel_vec, col_comp.getBody().getWorldCenter(), true
-                );
+                colComp.getBody().applyLinearImpulse(
+                    vel_vec, colComp.getBody().getWorldCenter(), true);
             }
 
-            rot_comp.setPrevAng(rot_comp.getAng());
+            rotComp.setPrevAng(rotComp.getAng());
 
-            if(vel_comp.getAngSpd() != 0) {
-                rot_comp.rotate(vel_comp.getAngSpd());
+            if(velComp.getAngSpd() != 0) {
+                rotComp.rotate(velComp.getAngSpd());
             }
         }
 

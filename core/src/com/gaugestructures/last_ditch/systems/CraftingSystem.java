@@ -20,7 +20,7 @@ public class CraftingSystem extends GameSystem {
         recipeData = mgr.getData("recipes");
 
         for(Map.Entry<String, Object> entry : recipeData.entrySet()) {
-            if(!entry.getKey().equals("recipe_list")) {
+            if(!entry.getKey().equals("recipeList")) {
                 String recipe = mgr.createEntity();
 
                 @SuppressWarnings("unchecked")

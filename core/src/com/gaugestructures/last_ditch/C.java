@@ -9,7 +9,8 @@ public class C {
     public static final int MAX_STEPS = 5;
 
     public static final int WIDTH = 800, HEIGHT = 600;
-    public static final int MAP_WIDTH = 400, MAP_HEIGHT = 400;
+    public static final int CHUNK_SIZE = 20;
+    public static final int MAP_WIDTH = 6, MAP_HEIGHT = 6;
 
     public static final int BASE_SLOTS = 16;
     public static final int INVENTORY_SLOTS = 32;

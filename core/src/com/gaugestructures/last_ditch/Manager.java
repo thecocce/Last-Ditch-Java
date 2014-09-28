@@ -41,24 +41,29 @@ public class Manager {
         }
     }
 
-    public final boolean removeComp(String entity, Class<?> comp_type) {
+    public final <T extends Component> T removeComp(String entity, Class<?> comp_type) {
         HashMap<String, Component> store = componentStores.get(comp_type);
 
         if (store != null) {
-            Component comp = store.get(entity);
+            @SuppressWarnings("unchecked")
+            T comp = (T)store.get(entity);
 
             if (comp != null) {
-                return store.remove(entity, comp);
+                store.remove(entity, comp);
+                return comp;
             }
         }
-
-        return false;
+        return null;
     }
 
-    public final boolean removeComp(String entity, Component comp) {
+    public final <T extends Component> T removeComp(String entity, T comp) {
         HashMap<String, Component> store = componentStores.get(comp.getClass());
 
-        return store != null && store.remove(entity, comp);
+        if (store != null) {
+            store.remove(entity, comp);
+            return comp;
+        }
+        return null;
     }
 
     public final <T extends Component> T comp(String entity, Class<T> compClass) {

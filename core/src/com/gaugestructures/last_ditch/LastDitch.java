@@ -60,7 +60,7 @@ public class LastDitch extends ApplicationAdapter {
         map = new MapSystem(mgr, player, atlas, inventory);
         inventory.setMap(map);
         input = new InputSystem(mgr, player, map, ui, inventory, actions, time);
-        render = new RenderSystem(mgr, player, atlas);
+        render = new RenderSystem(mgr, player, atlas, map);
         map.setRender(render);
         physics = new PhysicsSystem(mgr, player, map);
         map.setPhysicsSystem(physics);
@@ -93,7 +93,6 @@ public class LastDitch extends ApplicationAdapter {
 
             steps--;
         }
-
         map.update();
     }
 
@@ -125,7 +124,9 @@ public class LastDitch extends ApplicationAdapter {
         mgr.addComp(player, new EquipmentComp());
 
         AnimationComp animComp = new AnimationComp(0.1f);
-        animComp.addAnimation("female1/idle", "female1/idle1");
+        animComp.addAnimation(
+                "female1/idle",
+                "female1/idle1");
         animComp.addAnimation(
                 "female1/walk",
                 "female1/walk1",
