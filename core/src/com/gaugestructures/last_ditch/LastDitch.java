@@ -75,7 +75,6 @@ public class LastDitch extends ApplicationAdapter {
         timer += Gdx.graphics.getDeltaTime();
         int n = (int) Math.floor(timer / C.BOX_STEP);
         if (n > 0) timer -= n * C.BOX_STEP;
-
         int steps = Math.min(n, C.MAX_STEPS);
 
         while (steps > 0) {
@@ -90,7 +89,6 @@ public class LastDitch extends ApplicationAdapter {
                 render.update();
                 physics.update();
             }
-
             steps--;
         }
         map.update();
@@ -125,17 +123,17 @@ public class LastDitch extends ApplicationAdapter {
 
         AnimationComp animComp = new AnimationComp(0.1f);
         animComp.addAnimation(
-                "female1/idle",
-                "female1/idle1");
+            "female1/idle",
+            "female1/idle1");
         animComp.addAnimation(
-                "female1/walk",
-                "female1/walk1",
-                "female1/walk2",
-                "female1/walk1",
-                "female1/idle1",
-                "female1/walk1-f",
-                "female1/walk2-f",
-                "female1/walk1-f");
+            "female1/walk",
+            "female1/walk1",
+            "female1/walk2",
+            "female1/walk1",
+            "female1/idle1",
+            "female1/walk1-f",
+            "female1/walk2-f",
+            "female1/walk1-f");
         mgr.addComp(player, animComp);
         mgr.addComp(player, new InfoComp("Kadijah"));
     }

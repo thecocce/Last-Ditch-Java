@@ -7,6 +7,7 @@ import com.gaugestructures.last_ditch.C;
 import com.gaugestructures.last_ditch.Manager;
 import com.gaugestructures.last_ditch.components.*;
 
+import javax.swing.text.Position;
 import java.util.ArrayList;
 import java.util.Set;
 
@@ -18,82 +19,84 @@ public class PhysicsSystem extends GameSystem {
     private ArrayList<Body> bodies = new ArrayList<Body>();
     private Vector2 gravity = new Vector2(0, 0);
     private World world = new World(gravity, false);
+    private PositionComp focus;
 
     public PhysicsSystem(Manager mgr, String player, MapSystem map) {
         this.mgr = mgr;
         this.player = player;
         this.map = map;
 
-        updateEntityBodies();
+        focus = mgr.comp(player, PositionComp.class);
+
+        generatePLayerBody();
+
         updateTileBodies();
         updateDoorBodies();
         updateStationBodies();
     }
 
-    private void updateEntityBodies() {
-        for (String entity : mgr.entitiesWithAll(AnimationComp.class, CollisionComp.class)) {
-            PositionComp posComp = mgr.comp(entity, PositionComp.class);
-            AnimationComp animComp = mgr.comp(entity, AnimationComp.class);
-            CollisionComp colComp = mgr.comp(entity, CollisionComp.class);
+    private void generatePLayerBody() {
+        PositionComp posComp = mgr.comp(player, PositionComp.class);
+        AnimationComp animComp = mgr.comp(player, AnimationComp.class);
+        CollisionComp colComp = mgr.comp(player, CollisionComp.class);
 
-            float w = animComp.getW() * C.WTB;
-            float h = animComp.getH() * C.WTB;
+        float w = animComp.getW() * C.WTB;
+        float h = animComp.getH() * C.WTB;
 
-            BodyDef bodyDef = new BodyDef();
-            bodyDef.type = BodyDef.BodyType.DynamicBody;
-            bodyDef.linearDamping = 20.0f;
-            bodyDef.position.set(posComp.getX() + w/2, posComp.getY() + h/2);
+        BodyDef bodyDef = new BodyDef();
+        bodyDef.type = BodyDef.BodyType.DynamicBody;
+        bodyDef.linearDamping = 20.0f;
+        bodyDef.position.set(posComp.getX() + w/2, posComp.getY() + h/2);
 
-            CircleShape shape = new CircleShape();
-            shape.setRadius(w/2 - 0.01f);
+        CircleShape shape = new CircleShape();
+        shape.setRadius(w/2 - 0.01f);
 
-            FixtureDef fixtureDef = new FixtureDef();
-            fixtureDef.shape = shape;
-            fixtureDef.friction = 0.2f;
-            fixtureDef.density = 1f;
+        FixtureDef fixtureDef = new FixtureDef();
+        fixtureDef.shape = shape;
+        fixtureDef.friction = 0.2f;
+        fixtureDef.density = 1f;
 
-            if (entity.equals(player)) {
-                fixtureDef.filter.categoryBits = C.BIT_PLAYER;
-            } else {
-                fixtureDef.filter.categoryBits = C.BIT_ENTITY;
-            }
+        fixtureDef.filter.categoryBits = C.BIT_PLAYER;
 
-            colComp.setBody(world.createBody(bodyDef));
-            colComp.getBody().createFixture(fixtureDef);
-            colComp.getBody().setFixedRotation(true);
-            colComp.getBody().setUserData(entity);
+        colComp.setBody(world.createBody(bodyDef));
+        colComp.getBody().createFixture(fixtureDef);
+        colComp.getBody().setFixedRotation(true);
+        colComp.getBody().setUserData(player);
 
-            if (entity.equals(player)) {
-                playerBody = colComp.getBody();
-            }
-        }
+        playerBody = colComp.getBody();
     }
 
     private void updateTileBodies() {
-//        for(int x = 0; x < map.getW(); x++) {
-//            for(int y = 0; y < map.getH(); y++) {
-//                if(map.isSolid(x, y)) {
-//                    BodyDef bodyDef = new BodyDef();
-//                    bodyDef.position.set(x + 0.5f, y + 0.5f);
-//
-//                    PolygonShape shape = new PolygonShape();
-//                    shape.setAsBox(0.5f, 0.5f);
-//
-//                    FixtureDef fixtureDef = new FixtureDef();
-//                    fixtureDef.shape = shape;
-//
-//                    if(map.hasSight(x, y)) {
-//                        fixtureDef.filter.categoryBits = C.BIT_WINDOW;
-//                    } else {
-//                        fixtureDef.filter.categoryBits = C.BIT_WALL;
-//                    }
-//
-//                    Body body = world.createBody(bodyDef);
-//                    body.createFixture(fixtureDef);
-//                    body.setUserData(new Vector2(x, y));
-//                }
-//            }
-//        }
+        for (int cx = (int)focus.getX() - 1; cx <= focus.getX() + 1; cx++) {
+            for (int cy = (int)focus.getY() - 1; cy <= focus.getY() + 1; cy++) {
+                for (int x = 0; x < C.CHUNK_SIZE; x++) {
+                    for (int y = 0; y < C.CHUNK_SIZE; y++) {
+
+                    }
+                }
+
+                    if(map.isSolid(x, y)) {
+                    BodyDef bodyDef = new BodyDef();
+                    bodyDef.position.set(x + 0.5f, y + 0.5f);
+
+                    PolygonShape shape = new PolygonShape();
+                    shape.setAsBox(0.5f, 0.5f);
+
+                    FixtureDef fixtureDef = new FixtureDef();
+                    fixtureDef.shape = shape;
+
+                    if(map.hasSight(x, y)) {
+                        fixtureDef.filter.categoryBits = C.BIT_WINDOW;
+                    } else {
+                        fixtureDef.filter.categoryBits = C.BIT_WALL;
+                    }
+
+                    Body body = world.createBody(bodyDef);
+                    body.createFixture(fixtureDef);
+                    body.setUserData(new Vector2(x, y));
+                }
+            }
+        }
     }
 
     private void updateDoorBodies() {

@@ -17,6 +17,9 @@ public class MapSystem extends GameSystem {
     private Yaml yaml = new Yaml();
     private PositionComp focus;
     private int prevChunk = -1;
+    private List<Integer> newChunks = new ArrayList<Integer>();
+    private List<Integer> oldChunks = new ArrayList<Integer>();
+    private List<Integer> curChunks = new ArrayList<Integer>();
     private TextureAtlas atlas;
     private Room master;
     private Random rnd = new Random();
@@ -336,12 +339,11 @@ public class MapSystem extends GameSystem {
 
             renderComp = new RenderComp(
                 "environ/door1",
-                atlas.findRegion("environ/door1"));
+                atlas.findRegion("environ/door1")
+            );
 
             w = renderComp.getW() * C.WTB;
             h = renderComp.getH() * C.WTB;
-
-            mgr.addComp(door, renderComp);
 
             mgr.addComp(door, renderComp);
             mgr.addComp(door, new PositionComp(x + h/2, y + w/2));
@@ -482,6 +484,21 @@ public class MapSystem extends GameSystem {
     }
 
     private void updateChunks() {
+        newChunks.clear();
+
+        for(int x = (int)focus.getX() - 1; x <= focus.getX() + 1; x++) {
+            for (int y = (int) focus.getY() - 1; y <= focus.getY() + 1; y++) {
+                int thisChunk = getChunk(x, y);
+
+                if (!curChunks.contains(thisChunk)) {
+                    newChunks.add(thisChunk);
+                }
+            }
+        }
+
+
+
+        curChunks.addAll(newChunks);
     }
 
     public OrthographicCamera getCam() {
