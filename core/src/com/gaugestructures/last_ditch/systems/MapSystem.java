@@ -137,14 +137,9 @@ public class MapSystem extends GameSystem {
 
         if (open) {
             mgr.removeComp(door, RenderComp.class);
-            physics.removeBody(colComp.getBody());
+            colComp.getBody().setActive(false);
         } else {
             TypeComp typeComp = mgr.comp(door, TypeComp.class);
-
-            physics.createBody(
-                posComp.getX(), posComp.getY(),
-                sizeComp.getW(), sizeComp.getH(),
-                false, rotComp.getAng());
 
             RenderComp renderComp = new RenderComp(
                 typeComp.getType(),
@@ -152,6 +147,8 @@ public class MapSystem extends GameSystem {
                     String.format("environ/%s", typeComp.getType())));
 
             mgr.addComp(door, renderComp);
+
+            colComp.getBody().setActive(true);
         }
     }
 
