@@ -1,5 +1,6 @@
 package com.gaugestructures.last_ditch.systems;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
@@ -8,6 +9,7 @@ import com.gaugestructures.last_ditch.C;
 import com.gaugestructures.last_ditch.Manager;
 import com.gaugestructures.last_ditch.components.*;
 import org.yaml.snakeyaml.Yaml;
+import com.google.common.collect.Sets;
 
 import java.util.*;
 
@@ -17,9 +19,8 @@ public class MapSystem extends GameSystem {
     private Yaml yaml = new Yaml();
     private PositionComp focus;
     private int prevChunk = -1;
-    private List<Integer> newChunks = new ArrayList<Integer>();
-    private List<Integer> oldChunks = new ArrayList<Integer>();
-    private List<Integer> curChunks = new ArrayList<Integer>();
+    private Set<Integer> curChunks = new HashSet<Integer>();
+    private Set<Integer> prevChunks = new HashSet<Integer>();
     private TextureAtlas atlas;
     private Room master;
     private Random rnd = new Random();
@@ -51,6 +52,7 @@ public class MapSystem extends GameSystem {
         for(int i = 0; i < numOfChunks; i++) {
             items.add(i, new ArrayList<String>());
             doors.add(i, new ArrayList<String>());
+
             stations.add(i, new ArrayList<String>());
 
             for (TextureRegion[] row : tiles[i]) {
@@ -75,10 +77,14 @@ public class MapSystem extends GameSystem {
         generateDoors();
         generateStations();
 
-        update();
+        startX = (int)Math.max(focus.getX() - 13, 0);
+        startY = (int)Math.max(focus.getY() - 10, 0);
+        endX = (int)Math.min(focus.getX() + 13, width - 1);
+        endY = (int)Math.min(focus.getY() + 10, height - 1);
+
+        cam.position.set(focus.getX() * C.BTW, focus.getY() * C.BTW, 0);
+        cam.update();
     }
-
-
 
     public boolean useDoorAt(String entity, int screenX, int screenY) {
         PositionComp posComp = mgr.comp(entity, PositionComp.class);
@@ -109,12 +115,12 @@ public class MapSystem extends GameSystem {
 
         String door = getNearDoor(posComp.getX(), posComp.getY());
 
-        if(door == null)
+        if (door == null)
             return false;
 
         DoorComp doorComp = mgr.comp(door, DoorComp.class);
 
-        if(doorComp.isLocked())
+        if (doorComp.isLocked())
             return false;
 
         doorComp.setOpen(!doorComp.isOpen());
@@ -126,10 +132,10 @@ public class MapSystem extends GameSystem {
     private void updateDoor(String door, boolean open) {
         PositionComp posComp = mgr.comp(door, PositionComp.class);
         RotationComp rotComp = mgr.comp(door, RotationComp.class);
-        SizeComp sizeComp = mgr.comp(door, SizeComp.class);
         CollisionComp colComp = mgr.comp(door, CollisionComp.class);
+        SizeComp sizeComp = mgr.comp(door, SizeComp.class);
 
-        if(open) {
+        if (open) {
             mgr.removeComp(door, RenderComp.class);
             physics.removeBody(colComp.getBody());
         } else {
@@ -154,7 +160,6 @@ public class MapSystem extends GameSystem {
             for (int cy = (int)focus.getY() - 1; cy <= focus.getY() + 1; cy++) {
                 for (String door: doors.get(getChunk(cx, cy))) {
                     PositionComp posComp = mgr.comp(door, PositionComp.class);
-                    RenderComp renderComp = mgr.comp(door, RenderComp.class);
                     SizeComp sizeComp = mgr.comp(door, SizeComp.class);
                     RotationComp rotComp = mgr.comp(door, RotationComp.class);
 
@@ -460,7 +465,7 @@ public class MapSystem extends GameSystem {
         cam.position.set(focus.getX() * C.BTW, focus.getY() * C.BTW, 0);
         cam.update();
 
-        int thisChunk = getChunk((int)focus.getX(), (int)focus.getY());
+        int thisChunk = getChunk(focus.getX(), focus.getY());
 
         if(thisChunk != prevChunk) {
             updateChunks();
@@ -477,28 +482,50 @@ public class MapSystem extends GameSystem {
                     C.BTW / 2, C.BTW / 2,
                     C.BTW, C.BTW,
                     1, 1,
-                    getRot(x, y)
-                );
+                    getRot(x, y));
             }
         }
     }
 
     private void updateChunks() {
-        newChunks.clear();
-
-        for(int x = (int)focus.getX() - 1; x <= focus.getX() + 1; x++) {
-            for (int y = (int) focus.getY() - 1; y <= focus.getY() + 1; y++) {
-                int thisChunk = getChunk(x, y);
-
-                if (!curChunks.contains(thisChunk)) {
-                    newChunks.add(thisChunk);
+        curChunks.clear();
+        for(int x = (int)focus.getX() - C.CHUNK_SIZE; x <= focus.getX() + C.CHUNK_SIZE; x += C.CHUNK_SIZE) {
+            for (int y = (int)focus.getY() - C.CHUNK_SIZE; y <= focus.getY() + C.CHUNK_SIZE; y += C.CHUNK_SIZE) {
+                if (x >= 0 && x < width && y >= 0 && y < height) {
+                    curChunks.add(getChunk(x, y));
                 }
             }
         }
+        physics.updateTileBodies();
+        physics.updateDoorBodies();
 
+        prevChunks = new HashSet<Integer>(curChunks);
+    }
 
+    public Set<Integer> getCurChunks() {
+        return curChunks;
+    }
 
-        curChunks.addAll(newChunks);
+    public Set<Integer> getNewChunks() {
+        return Sets.difference(curChunks, prevChunks);
+    }
+
+    public Set<Integer> getOldChunks() {
+        return Sets.difference(prevChunks, curChunks);
+    }
+
+    public int getChunkX(int chunk) {
+
+        return (chunk % C.MAP_WIDTH) * C.CHUNK_SIZE;
+    }
+
+    public int getChunkY(int chunk) {
+
+        return (chunk / C.MAP_WIDTH) * C.CHUNK_SIZE;
+    }
+
+    public int getNumOfChunks() {
+        return numOfChunks;
     }
 
     public OrthographicCamera getCam() {
@@ -523,16 +550,14 @@ public class MapSystem extends GameSystem {
 
     public boolean intersects(Room r1, Room r2) {
         return !(r1.getX2() < r2.getX1() || r2.getX2() < r1.getX1() ||
-                r1.getY2() < r2.getY1() || r2.getY2() < r1.getY1());
+            r1.getY2() < r2.getY1() || r2.getY2() < r1.getY1());
     }
 
     public int getChunk(int x, int y) {
-        int chunk = x / C.CHUNK_SIZE + (y / C.CHUNK_SIZE) * C.MAP_WIDTH;
-
-        if (chunk > -1 && chunk < numOfChunks) {
-            return chunk;
-        } else {
+        if (x < 0 || x > width || y < 0 || y > height) {
             return -1;
+        } else {
+            return x / C.CHUNK_SIZE + (y / C.CHUNK_SIZE) * C.MAP_WIDTH;
         }
     }
 
@@ -540,60 +565,97 @@ public class MapSystem extends GameSystem {
         return getChunk((int)x, (int)y);
     }
 
-    public void setSolid(int x, int y, boolean solid) {
+    public boolean setSolid(int x, int y, boolean solid) {
+        int chunk = getChunk(x, y);
         int chunkX = x % C.CHUNK_SIZE;
         int chunkY = y % C.CHUNK_SIZE;
 
-        this.solid[getChunk(x, y)][chunkX][chunkY] = solid;
+        if (chunk != -1) {
+            this.solid[chunk][chunkX][chunkY] = solid;
+            return true;
+        }
+        return false;
     }
 
     public boolean isSolid(int x, int y) {
+        int chunk = getChunk(x, y);
         int chunkX = x % C.CHUNK_SIZE;
         int chunkY = y % C.CHUNK_SIZE;
 
-        return solid[getChunk(x, y)][chunkX][chunkY];
+        if (chunk != -1) {
+            return solid[chunk][chunkX][chunkY];
+        }
+        return false;
     }
 
-    public void setSight(int x, int y, boolean sight) {
+    public boolean setSight(int x, int y, boolean sight) {
+        int chunk = getChunk(x, y);
         int chunkX = x % C.CHUNK_SIZE;
         int chunkY = y % C.CHUNK_SIZE;
 
-        this.sight[getChunk(x, y)][chunkX][chunkY] = sight;
+        if (chunk != -1) {
+            this.sight[chunk][chunkX][chunkY] = sight;
+            return true;
+        }
+        return false;
     }
 
     public boolean hasSight(int x, int y) {
+        int chunk = getChunk(x, y);
         int chunkX = x % C.CHUNK_SIZE;
         int chunkY = y % C.CHUNK_SIZE;
 
-        return sight[getChunk(x, y)][chunkX][chunkY];
+        if (chunk != -1) {
+            return sight[chunk][chunkX][chunkY];
+
+        }
+        return false;
     }
 
-    public void setRot(int x, int y, float ang) {
+    public boolean setRot(int x, int y, float ang) {
+        int chunk = getChunk(x, y);
         int chunkX = x % C.CHUNK_SIZE;
         int chunkY = y % C.CHUNK_SIZE;
 
-        this.rot[getChunk(x, y)][chunkX][chunkY] = ang;
+        if (chunk != -1) {
+            this.rot[chunk][chunkX][chunkY] = ang;
+            return true;
+        }
+        return false;
     }
 
     public float getRot(int x, int y) {
+        int chunk = getChunk(x, y);
         int chunkX = x % C.CHUNK_SIZE;
         int chunkY = y % C.CHUNK_SIZE;
 
-        return rot[getChunk(x, y)][chunkX][chunkY];
+        if (chunk != -1) {
+            return rot[chunk][chunkX][chunkY];
+        }
+        return 0;
     }
 
-    public void setTile(int x, int y, String regionName) {
+    public boolean setTile(int x, int y, String regionName) {
+        int chunk = getChunk(x, y);
         int chunkX = x % C.CHUNK_SIZE;
         int chunkY = y % C.CHUNK_SIZE;
 
-        tiles[getChunk(x, y)][chunkX][chunkY] = atlas.findRegion(regionName);
+        if (chunk != -1) {
+            tiles[chunk][chunkX][chunkY] = atlas.findRegion(regionName);
+            return true;
+        }
+        return false;
     }
 
     public TextureRegion getTile(int x, int y) {
+        int chunk = getChunk(x, y);
         int chunkX = x % C.CHUNK_SIZE;
         int chunkY = y % C.CHUNK_SIZE;
 
-        return tiles[getChunk(x, y)][chunkX][chunkY];
+        if (chunk != -1) {
+            return tiles[chunk][chunkX][chunkY];
+        }
+        return null;
     }
 
     public PositionComp getFocus() {

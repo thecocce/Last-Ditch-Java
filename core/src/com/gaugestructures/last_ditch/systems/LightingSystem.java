@@ -16,7 +16,7 @@ public class LightingSystem extends GameSystem {
         this.cam = cam;
         this.physics = physics;
 
-        handler = new RayHandler(physics.get_world());
+        handler = new RayHandler(physics.getWorld());
 
         RayHandler.isDiffuse = true;
         Light.setContactFilter(C.BIT_LIGHT, C.BIT_ZERO, C.BIT_WALL);

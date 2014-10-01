@@ -1,5 +1,6 @@
 package com.gaugestructures.last_ditch.systems;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
@@ -9,6 +10,8 @@ import com.gaugestructures.last_ditch.components.*;
 
 import javax.swing.text.Position;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 public class PhysicsSystem extends GameSystem {
@@ -16,7 +19,8 @@ public class PhysicsSystem extends GameSystem {
     private String player;
     private MapSystem map;
     private Body playerBody;
-    private ArrayList<Body> bodies = new ArrayList<Body>();
+    private List<List<Body>> tileBodies = new ArrayList<List<Body>>();
+    private List<List<Body>> doorBodies = new ArrayList<List<Body>>();
     private Vector2 gravity = new Vector2(0, 0);
     private World world = new World(gravity, false);
     private PositionComp focus;
@@ -27,6 +31,11 @@ public class PhysicsSystem extends GameSystem {
         this.map = map;
 
         focus = mgr.comp(player, PositionComp.class);
+
+        for(int i = 0; i < map.getNumOfChunks(); i++) {
+            doorBodies.add(i, new ArrayList<Body>());
+            tileBodies.add(i, new ArrayList<Body>());
+        }
 
         generatePLayerBody();
 
@@ -66,55 +75,84 @@ public class PhysicsSystem extends GameSystem {
         playerBody = colComp.getBody();
     }
 
-    private void updateTileBodies() {
-        for (int cx = (int)focus.getX() - 1; cx <= focus.getX() + 1; cx++) {
-            for (int cy = (int)focus.getY() - 1; cy <= focus.getY() + 1; cy++) {
-                for (int x = 0; x < C.CHUNK_SIZE; x++) {
-                    for (int y = 0; y < C.CHUNK_SIZE; y++) {
+    public void updateTileBodies() {
+        for (int chunk : map.getNewChunks()) {
+            int chunkX = map.getChunkX(chunk);
+            int chunkY = map.getChunkY(chunk);
 
+            Gdx.app.log("New chunk", "" + chunk);
+
+            for (int x = chunkX; x < C.CHUNK_SIZE + chunkX; x++) {
+                for (int y = chunkY; y < C.CHUNK_SIZE + chunkY; y++) {
+                    if (map.isSolid(x, y)) {
+                        BodyDef bodyDef = new BodyDef();
+                        bodyDef.position.set(x + 0.5f, y + 0.5f);
+
+                        PolygonShape shape = new PolygonShape();
+                        shape.setAsBox(0.5f, 0.5f);
+
+                        FixtureDef fixtureDef = new FixtureDef();
+                        fixtureDef.shape = shape;
+
+                        if (map.hasSight(x, y)) {
+                            fixtureDef.filter.categoryBits = C.BIT_WINDOW;
+                        } else {
+                            fixtureDef.filter.categoryBits = C.BIT_WALL;
+                        }
+
+                        Body body = world.createBody(bodyDef);
+                        body.createFixture(fixtureDef);
+                        body.setUserData(new Vector2(x, y));
+
+                        tileBodies.get(chunk).add(body);
                     }
                 }
+            }
+        }
 
-                    if(map.isSolid(x, y)) {
-                    BodyDef bodyDef = new BodyDef();
-                    bodyDef.position.set(x + 0.5f, y + 0.5f);
+        for (int chunk: map.getOldChunks()) {
+            Gdx.app.log("Old chunk", "" + chunk);
 
-                    PolygonShape shape = new PolygonShape();
-                    shape.setAsBox(0.5f, 0.5f);
-
-                    FixtureDef fixtureDef = new FixtureDef();
-                    fixtureDef.shape = shape;
-
-                    if(map.hasSight(x, y)) {
-                        fixtureDef.filter.categoryBits = C.BIT_WINDOW;
-                    } else {
-                        fixtureDef.filter.categoryBits = C.BIT_WALL;
-                    }
-
-                    Body body = world.createBody(bodyDef);
-                    body.createFixture(fixtureDef);
-                    body.setUserData(new Vector2(x, y));
-                }
+            Iterator<Body> it = tileBodies.get(chunk).iterator();
+            while (it.hasNext()) {
+                world.destroyBody(it.next());
+                it.remove();
             }
         }
     }
 
-    private void updateDoorBodies() {
-//        for(String door : map.getDoors()) {
-//            PositionComp posComp = mgr.comp(door, PositionComp.class);
-//            RotationComp rotComp = mgr.comp(door, RotationComp.class);
-//            RenderComp renderComp = mgr.comp(door, RenderComp.class);
-//            CollisionComp colComp = mgr.comp(door, CollisionComp.class);
-//
-//            float w = renderComp.getW() * C.WTB;
-//            float h = renderComp.getH() * C.WTB;
-//
-//            Body body = createBody(
-//                posComp.getX(), posComp.getY(),
-//                w, h, false, rotComp.getAng());
-//
-//            colComp.setBody(body);
-//        }
+    public void updateDoorBodies() {
+        for (int chunk : map.getNewChunks()) {
+            for (String door : map.getDoors().get(chunk)) {
+                DoorComp doorComp = mgr.comp(door, DoorComp.class);
+
+                if (!doorComp.isOpen()) {
+                    PositionComp posComp = mgr.comp(door, PositionComp.class);
+                    RotationComp rotComp = mgr.comp(door, RotationComp.class);
+                    SizeComp sizeComp = mgr.comp(door, SizeComp.class);
+                    CollisionComp colComp = mgr.comp(door, CollisionComp.class);
+
+                    Body body = createBody(
+                        posComp.getX(), posComp.getY(),
+                        sizeComp.getW(), sizeComp.getH(),
+                        false, rotComp.getAng());
+
+                    colComp.setBody(body);
+                }
+            }
+        }
+
+        for (int chunk : map.getOldChunks()) {
+            for (String door : map.getDoors().get(chunk)) {
+                CollisionComp colComp = mgr.comp(door, CollisionComp.class);
+
+                if (colComp.getBody() != null) {
+                    Gdx.app.log("Destroying door body","");
+                    world.destroyBody(colComp.getBody());
+                    colComp.setBody(null);
+                }
+            }
+        }
     }
 
     public Body createBody(float x, float y, float w, float h, boolean sight, float ang) {
@@ -139,6 +177,12 @@ public class PhysicsSystem extends GameSystem {
 
         shape.dispose();
 
+        return body;
+    }
+
+    public Body createTileBody(int chunk, float x, float y, float w, float h, boolean sight, float ang) {
+        Body body = createBody(x, y, w, h, sight, ang);
+        tileBodies.get(chunk).add(body);
         return body;
     }
 
@@ -193,7 +237,13 @@ public class PhysicsSystem extends GameSystem {
         world.destroyBody(body);
     }
 
-    public World get_world() {
+    public void removeTileBody(int chunk, Body body) {
+        world.destroyBody(body);
+
+        tileBodies.get(chunk).remove(body);
+    }
+
+    public World getWorld() {
         return world;
     }
 
