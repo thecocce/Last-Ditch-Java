@@ -2,7 +2,6 @@ package com.gaugestructures.last_ditch.systems;
 
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
@@ -100,7 +99,9 @@ public class RenderSystem extends GameSystem {
 
                 if (chunk != -1) {
                     Iterable<String> entities = Iterables.concat(
-                        map.getDoors().get(chunk), map.getItems().get(chunk));
+                        map.getDoors().get(chunk),
+                        map.getItems().get(chunk),
+                        map.getStations().get(chunk));
 
                     for (String entity : entities) {
                         if (mgr.hasComp(entity, RenderComp.class)) {

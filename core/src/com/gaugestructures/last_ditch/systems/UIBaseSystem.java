@@ -1,6 +1,5 @@
 package com.gaugestructures.last_ditch.systems;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -28,13 +27,18 @@ public class UIBaseSystem extends GameSystem {
     private ImageButton hungerBar, thirstBar, energyBar, sanityBar;
     private ArrayList<ImageButton> slots = new ArrayList<ImageButton>();
 
-
     public UIBaseSystem(Manager mgr, Stage stage, TimeSystem time) {
         this.mgr = mgr;
         this.time = time;
         this.stage = stage;
 
         setup();
+
+        if (1 == 1) {
+            tableInfo.debug();
+            tableNeeds.debug();
+            tableSlots.debug();
+        }
     }
 
     private void setup() {
@@ -71,7 +75,6 @@ public class UIBaseSystem extends GameSystem {
         energyBar.setColor(0.98f, 0.98f, 0.04f, 1f);
         sanityBar.setColor(0.77f, 0.1f, 0.87f, 1f);
 
-
         tableNeeds.add(hungerBar).width(106).padTop(0).height(7).row();
         tableNeeds.add(thirstBar).width(106).padTop(0).height(7).row();
         tableNeeds.add(energyBar).width(106).padTop(0).height(7).row();
@@ -96,7 +99,6 @@ public class UIBaseSystem extends GameSystem {
                 @Override
                 public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
                     super.enter(event, x, y, pointer, fromActor);
-
                     enterSlot(slot);
                 }
 
@@ -171,10 +173,30 @@ public class UIBaseSystem extends GameSystem {
         active = !active;
 
         if(active) {
-
+            stage.addActor(tableInfo);
+            stage.addActor(tableNeeds);
+            stage.addActor(tableSlots);
         } else {
-
+            tableInfo.remove();
+            tableNeeds.remove();
+            tableSlots.remove();
         }
+    }
+
+    public void activate() {
+        active = true;
+
+        stage.addActor(tableInfo);
+        stage.addActor(tableNeeds);
+        stage.addActor(tableSlots);
+    }
+
+    public void deactivate() {
+        active = false;
+
+        tableInfo.remove();
+        tableNeeds.remove();
+        tableSlots.remove();
     }
 
     public boolean isActive() {

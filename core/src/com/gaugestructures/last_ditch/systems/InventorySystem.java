@@ -1,6 +1,5 @@
 package com.gaugestructures.last_ditch.systems;
 
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.gaugestructures.last_ditch.C;

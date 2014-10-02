@@ -2,13 +2,13 @@ package com.gaugestructures.last_ditch.systems;
 
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.gaugestructures.last_ditch.C;
 import com.gaugestructures.last_ditch.Manager;
 import com.gaugestructures.last_ditch.components.*;
 import com.google.common.collect.Sets;
 import org.yaml.snakeyaml.Yaml;
+import sun.swing.UIAction;
 
 import java.util.*;
 
@@ -26,6 +26,8 @@ public class MapSystem extends GameSystem {
     private int numOfRooms = 200;
     private int numOfItems = 600;
     private InventorySystem inventory;
+    private UIActionsSystem uiActions;
+    private UIInventorySystem uiInventory;
     private int numOfChunks = C.MAP_WIDTH * C.MAP_HEIGHT;
     private int width = C.MAP_WIDTH * C.CHUNK_SIZE, height = C.MAP_HEIGHT * C.CHUNK_SIZE;
     private ArrayList<Room> rooms = new ArrayList<Room>();
@@ -39,9 +41,11 @@ public class MapSystem extends GameSystem {
     private PhysicsSystem physics;
     private OrthographicCamera cam = new OrthographicCamera();
 
-    public MapSystem(Manager mgr, InventorySystem inventory) {
+    public MapSystem(Manager mgr, InventorySystem inventory, UIActionsSystem uiActions, UIInventorySystem uiInventory) {
         this.mgr = mgr;
         this.inventory = inventory;
+        this.uiActions = uiActions;
+        this.uiInventory = uiInventory;
 
         for(int i = 0; i < numOfChunks; i++) {
             items.add(i, new ArrayList<String>());
@@ -183,6 +187,47 @@ public class MapSystem extends GameSystem {
         return null;
     }
 
+    public boolean dropItem(String entity) {
+        PositionComp posComp = mgr.comp(entity, PositionComp.class);
+        RotationComp rotComp = mgr.comp(entity, RotationComp.class);
+        InventoryComp invComp = mgr.comp(entity, InventoryComp.class);
+
+        if (uiInventory.getSelection() != null) {
+            int index = uiInventory.getSlotIndex(uiInventory.getSelection());
+
+            String item = invComp.getItem(index);
+
+            if (item != null) {
+                TypeComp itemTypeComp = mgr.comp(item, TypeComp.class);
+
+                PositionComp itemPosComp = new PositionComp(
+                    posComp.getX() + rotComp.getX(),
+                    posComp.getY() + rotComp.getY());
+
+                RenderComp itemRenderComp = new RenderComp(
+                    String.format("items/%s", itemTypeComp.getType()),
+                    mgr.getAtlas().findRegion(String.format("items/%s", itemTypeComp.getType())));
+
+                mgr.addComp(item, itemPosComp);
+                mgr.addComp(item, itemRenderComp);
+
+                items.get(getChunk(itemPosComp.getX(), itemPosComp.getY())).add(item);
+                inventory.setUpdateSlots(true);
+
+                ItemComp itemComp = mgr.comp(item, ItemComp.class);
+
+                invComp.setWeight(invComp.getWeight() - itemComp.getWeight());
+                inventory.removeItem(invComp, item);
+
+                uiInventory.resetInfo();
+                uiActions.updateCraftingInfo();
+
+                return true;
+            }
+        }
+        return false;
+    }
+
     public void removeItem(String item) {
         PositionComp posComp = mgr.removeComp(item, PositionComp.class);
         mgr.removeComp(item, RenderComp.class);
@@ -243,7 +288,7 @@ public class MapSystem extends GameSystem {
         Map<String, Object> itemData = mgr.getData("items");
 
         @SuppressWarnings("unchecked")
-        List<String> itemList = (List<String>) itemData.get("itemList");
+        List<String> itemList = (List<String>) itemData.get("itemsList");
 
         float x = 0, y = 0;
         for(int i = 0; i < numOfItems; i++) {
@@ -345,7 +390,53 @@ public class MapSystem extends GameSystem {
     }
 
     public void generateStations() {
+        Map<String, Object> stationData = mgr.getData("stations");
 
+        @SuppressWarnings("unchecked")
+        List<String> stationList = (List<String>)stationData.get("stationsList");
+
+        for (Room room : rooms) {
+            if (room.getX1() + 2 < room.getX2() - 4 && room.getY1() + 2 < room.getY2() - 4) {
+                String station = mgr.createEntity();
+                String stationType = stationList.get(mgr.randInt(0, stationList.size() - 1));
+
+                float rot = mgr.randInt(0, 3) * 90;
+
+                RenderComp renderComp = new RenderComp(
+                    String.format("environ/%s", stationType),
+                    mgr.getAtlas().findRegion(String.format("environ/%s", stationType)));
+
+                float w = renderComp.getW() * C.WTB;
+                float h = renderComp.getH() * C.WTB;
+                float x = mgr.randFloat(room.getX1() + 2, room.getX2() - 3);
+                float y = mgr.randFloat(room.getY1() + 2, room.getY2() - 3);
+
+                if (rot == 0 || rot == 180) {
+                    mgr.addComp(station, new PositionComp(x + w/2, y + h/2));
+                } else {
+                    mgr.addComp(station, new PositionComp(x + h/2, y + w/2));
+                }
+
+                mgr.addComp(station, renderComp);
+                mgr.addComp(station, new SizeComp(w, h));
+                mgr.addComp(station, new RotationComp(rot));
+                mgr.addComp(station, new CollisionComp());
+                mgr.addComp(station, new TypeComp("station"));
+                mgr.addComp(station, new StationComp(stationType));
+
+                ResourcesComp resourcesComp = mgr.addComp(station, new ResourcesComp());
+
+                if (stationType.equals("purification_station")) {
+                    resourcesComp.setWater(2);
+                } else if (stationType.equals("charging_station")) {
+                    resourcesComp.setEnergy(2);
+                } else if (stationType.equals("incinerator")) {
+                    resourcesComp.setEnergy(1);
+                }
+
+                stations.get(getChunk(x, y)).add(station);
+            }
+        }
     }
 
     public void expand(Room test_room) {
@@ -495,8 +586,10 @@ public class MapSystem extends GameSystem {
                 }
             }
         }
+
         physics.updateTileBodies();
         physics.updateDoorBodies();
+        physics.updateStationBodies();
 
         prevChunks = new HashSet<Integer>(curChunks);
     }

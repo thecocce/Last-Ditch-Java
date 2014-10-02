@@ -10,7 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.gaugestructures.last_ditch.Manager;
 
 public class UISystem extends GameSystem {
-    private boolean active = false, toggle = false;
+    private boolean active = false;
     private Manager mgr;
     private Stage stage;
     private Window window;
@@ -46,8 +46,8 @@ public class UISystem extends GameSystem {
         setupButtons();
         setupInitialState();
 
-        if(1 == 0) {
-            window.setDebug(true);
+        if (0 == 1) {
+            window.debug();
         }
     }
 
@@ -114,7 +114,7 @@ public class UISystem extends GameSystem {
     }
 
     private void switchFocus(String focus) {
-        if(focus.equals("actions")) {
+        if (focus.equals("actions")) {
             uiActions.activate();
             window.getCell(focusActor).setActor(uiActions.getTable());
 
@@ -124,7 +124,7 @@ public class UISystem extends GameSystem {
             statusButton.setChecked(false);
 
             focusActor = uiActions.getTable();
-        } else if(focus.equals("inventory")) {
+        } else if (focus.equals("inventory")) {
             uiInventory.activate();
             window.getCell(focusActor).setActor(uiInventory.getTable());
 
@@ -134,7 +134,7 @@ public class UISystem extends GameSystem {
             statusButton.setChecked(false);
 
             focusActor = uiInventory.getTable();
-        } else if(focus.equals("equipment")) {
+        } else if (focus.equals("equipment")) {
             uiEquipment.activate();
             window.getCell(focusActor).setActor(uiEquipment.getTable());
 
@@ -144,7 +144,7 @@ public class UISystem extends GameSystem {
             statusButton.setChecked(false);
 
             focusActor = uiEquipment.getTable();
-        } else if(focus.equals("status")) {
+        } else if (focus.equals("status")) {
             uiStatus.activate();
             window.getCell(focusActor).setActor(uiStatus.getTable());
 

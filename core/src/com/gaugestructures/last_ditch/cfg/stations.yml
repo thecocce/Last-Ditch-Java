@@ -1,4 +1,4 @@
-stations:
+stationsList:
   - incinerator 
   - purificationStation
   - programmingDesk

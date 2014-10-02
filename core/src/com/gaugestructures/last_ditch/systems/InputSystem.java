@@ -13,13 +13,15 @@ public class InputSystem extends GameSystem implements InputProcessor {
     private TimeSystem time;
     private ActionsSystem actions;
     private InventorySystem inventory;
+    private UIInventorySystem uiInventory;
     private MapSystem map;
     private boolean ctrl = false, shift = false;
 
-    public InputSystem(Manager mgr, MapSystem map, UISystem ui, InventorySystem inventory, ActionsSystem actions, TimeSystem time) {
+    public InputSystem(Manager mgr, MapSystem map, UISystem ui, InventorySystem inventory, ActionsSystem actions, UIInventorySystem uiInventory, TimeSystem time) {
         this.mgr = mgr;
         this.ui = ui;
         this.inventory = inventory;
+        this.uiInventory = uiInventory;
         this.map = map;
         this.time = time;
         this.actions = actions;
@@ -53,6 +55,11 @@ public class InputSystem extends GameSystem implements InputProcessor {
             } else {
                 if (ui.getUiBase().isActive()) {
                     ui.getUiBase().setNoExit(true);
+                }
+
+                if (ui.isActive()) {
+                    uiInventory.setNoExit(true);
+                    map.dropItem(mgr.getPlayer());
                 }
             }
         }

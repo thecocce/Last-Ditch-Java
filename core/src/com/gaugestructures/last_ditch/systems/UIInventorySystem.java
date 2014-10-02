@@ -35,6 +35,10 @@ public class UIInventorySystem extends GameSystem {
         this.window = window;
 
         setup();
+
+        if (1 == 0) {
+            table.debug();
+        }
     }
 
     private void setup() {
@@ -247,7 +251,7 @@ public class UIInventorySystem extends GameSystem {
         this.prevSelection = prevSelection;
     }
 
-    private void resetInfo() {
+    public void resetInfo() {
         setItemName("");
         setItemQualAndCond(-1, -1);
         setItemValue(-1);
@@ -261,5 +265,25 @@ public class UIInventorySystem extends GameSystem {
 
     public ImageButton getSlot(int i) {
         return slots.get(i);
+    }
+
+    public int getSlotIndex(ImageButton slot) {
+        return slots.indexOf(slot);
+    }
+
+    public ImageButton getSelection() {
+        return selection;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    public void setNoExit(boolean noExit) {
+        this.noExit = noExit;
     }
 }

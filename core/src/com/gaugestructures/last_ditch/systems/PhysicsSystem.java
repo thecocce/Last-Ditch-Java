@@ -33,8 +33,7 @@ public class PhysicsSystem extends GameSystem {
         generatePlayerBody();
         generateTileBodies();
         generateDoorBodies();
-
-        updateStationBodies();
+        generateStationBodies();
     }
 
     private void generatePlayerBody() {
@@ -164,6 +163,42 @@ public class PhysicsSystem extends GameSystem {
         }
     }
 
+    private void generateStationBodies() {
+        for (int i = 0; i < map.getNumOfChunks(); i++) {
+            for (String station : map.getStations().get(i)) {
+                PositionComp posComp = mgr.comp(station, PositionComp.class);
+                RotationComp rotComp = mgr.comp(station, RotationComp.class);
+                SizeComp sizeComp = mgr.comp(station, SizeComp.class);
+                CollisionComp colComp = mgr.comp(station, CollisionComp.class);
+
+                Body body = createBody(
+                    posComp.getX(), posComp.getY(),
+                    sizeComp.getW(), sizeComp.getH(),
+                    true, rotComp.getAng());
+
+                colComp.setBody(body);
+            }
+        }
+    }
+
+    public void updateStationBodies() {
+        for (int chunk : map.getNewChunks()) {
+            for (String station : map.getStations().get(chunk)) {
+                CollisionComp colComp = mgr.comp(station, CollisionComp.class);
+
+                colComp.getBody().setActive(true);
+            }
+        }
+
+        for (int chunk : map.getOldChunks()) {
+            for (String station : map.getStations().get(chunk)) {
+                CollisionComp colComp = mgr.comp(station, CollisionComp.class);
+
+                colComp.getBody().setActive(false);
+            }
+        }
+    }
+
     public Body createBody(float x, float y, float w, float h, boolean sight, float ang) {
         BodyDef bodyDef = new BodyDef();
         bodyDef.position.set(x, y);
@@ -187,10 +222,6 @@ public class PhysicsSystem extends GameSystem {
         shape.dispose();
 
         return body;
-    }
-
-    private void updateStationBodies() {
-
     }
 
     public void update() {

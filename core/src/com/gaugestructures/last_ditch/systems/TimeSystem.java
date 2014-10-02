@@ -1,6 +1,5 @@
 package com.gaugestructures.last_ditch.systems;
 
-import com.badlogic.gdx.Gdx;
 import com.gaugestructures.last_ditch.C;
 
 public class TimeSystem extends GameSystem {
