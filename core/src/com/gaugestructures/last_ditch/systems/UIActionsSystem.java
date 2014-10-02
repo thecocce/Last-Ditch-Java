@@ -16,7 +16,6 @@ import java.util.Map;
 
 public class UIActionsSystem extends GameSystem {
     private boolean active = false;
-    private Skin skin;
     private Manager mgr;
     private CraftingSystem crafting;
     private Window window;
@@ -34,9 +33,8 @@ public class UIActionsSystem extends GameSystem {
     private String focus = "crafting", prevSelection;
     private int numOfCraftables = 0, totNumOfCraftables = 0;
 
-    public UIActionsSystem(Manager mgr, CraftingSystem crafting, Skin skin, Window window) {
+    public UIActionsSystem(Manager mgr, CraftingSystem crafting, Window window) {
         this.mgr = mgr;
-        this.skin = skin;
         this.crafting = crafting;
         this.window = window;
 
@@ -63,7 +61,7 @@ public class UIActionsSystem extends GameSystem {
     }
 
     public void setupMainButtons() {
-        craftingButton = new TextButton("Crafting", skin, "actionsButton");
+        craftingButton = new TextButton("Crafting", mgr.getSkin(), "actionsButton");
         craftingButton.setChecked(true);
 
         craftingButton.addListener(new ClickListener() {
@@ -74,7 +72,7 @@ public class UIActionsSystem extends GameSystem {
             }
         });
 
-        objectButton = new TextButton("Object", skin, "actionsButton");
+        objectButton = new TextButton("Object", mgr.getSkin(), "actionsButton");
 
         objectButton.addListener(new ClickListener() {
             @Override
@@ -92,8 +90,8 @@ public class UIActionsSystem extends GameSystem {
         craftingInfoTable = new Table();
         craftingInfoTable.align(Align.left | Align.top);
 
-        craftingNameLabel = new Label("Name:", skin, "actionsTitle");
-        craftablesLeftArrowButton = new Button(skin, "actionsLeftArrowButton");
+        craftingNameLabel = new Label("Name:", mgr.getSkin(), "actionsTitle");
+        craftablesLeftArrowButton = new Button(mgr.getSkin(), "actionsLeftArrowButton");
 
         craftablesLeftArrowButton.addListener(new ChangeListener() {
             @Override
@@ -102,9 +100,9 @@ public class UIActionsSystem extends GameSystem {
             }
         });
 
-        craftablesLabel = new Label("", skin, "actions");
+        craftablesLabel = new Label("", mgr.getSkin(), "actions");
         craftablesLabel.setAlignment(Align.center);
-        craftablesRightArrowButton = new Button(skin, "actionsRightArrowButton");
+        craftablesRightArrowButton = new Button(mgr.getSkin(), "actionsRightArrowButton");
 
         craftablesRightArrowButton.addListener(new ChangeListener() {
             @Override
@@ -113,8 +111,8 @@ public class UIActionsSystem extends GameSystem {
             }
         });
 
-        stationIdentifierLabel = new Label("  Station: ", skin, "actions");
-        stationLabel = new Label("", skin, "actions");
+        stationIdentifierLabel = new Label("  Station: ", mgr.getSkin(), "actions");
+        stationLabel = new Label("", mgr.getSkin(), "actions");
         stationLabel.setAlignment(Align.left);
 
         craftingInfoTable.add(craftingNameLabel).width(190).padLeft(8).align(Align.left);
@@ -126,7 +124,7 @@ public class UIActionsSystem extends GameSystem {
         reqsAndIngsLabelList = new ArrayList<Label>();
 
         for(int i = 0; i < 10; i++) {
-            Label newReq = new Label("", skin, "actions");
+            Label newReq = new Label("", mgr.getSkin(), "actions");
             newReq.setColor(Color.GRAY);
 
             reqsAndIngsLabelList.add(newReq);
@@ -140,7 +138,7 @@ public class UIActionsSystem extends GameSystem {
     }
 
     public void setupCraftingList() {
-        craftingList = new List<String>(skin, "actions");
+        craftingList = new List<String>(mgr.getSkin(), "actions");
         craftingList.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -180,7 +178,7 @@ public class UIActionsSystem extends GameSystem {
     }
 
     public void setupObjectList() {
-        objectList = new List<String>(skin, "actions");
+        objectList = new List<String>(mgr.getSkin(), "actions");
         objectList.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -196,14 +194,14 @@ public class UIActionsSystem extends GameSystem {
     }
 
     public void setupScrollpane() {
-        scrollpane = new ScrollPane(craftingList, skin, "actions");
+        scrollpane = new ScrollPane(craftingList, mgr.getSkin(), "actions");
         scrollpane.setOverscroll(false, false);
         scrollpane.setFadeScrollBars(false);
         scrollpane.setFlickScroll(false);
 
         actionsListTable.add(scrollpane).width(264).height(202).padTop(6).colspan(2);
 
-        split = new SplitPane(actionsListTable, craftingInfoTable, false, skin, "actionsSplitPane");
+        split = new SplitPane(actionsListTable, craftingInfoTable, false, mgr.getSkin(), "actionsSplitPane");
 
         table.add(split).width(540).height(239).padTop(10);
 

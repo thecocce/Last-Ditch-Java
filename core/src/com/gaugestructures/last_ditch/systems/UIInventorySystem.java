@@ -1,9 +1,11 @@
 package com.gaugestructures.last_ditch.systems;
 
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.Align;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
@@ -22,31 +24,25 @@ public class UIInventorySystem extends GameSystem {
     private Manager mgr;
     private Window window;
     private Table table;
-    private Skin skin;
-    private String player;
-    private TextureAtlas atlas;
     private InventorySystem inventory;
     private ArrayList<ImageButton> slots;
 
     private Label itemName, itemDesc, itemValue, itemWeight, itemQualityDur;
 
-    public UIInventorySystem(Manager mgr, InventorySystem inventory, String player, TextureAtlas atlas, Skin skin, Window window) {
+    public UIInventorySystem(Manager mgr, InventorySystem inventory, Window window) {
         this.mgr = mgr;
         this.inventory = inventory;
-        this.atlas = atlas;
-        this.skin = skin;
-        this.player = player;
         this.window = window;
 
         setup();
     }
 
     private void setup() {
-        itemName = new Label("", skin, "inventory");
-        itemDesc = new Label("", skin, "inventory");
-        itemValue = new Label("", skin, "inventory");
-        itemWeight = new Label("", skin, "inventory");
-        itemQualityDur = new Label("", skin, "inventory");
+        itemName = new Label("", mgr.getSkin(), "inventory");
+        itemDesc = new Label("", mgr.getSkin(), "inventory");
+        itemValue = new Label("", mgr.getSkin(), "inventory");
+        itemWeight = new Label("", mgr.getSkin(), "inventory");
+        itemQualityDur = new Label("", mgr.getSkin(), "inventory");
 
         itemValue.setColor(0.75f, 0.82f, 0.7f, 1f);
         itemWeight.setColor(0.75f, 0.75f, 0.89f, 1f);
@@ -76,7 +72,7 @@ public class UIInventorySystem extends GameSystem {
         slots = new ArrayList<ImageButton>();
 
         for(int i = 1; i <= C.INVENTORY_SLOTS; i++) {
-            final ImageButton slot = new ImageButton(skin, "invSlot");
+            final ImageButton slot = new ImageButton(mgr.getSkin(), "invSlot");
 
             slots.add(slot);
 
@@ -106,14 +102,14 @@ public class UIInventorySystem extends GameSystem {
     private void enterSlot(ImageButton slot) {
         if(selection != null) {
             ImageButton.ImageButtonStyle style = new ImageButton.ImageButtonStyle(selection.getStyle());
-            style.up = new TextureRegionDrawable(atlas.findRegion("ui/invSlot"));
+            style.up = new TextureRegionDrawable(mgr.getAtlas().findRegion("ui/invSlot"));
             selection.setStyle(style);
         }
 
         selection = slot;
 
         ImageButton.ImageButtonStyle style = new ImageButton.ImageButtonStyle(selection.getStyle());
-        style.up = new TextureRegionDrawable(atlas.findRegion("ui/invSelection"));
+        style.up = new TextureRegionDrawable(mgr.getAtlas().findRegion("ui/invSelection"));
         selection.setStyle(style);
     }
 
@@ -123,7 +119,7 @@ public class UIInventorySystem extends GameSystem {
         } else {
             if (selection != null) {
                 ImageButton.ImageButtonStyle style = new ImageButton.ImageButtonStyle(selection.getStyle());
-                style.up = new TextureRegionDrawable(atlas.findRegion("ui/invSlot"));
+                style.up = new TextureRegionDrawable(mgr.getAtlas().findRegion("ui/invSlot"));
                 selection.setStyle(style);
 
                 selection = null;
@@ -135,7 +131,7 @@ public class UIInventorySystem extends GameSystem {
         if(selection == null) return false;
 
         int index = slots.indexOf(selection);
-        InventoryComp invComp = mgr.comp(player, InventoryComp.class);
+        InventoryComp invComp = mgr.comp(mgr.getPlayer(), InventoryComp.class);
 
         if(index != -1) {
             String item = invComp.getItem(index);
@@ -145,7 +141,7 @@ public class UIInventorySystem extends GameSystem {
                 TypeComp typeComp = mgr.comp(item, TypeComp.class);
                 InfoComp infoComp = mgr.comp(item, InfoComp.class);
 
-                inventory.useItem(player, item, typeComp.getType());
+                inventory.useItem(mgr.getPlayer(), item, typeComp.getType());
 
                 setItemName(infoComp.getName());
                 setItemDesc(infoComp.getDesc());
@@ -216,7 +212,7 @@ public class UIInventorySystem extends GameSystem {
         if(active) {
             if(selection != prevSelection) {
                 if(selection != null) {
-                    InventoryComp invComp = mgr.comp(player, InventoryComp.class);
+                    InventoryComp invComp = mgr.comp(mgr.getPlayer(), InventoryComp.class);
                     int index = slots.indexOf(selection);
 
                     if (index != -1) {

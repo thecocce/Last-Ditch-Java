@@ -6,6 +6,54 @@ public class NeedsComp extends Component {
     private float energy = 1f, energyMax = 1f, energyFatigueRate = -0.000193f;
     private float energyRecoverRate = 0.01f, energyUsageRate = -0.005f;
 
+    public void modHunger(float amt) {
+        hunger += hungerRate * amt;
+
+        if (hunger < 0) {
+            hunger = 0;
+        }
+    }
+
+    public void modThirst(float amt) {
+        thirst += thirstRate * amt;
+
+        if (thirst < 0) {
+            thirst = 0;
+        }
+    }
+
+    public void modEnergy(float amt, boolean recovery) {
+        if (recovery) {
+            energy += energyRecoverRate * amt;
+
+            if (energy > energyMax) {
+                energy = energyMax;
+            }
+        } else {
+            energy += energyUsageRate * amt;
+
+            if (energy < 0) {
+                energy = 0;
+            }
+        }
+    }
+
+    public void fatigueEnergy(float amt) {
+        energyMax += energyFatigueRate * amt;
+
+        if (energyMax < 0) {
+            energyMax = 0;
+        }
+    }
+
+    public void modSanity(float amt) {
+        sanity += sanityRate * amt;
+
+        if (sanity < 0) {
+            sanity = 0;
+        }
+    }
+
     public float getHunger() {
         return hunger;
     }

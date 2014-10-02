@@ -1,6 +1,5 @@
 package com.gaugestructures.last_ditch.systems;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
@@ -8,15 +7,12 @@ import com.gaugestructures.last_ditch.C;
 import com.gaugestructures.last_ditch.Manager;
 import com.gaugestructures.last_ditch.components.*;
 
-import javax.swing.text.Position;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
 public class PhysicsSystem extends GameSystem {
     private Manager mgr;
-    private String player;
     private MapSystem map;
     private Body playerBody;
     private List<List<Body>> tileBodies = new ArrayList<List<Body>>();
@@ -24,12 +20,11 @@ public class PhysicsSystem extends GameSystem {
     private World world = new World(gravity, false);
     private PositionComp focus;
 
-    public PhysicsSystem(Manager mgr, String player, MapSystem map) {
+    public PhysicsSystem(Manager mgr, MapSystem map) {
         this.mgr = mgr;
-        this.player = player;
         this.map = map;
 
-        focus = mgr.comp(player, PositionComp.class);
+        focus = mgr.comp(mgr.getPlayer(), PositionComp.class);
 
         for(int i = 0; i < map.getNumOfChunks(); i++) {
             tileBodies.add(i, new ArrayList<Body>());
@@ -43,9 +38,9 @@ public class PhysicsSystem extends GameSystem {
     }
 
     private void generatePlayerBody() {
-        PositionComp posComp = mgr.comp(player, PositionComp.class);
-        AnimationComp animComp = mgr.comp(player, AnimationComp.class);
-        CollisionComp colComp = mgr.comp(player, CollisionComp.class);
+        PositionComp posComp = mgr.comp(mgr.getPlayer(), PositionComp.class);
+        AnimationComp animComp = mgr.comp(mgr.getPlayer(), AnimationComp.class);
+        CollisionComp colComp = mgr.comp(mgr.getPlayer(), CollisionComp.class);
 
         float w = animComp.getW() * C.WTB;
         float h = animComp.getH() * C.WTB;
@@ -68,7 +63,7 @@ public class PhysicsSystem extends GameSystem {
         colComp.setBody(world.createBody(bodyDef));
         colComp.getBody().createFixture(fixtureDef);
         colComp.getBody().setFixedRotation(true);
-        colComp.getBody().setUserData(player);
+        colComp.getBody().setUserData(mgr.getPlayer());
 
         playerBody = colComp.getBody();
     }

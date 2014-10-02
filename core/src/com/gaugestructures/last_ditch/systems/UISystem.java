@@ -1,10 +1,8 @@
 package com.gaugestructures.last_ditch.systems;
 
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
@@ -14,17 +12,13 @@ import com.gaugestructures.last_ditch.Manager;
 public class UISystem extends GameSystem {
     private boolean active = false, toggle = false;
     private Manager mgr;
-    private TextureAtlas atlas;
-    private Skin skin;
     private Stage stage;
     private Window window;
     private String focus;
     private Actor focusActor;
     private Table buttonTable;
 
-    private String player;
-
-    private UIBaseSystem base;
+    private UIBaseSystem uiBase;
     private UIActionsSystem uiActions;
     private UIInventorySystem uiInventory;
     private UIEquipSystem uiEquipment;
@@ -32,24 +26,21 @@ public class UISystem extends GameSystem {
 
     private TextButton actionsButton, inventoryButton, equipmentButton, statusButton;
 
-    public UISystem(Manager mgr, EquipmentSystem equipment, InventorySystem inventory, String player, TextureAtlas atlas, Skin skin, CraftingSystem crafting) {
+    public UISystem(Manager mgr, TimeSystem time, EquipmentSystem equipment, InventorySystem inventory, CraftingSystem crafting) {
         this.mgr = mgr;
-        this.player = player;
-        this.atlas = atlas;
-        this.skin = skin;
 
         stage = new Stage();
 
-        window = new Window("", skin, "window1");
+        window = new Window("", mgr.getSkin(), "window1");
         window.setPosition(24, 24);
         window.setSize(750, 490);
         window.setMovable(false);
         window.padTop(9);
 
-        base = new UIBaseSystem(mgr, stage);
-        uiActions = new UIActionsSystem(mgr, crafting, skin, window);
-        uiInventory = new UIInventorySystem(mgr, inventory, player, atlas, skin, window);
-        uiEquipment = new UIEquipSystem(mgr, equipment, inventory, player, skin, window);
+        uiBase = new UIBaseSystem(mgr, stage, time);
+        uiActions = new UIActionsSystem(mgr, crafting, window);
+        uiInventory = new UIInventorySystem(mgr, inventory, window);
+        uiEquipment = new UIEquipSystem(mgr, equipment, inventory, window);
         uiStatus = new UIStatusSystem(mgr, window);
 
         setupButtons();
@@ -61,10 +52,10 @@ public class UISystem extends GameSystem {
     }
 
     private void setupButtons() {
-        actionsButton = new TextButton("Actions", skin, "actionsButton");
-        inventoryButton = new TextButton("Inventory", skin, "actionsButton");
-        equipmentButton = new TextButton("Equipment", skin, "actionsButton");
-        statusButton = new TextButton("Status", skin, "actionsButton");
+        actionsButton = new TextButton("Actions", mgr.getSkin(), "actionsButton");
+        inventoryButton = new TextButton("Inventory", mgr.getSkin(), "actionsButton");
+        equipmentButton = new TextButton("Equipment", mgr.getSkin(), "actionsButton");
+        statusButton = new TextButton("Status", mgr.getSkin(), "actionsButton");
 
         actionsButton.addListener(new ClickListener() {
             @Override
@@ -167,7 +158,7 @@ public class UISystem extends GameSystem {
     }
 
     public void update() {
-        base.update();
+        uiBase.update();
         uiActions.update();
         uiInventory.update();
         uiEquipment.update();
@@ -205,8 +196,8 @@ public class UISystem extends GameSystem {
         stage.draw();
     }
 
-    public UIBaseSystem getBase() {
-        return base;
+    public UIBaseSystem getUiBase() {
+        return uiBase;
     }
 
     public UIActionsSystem getActions() {

@@ -1,41 +1,43 @@
 package com.gaugestructures.last_ditch.systems;
 
+import com.badlogic.gdx.Gdx;
 import com.gaugestructures.last_ditch.C;
 
 public class TimeSystem extends GameSystem {
     private boolean active = true;
-    private float game_delta = 0, rate = 1f, elapsed = 0;
-    private int minute = 0, hour = 0, day = 1, month = 1, year = 3127;
+    private float gameDelta = 0, rate = 1f, elapsed = 0;
+    private float minute = 0;
+    private int hour = 0, day = 1, month = 1, year = 3127;
 
     public void toggleActive() {
         active = !active;
     }
 
-    public void set_active(boolean active) {
+    public void setActive(boolean active) {
         this.active = active;
     }
 
-    public boolean is_active() {
+    public boolean isActive() {
         return active;
     }
 
-    public String get_time() {
+    public String getTime() {
         if(hour < 10) {
             if(minute < 10) {
-                return String.format("0%d:0%d", hour, minute);
+                return String.format("0%d:0%d", hour, (int)minute);
             } else {
-                return String.format("0%d:%d", hour, minute);
+                return String.format("0%d:%d", hour, (int)minute);
             }
         } else {
             if(minute < 10) {
-                return String.format("%d:0%d", hour, minute);
+                return String.format("%d:0%d", hour, (int)minute);
             } else {
-                return String.format("%d:%d", hour, minute);
+                return String.format("%d:%d", hour, (int)minute);
             }
         }
     }
 
-    public String get_date() {
+    public String getDate() {
         if(month < 10) {
             if(day < 10) {
                 return String.format("0%d.0%d.%d", day, month, year);
@@ -53,9 +55,9 @@ public class TimeSystem extends GameSystem {
 
     public void update() {
         if(active) {
-            game_delta = rate * C.BOX_STEP;
-            minute += game_delta;
-            elapsed += game_delta;
+            gameDelta = rate * C.BOX_STEP;
+            minute += gameDelta;
+            elapsed += gameDelta;
 
             if(minute > 60) {
                 minute = 0;
@@ -77,5 +79,13 @@ public class TimeSystem extends GameSystem {
                 }
             }
         }
+    }
+
+    public float getGameDelta() {
+        return gameDelta;
+    }
+
+    public float getRate() {
+        return rate;
     }
 }

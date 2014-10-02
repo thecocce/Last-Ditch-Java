@@ -17,10 +17,9 @@ public class LastDitch extends ApplicationAdapter {
     private Skin skin;
     private SpriteBatch batch;
     private TextureAtlas atlas;
-    private String player;
     private Box2DDebugRenderer debug;
 
-    private Manager mgr = new Manager();
+    private Manager mgr;
     private TimeSystem time;
     private ActionsSystem actions;
     private CraftingSystem crafting;
@@ -41,27 +40,28 @@ public class LastDitch extends ApplicationAdapter {
         atlas = new TextureAtlas(Gdx.files.internal("gfx/graphics.atlas"));
         skin = new Skin(Gdx.files.internal("com/gaugestructures/last_ditch/cfg/uiskin.json"), atlas);
 
-        player = mgr.createEntity();
+        mgr = new Manager(atlas, skin);
+        mgr.createPlayer();
 
-        setupPlayer(player);
+        setupPlayer(mgr.getPlayer());
 
         time = new TimeSystem();
-        actions = new ActionsSystem(mgr, player);
-        crafting = new CraftingSystem(mgr, player);
-        inventory = new InventorySystem(mgr, player, atlas);
-        equipment = new EquipmentSystem(mgr, player);
-        status = new StatusSystem();
+        actions = new ActionsSystem(mgr);
+        crafting = new CraftingSystem(mgr);
+        inventory = new InventorySystem(mgr);
+        equipment = new EquipmentSystem(mgr);
+        status = new StatusSystem(mgr, time);
 
-        ui = new UISystem(mgr, equipment, inventory, player, atlas, skin, crafting);
+        ui = new UISystem(mgr, time, equipment, inventory, crafting);
         inventory.setUIActions(ui.getActions());
         inventory.setUIEquipmentSystem(ui.getEquipment());
         inventory.setUIInventorySystem(ui.getInventory());
         equipment.setUIStatusSystem(ui.getStatus());
-        map = new MapSystem(mgr, player, atlas, inventory);
+        map = new MapSystem(mgr, inventory);
         inventory.setMap(map);
-        input = new InputSystem(mgr, player, map, ui, inventory, actions, time);
-        render = new RenderSystem(mgr, player, atlas, map);
-        physics = new PhysicsSystem(mgr, player, map);
+        input = new InputSystem(mgr, map, ui, inventory, actions, time);
+        render = new RenderSystem(mgr, map);
+        physics = new PhysicsSystem(mgr, map);
         map.setPhysicsSystem(physics);
         lighting = new LightingSystem(map.getCam(), physics);
 
@@ -116,6 +116,7 @@ public class LastDitch extends ApplicationAdapter {
         mgr.addComp(player, new PositionComp(12, 12));
         mgr.addComp(player, new RotationComp(0));
         mgr.addComp(player, new TypeComp("player"));
+        mgr.addComp(player, new NeedsComp());
         mgr.addComp(player, new InventoryComp(C.INVENTORY_SLOTS));
         mgr.addComp(player, new VelocityComp(0, 0, C.PLAYER_SPD, C.PLAYER_ROT_SPD));
         mgr.addComp(player, new CollisionComp());

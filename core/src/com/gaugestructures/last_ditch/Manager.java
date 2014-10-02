@@ -1,5 +1,7 @@
 package com.gaugestructures.last_ditch;
 
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.gaugestructures.last_ditch.components.Component;
 import org.yaml.snakeyaml.Yaml;
 
@@ -11,11 +13,22 @@ import java.util.*;
 
 public class Manager {
     private boolean paused = false;
+    private Skin skin;
+    private String player;
+    private TextureAtlas atlas;
     private Yaml yaml = new Yaml();
     private Random rnd = new Random();
     private HashSet<String> entities = new HashSet<String>();
     private HashMap<Class<?>, HashMap<String, Component>> componentStores = new HashMap<Class<?>, HashMap<String, Component>>();
 
+    public Manager(TextureAtlas atlas, Skin skin) {
+        this.atlas = atlas;
+        this.skin = skin;
+    }
+
+    public final void createPlayer() {
+        player = createEntity();
+    }
 
     public final String createEntity() {
         String entity = java.util.UUID.randomUUID().toString();
@@ -149,6 +162,18 @@ public class Manager {
         }
 
         return null;
+    }
+
+    public String getPlayer() {
+        return player;
+    }
+
+    public Skin getSkin() {
+        return skin;
+    }
+
+    public TextureAtlas getAtlas() {
+        return atlas;
     }
 }
 

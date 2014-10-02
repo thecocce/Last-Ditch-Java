@@ -1,6 +1,5 @@
 package com.gaugestructures.last_ditch.systems;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
@@ -14,8 +13,6 @@ import java.util.Map;
 
 public class InventorySystem extends GameSystem {
     private Manager mgr;
-    private String player;
-    private TextureAtlas atlas;
 
     private ArrayList<ImageButton> invSlots = new ArrayList<ImageButton>();
     private boolean updateSlots = true;
@@ -25,10 +22,8 @@ public class InventorySystem extends GameSystem {
     private UIActionsSystem uiActions;
     private UIInventorySystem uiInventory;
 
-    public InventorySystem(Manager mgr, String player, TextureAtlas atlas) {
+    public InventorySystem(Manager mgr) {
         this.mgr = mgr;
-        this.player = player;
-        this.atlas = atlas;
 
         itemData = mgr.getData("items");
     }
@@ -106,7 +101,7 @@ public class InventorySystem extends GameSystem {
         }
 
         RenderComp renderComp = new RenderComp("");
-        renderComp.setRegion(atlas.findRegion(String.format("items/%s", type)));
+        renderComp.setRegion(mgr.getAtlas().findRegion(String.format("items/%s", type)));
 
         SizeComp sizeComp = mgr.addComp(item, new SizeComp(renderComp.getW() * C.WTB, renderComp.getH() * C.WTB));
 
@@ -121,21 +116,21 @@ public class InventorySystem extends GameSystem {
         if(updateSlots) {
             updateSlots = false;
 
-            InventoryComp invComp = mgr.comp(player, InventoryComp.class);
+            InventoryComp invComp = mgr.comp(mgr.getPlayer()        , InventoryComp.class);
 
             for(int i = 0; i < C.INVENTORY_SLOTS; i++) {
                 TypeComp typeComp = mgr.comp(invComp.getItem(i), TypeComp.class);
 
                 if(typeComp != null) {
                     ImageButton.ImageButtonStyle style = new ImageButton.ImageButtonStyle(uiInventory.getSlot(i).getStyle());
-                    style.imageUp = new TextureRegionDrawable(atlas.findRegion(String.format("items/%s", typeComp.getType())));
+                    style.imageUp = new TextureRegionDrawable(mgr.getAtlas().findRegion(String.format("items/%s", typeComp.getType())));
 
                     uiInventory.getSlot(i).setStyle(style);
 
 
                 } else {
                     ImageButton.ImageButtonStyle style = new ImageButton.ImageButtonStyle(uiInventory.getSlot(i).getStyle());
-                    style.imageUp = new TextureRegionDrawable(atlas.findRegion("environ/empty"));
+                    style.imageUp = new TextureRegionDrawable(mgr.getAtlas().findRegion("environ/empty"));
 
                     uiInventory.getSlot(i).setStyle(style);
                 }
@@ -165,9 +160,8 @@ public class InventorySystem extends GameSystem {
         item_comp.setUsable(false);
         item_comp.setCondition(0);
         info_comp.setDesc(
-                "This item is junk. It can only be used " +
-                        "as scrap at this point."
-        );
+            "This item is junk. It can only be used " +
+            "as scrap at this point.");
     }
 
     public void useItem(String entity, String item, String type) {
@@ -231,7 +225,7 @@ public class InventorySystem extends GameSystem {
 
         RenderComp renderComp = mgr.addComp(item, new RenderComp(""));
         renderComp.setRegionName(String.format("items/%s", type));
-        renderComp.setRegion(atlas.findRegion(renderComp.getRegionName()));
+        renderComp.setRegion(mgr.getAtlas().findRegion(renderComp.getRegionName()));
 
         mgr.addComp(item, new SizeComp(renderComp.getW() * C.WTB, renderComp.getH() * C.WTB));
 

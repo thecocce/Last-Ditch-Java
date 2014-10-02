@@ -1,6 +1,5 @@
 package com.gaugestructures.last_ditch.systems;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
@@ -8,20 +7,18 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.gaugestructures.last_ditch.C;
 import com.gaugestructures.last_ditch.Manager;
 import com.gaugestructures.last_ditch.components.*;
-import org.yaml.snakeyaml.Yaml;
 import com.google.common.collect.Sets;
+import org.yaml.snakeyaml.Yaml;
 
 import java.util.*;
 
 public class MapSystem extends GameSystem {
     private Manager mgr;
-    private String player;
     private Yaml yaml = new Yaml();
     private PositionComp focus;
     private int prevChunk = -1;
     private Set<Integer> curChunks = new HashSet<Integer>();
     private Set<Integer> prevChunks = new HashSet<Integer>();
-    private TextureAtlas atlas;
     private Room master;
     private Random rnd = new Random();
     private int startX, startY, endX, endY;
@@ -42,10 +39,8 @@ public class MapSystem extends GameSystem {
     private PhysicsSystem physics;
     private OrthographicCamera cam = new OrthographicCamera();
 
-    public MapSystem(Manager mgr, String player, TextureAtlas atlas, InventorySystem inventory) {
+    public MapSystem(Manager mgr, InventorySystem inventory) {
         this.mgr = mgr;
-        this.atlas = atlas;
-        this.player = player;
         this.inventory = inventory;
 
         for(int i = 0; i < numOfChunks; i++) {
@@ -55,11 +50,11 @@ public class MapSystem extends GameSystem {
             stations.add(i, new ArrayList<String>());
 
             for (TextureRegion[] row : tiles[i]) {
-                Arrays.fill(row, atlas.findRegion("environ/floor1"));
+                Arrays.fill(row, mgr.getAtlas().findRegion("environ/floor1"));
             }
         }
         cam.setToOrtho(false, C.WIDTH, C.HEIGHT);
-        focus = mgr.comp(player, PositionComp.class);
+        focus = mgr.comp(mgr.getPlayer(), PositionComp.class);
 
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
@@ -137,7 +132,7 @@ public class MapSystem extends GameSystem {
 
             RenderComp renderComp = new RenderComp(
                 typeComp.getType(),
-                atlas.findRegion(
+                mgr.getAtlas().findRegion(
                     String.format("environ/%s", typeComp.getType())));
 
             mgr.addComp(door, renderComp);
@@ -292,7 +287,7 @@ public class MapSystem extends GameSystem {
 
             RenderComp renderComp = new RenderComp(
                 "environ/door1",
-                atlas.findRegion("environ/door1"));
+                mgr.getAtlas().findRegion("environ/door1"));
 
             float w = renderComp.getW() * C.WTB;
             float h = renderComp.getH() * C.WTB;
@@ -331,7 +326,7 @@ public class MapSystem extends GameSystem {
 
             renderComp = new RenderComp(
                 "environ/door1",
-                atlas.findRegion("environ/door1")
+                mgr.getAtlas().findRegion("environ/door1")
             );
 
             w = renderComp.getW() * C.WTB;
@@ -645,7 +640,7 @@ public class MapSystem extends GameSystem {
         int chunkY = y % C.CHUNK_SIZE;
 
         if (chunk != -1) {
-            tiles[chunk][chunkX][chunkY] = atlas.findRegion(regionName);
+            tiles[chunk][chunkX][chunkY] = mgr.getAtlas().findRegion(regionName);
             return true;
         }
         return false;

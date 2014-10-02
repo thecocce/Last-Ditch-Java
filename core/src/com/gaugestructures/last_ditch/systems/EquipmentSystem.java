@@ -12,7 +12,7 @@ public class EquipmentSystem extends GameSystem {
     private Manager mgr;
     private UIStatusSystem uiStatus;
 
-    public EquipmentSystem(Manager mgr, String player) {
+    public EquipmentSystem(Manager mgr) {
         this.mgr = mgr;
     }
 

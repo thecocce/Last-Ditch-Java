@@ -15,20 +15,16 @@ import java.util.ArrayList;
 public class UIEquipSystem extends GameSystem {
     private boolean active = false, toggle = false;
     private Manager mgr;
-    private Skin skin;
     private Window window;
     private Table table;
-    private String player;
     private EquipmentSystem equipment;
     private InventorySystem inventory;
     private Label desc;
     private ArrayList<String> headItems, armItems, torsoItems, handItems, beltItems, legItems, footItems;
     private SelectBox lHeadBox, rHeadBox, lArmBox, lHandBox, rHandBox, rArmBox, torsoBox, beltBox, lLegBox, rLegBox, lFootBox, rFootBox;
 
-    public UIEquipSystem(Manager mgr, EquipmentSystem equipment, InventorySystem inventory, String player, Skin skin, Window window) {
+    public UIEquipSystem(Manager mgr, EquipmentSystem equipment, InventorySystem inventory, Window window) {
         this.mgr = mgr;
-        this.skin = skin;
-        this.player = player;
         this.window = window;
         this.inventory = inventory;
         this.equipment = equipment;
@@ -45,7 +41,7 @@ public class UIEquipSystem extends GameSystem {
         table.setPosition(0, 44);
         table.setSize(250, 290);
 
-        lHeadBox = new SelectBox(skin, "equipment");
+        lHeadBox = new SelectBox(mgr.getSkin(), "equipment");
         lHeadBox.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -54,7 +50,7 @@ public class UIEquipSystem extends GameSystem {
             }
         });
 
-        rHeadBox = new SelectBox(skin, "equipment");
+        rHeadBox = new SelectBox(mgr.getSkin(), "equipment");
         rHeadBox.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -63,7 +59,7 @@ public class UIEquipSystem extends GameSystem {
             }
         });
 
-        lArmBox = new SelectBox(skin, "equipment");
+        lArmBox = new SelectBox(mgr.getSkin(), "equipment");
         lArmBox.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -72,7 +68,7 @@ public class UIEquipSystem extends GameSystem {
             }
         });
 
-        rArmBox = new SelectBox(skin, "equipment");
+        rArmBox = new SelectBox(mgr.getSkin(), "equipment");
         rArmBox.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -81,7 +77,7 @@ public class UIEquipSystem extends GameSystem {
             }
         });
 
-        torsoBox = new SelectBox(skin, "equipment");
+        torsoBox = new SelectBox(mgr.getSkin(), "equipment");
         torsoBox.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -90,7 +86,7 @@ public class UIEquipSystem extends GameSystem {
             }
         });
 
-        beltBox = new SelectBox(skin, "equipment");
+        beltBox = new SelectBox(mgr.getSkin(), "equipment");
         beltBox.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -99,7 +95,7 @@ public class UIEquipSystem extends GameSystem {
             }
         });
 
-        lHandBox = new SelectBox(skin, "equipment");
+        lHandBox = new SelectBox(mgr.getSkin(), "equipment");
         lHandBox.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -108,7 +104,7 @@ public class UIEquipSystem extends GameSystem {
             }
         });
 
-        rHandBox = new SelectBox(skin, "equipment");
+        rHandBox = new SelectBox(mgr.getSkin(), "equipment");
         rHandBox.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -117,7 +113,7 @@ public class UIEquipSystem extends GameSystem {
             }
         });
 
-        lLegBox = new SelectBox(skin, "equipment");
+        lLegBox = new SelectBox(mgr.getSkin(), "equipment");
         lLegBox.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -126,7 +122,7 @@ public class UIEquipSystem extends GameSystem {
             }
         });
 
-        rLegBox = new SelectBox(skin, "equipment");
+        rLegBox = new SelectBox(mgr.getSkin(), "equipment");
         rLegBox.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -135,7 +131,7 @@ public class UIEquipSystem extends GameSystem {
             }
         });
 
-        lFootBox = new SelectBox(skin, "equipment");
+        lFootBox = new SelectBox(mgr.getSkin(), "equipment");
         lFootBox.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -144,7 +140,7 @@ public class UIEquipSystem extends GameSystem {
             }
         });
 
-        rFootBox = new SelectBox(skin, "equipment");
+        rFootBox = new SelectBox(mgr.getSkin(), "equipment");
         rFootBox.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -153,7 +149,7 @@ public class UIEquipSystem extends GameSystem {
             }
         });
 
-        desc = new Label("Description time!", skin, "equipment");
+        desc = new Label("Description time!", mgr.getSkin(), "equipment");
         desc.setWrap(true);
 
         int equipBoxSize = 120;
@@ -175,10 +171,10 @@ public class UIEquipSystem extends GameSystem {
     }
 
     private void setEquipment(String slot, int index) {
-        InventoryComp invComp = mgr.comp(player, InventoryComp.class);
+        InventoryComp invComp = mgr.comp(mgr.getPlayer(), InventoryComp.class);
 
         if(index == 0) {
-            String item = equipment.dequip(player, slot);
+            String item = equipment.dequip(mgr.getPlayer(), slot);
 
             if(!item.equals("")) {
                 inventory.addItem(invComp, item);
@@ -187,25 +183,25 @@ public class UIEquipSystem extends GameSystem {
         }
 
         if(slot.equals("lHead") || slot.equals("rHead")) {
-            equipment.equip(player, slot, headItems.get(index - 1));
+            equipment.equip(mgr.getPlayer(), slot, headItems.get(index - 1));
             inventory.removeItem(invComp, headItems.get(index - 1));
         } else if(slot.equals("lHand") || slot.equals("rHand")) {
-            equipment.equip(player, slot, handItems.get(index - 1));
+            equipment.equip(mgr.getPlayer(), slot, handItems.get(index - 1));
             inventory.removeItem(invComp, handItems.get(index - 1));
         } else if(slot.equals("lArm") || slot.equals("rArm")) {
-            equipment.equip(player, slot, armItems.get(index - 1));
+            equipment.equip(mgr.getPlayer(), slot, armItems.get(index - 1));
             inventory.removeItem(invComp, armItems.get(index - 1));
         } else if(slot.equals("torso")) {
-            equipment.equip(player, slot, torsoItems.get(index - 1));
+            equipment.equip(mgr.getPlayer(), slot, torsoItems.get(index - 1));
             inventory.removeItem(invComp, torsoItems.get(index - 1));
         } else if(slot.equals("belt")) {
-            equipment.equip(player, slot, beltItems.get(index - 1));
+            equipment.equip(mgr.getPlayer(), slot, beltItems.get(index - 1));
             inventory.removeItem(invComp, beltItems.get(index - 1));
         } else if(slot.equals("lLeg") || slot.equals("rLeg")) {
-            equipment.equip(player, slot, legItems.get(index - 1));
+            equipment.equip(mgr.getPlayer(), slot, legItems.get(index - 1));
             inventory.removeItem(invComp, legItems.get(index - 1));
         } else if(slot.equals("lFoot") || slot.equals("rFoot")) {
-            equipment.equip(player, slot, footItems.get(index - 1));
+            equipment.equip(mgr.getPlayer(), slot, footItems.get(index - 1));
             inventory.removeItem(invComp, footItems.get(index - 1));
         }
     }
@@ -235,7 +231,7 @@ public class UIEquipSystem extends GameSystem {
         legList.add("none");
         footList.add("none");
 
-        InventoryComp invComp = mgr.comp(player, InventoryComp.class);
+        InventoryComp invComp = mgr.comp(mgr.getPlayer(), InventoryComp.class);
 
         for(String item : invComp.getItems()) {
             EquippableComp equippableComp = mgr.comp(item, EquippableComp.class);
@@ -270,7 +266,7 @@ public class UIEquipSystem extends GameSystem {
         }
 
         InfoComp infoComp;
-        EquipmentComp equipComp = mgr.comp(player, EquipmentComp.class);
+        EquipmentComp equipComp = mgr.comp(mgr.getPlayer(), EquipmentComp.class);
 
         if(equipComp.getRHead() != null) {
             infoComp = mgr.comp(equipComp.getRHead(), InfoComp.class);

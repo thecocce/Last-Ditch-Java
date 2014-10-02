@@ -13,29 +13,24 @@ import com.google.common.collect.Iterables;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 public class RenderSystem extends GameSystem {
     private Manager mgr;
-    private String player;
-    private TextureAtlas atlas;
     private MapSystem map;
     private PositionComp focus;
 
-    public RenderSystem(Manager mgr, String player, TextureAtlas atlas, MapSystem map) {
+    public RenderSystem(Manager mgr, MapSystem map) {
         this.mgr = mgr;
-        this.player = player;
-        this.atlas = atlas;
         this.map = map;
         focus = map.getFocus();
 
         for (String entity : mgr.entitiesWith(RenderComp.class)) {
             RenderComp renderComp = mgr.comp(entity, RenderComp.class);
-            renderComp.setRegion(atlas.findRegion(renderComp.getRegionName()));
+            renderComp.setRegion(mgr.getAtlas().findRegion(renderComp.getRegionName()));
 
             PositionComp posComp = mgr.comp(entity, PositionComp.class);
-            PositionComp playerPosComp = mgr.comp(player, PositionComp.class);
+            PositionComp playerPosComp = mgr.comp(mgr.getPlayer(), PositionComp.class);
 
             float x_dist = posComp.getX() - playerPosComp.getX();
             float y_dist = posComp.getY() - playerPosComp.getY();
@@ -56,11 +51,11 @@ public class RenderSystem extends GameSystem {
                 for (String frame : frames) {
                     if (frame.endsWith("-f")) {
                         frame = frame.replace("-f", "");
-                        TextureRegion region = new TextureRegion(atlas.findRegion(frame));
+                        TextureRegion region = new TextureRegion(mgr.getAtlas().findRegion(frame));
                         region.flip(false, true);
                         frameList.add(region);
                     } else {
-                        frameList.add(atlas.findRegion(frame));
+                        frameList.add(mgr.getAtlas().findRegion(frame));
                     }
                 }
 
@@ -86,8 +81,8 @@ public class RenderSystem extends GameSystem {
             animComp.updateStateTime(C.BOX_STEP);
             Vector2 velVec = colComp.getBody().getLinearVelocity();
 
-            if (entity.equals(player)) {
-                InfoComp infoComp = mgr.comp(player, InfoComp.class);
+            if (entity.equals(mgr.getPlayer())) {
+                InfoComp infoComp = mgr.comp(mgr.getPlayer(), InfoComp.class);
 
                 if (Math.abs(velVec.x) < 0.02f && Math.abs(velVec.y) < 0.02f) {
                     animComp.setCur(String.format("%s1/idle", infoComp.getGender()));
@@ -128,9 +123,9 @@ public class RenderSystem extends GameSystem {
             }
         }
 
-        AnimationComp animComp = mgr.comp(player, AnimationComp.class);
-        PositionComp posComp = mgr.comp(player, PositionComp.class);
-        RotationComp rotComp = mgr.comp(player, RotationComp.class);
+        AnimationComp animComp = mgr.comp(mgr.getPlayer(), AnimationComp.class);
+        PositionComp posComp = mgr.comp(mgr.getPlayer(), PositionComp.class);
+        RotationComp rotComp = mgr.comp(mgr.getPlayer(), RotationComp.class);
 
         batch.draw(
             animComp.getKeyFrame(),

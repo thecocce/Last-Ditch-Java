@@ -10,12 +10,10 @@ public class CraftingSystem extends GameSystem {
     private Manager mgr;
     private boolean active = false;
     private Map<String, Object> recipeData;
-    private String player;
     private HashMap<String, String> recipes = new HashMap<String, String>();
 
-    public CraftingSystem(Manager mgr, String player) {
+    public CraftingSystem(Manager mgr) {
         this.mgr = mgr;
-        this.player = player;
 
         recipeData = mgr.getData("recipes");
 
