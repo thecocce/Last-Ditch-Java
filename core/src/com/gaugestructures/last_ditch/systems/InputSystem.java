@@ -30,19 +30,27 @@ public class InputSystem extends GameSystem implements InputProcessor {
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
 
-        if(button == 0) {
-            if(shift) {
-                if(ui.isActive()) {
+        if (button == 0) {
+            if (shift) {
+                if (ui.isActive()) {
 
                 } else {
-                    if(!inventory.pickupItemAt(player, screenX, screenY)) {
+                    if (!inventory.pickupItemAt(player, screenX, screenY)) {
                         map.useDoorAt(player, screenX, screenY);
                     }
 
 
                 }
+            } else {
+                if (ui.isActive()) {
+
+
+                } else {
+                    inventory.pickupItem(player);
+                }
+
             }
-        } else if(button == 1) {
+        } else if (button == 1) {
 
         }
 

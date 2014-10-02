@@ -1,5 +1,6 @@
 package com.gaugestructures.last_ditch.systems;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
@@ -71,6 +72,7 @@ public class InventorySystem extends GameSystem {
                 invComp.setWeight(invComp.getWeight() + itemComp.getWeight());
 
                 uiEquipment.setupEquipmentLists();
+                return item;
             }
         }
         return null;
@@ -119,21 +121,23 @@ public class InventorySystem extends GameSystem {
         if(updateSlots) {
             updateSlots = false;
 
-            InventoryComp inv_comp = mgr.comp(player, InventoryComp.class);
+            InventoryComp invComp = mgr.comp(player, InventoryComp.class);
 
-            for(int i = 0; i < invSlots.size(); i++) {
-                TypeComp type_comp = mgr.comp(inv_comp.getItem(i), TypeComp.class);
+            for(int i = 0; i < C.INVENTORY_SLOTS; i++) {
+                TypeComp typeComp = mgr.comp(invComp.getItem(i), TypeComp.class);
 
-                if(type_comp != null) {
-                    ImageButton.ImageButtonStyle style = new ImageButton.ImageButtonStyle(invSlots.get(i).getStyle());
-                    style.imageUp = new TextureRegionDrawable(atlas.findRegion(String.format("items/%s", type_comp.getType())));
+                if(typeComp != null) {
+                    ImageButton.ImageButtonStyle style = new ImageButton.ImageButtonStyle(uiInventory.getSlot(i).getStyle());
+                    style.imageUp = new TextureRegionDrawable(atlas.findRegion(String.format("items/%s", typeComp.getType())));
 
-                    invSlots.get(i).setStyle(style);
+                    uiInventory.getSlot(i).setStyle(style);
+
+
                 } else {
-                    ImageButton.ImageButtonStyle style = new ImageButton.ImageButtonStyle(invSlots.get(i).getStyle());
+                    ImageButton.ImageButtonStyle style = new ImageButton.ImageButtonStyle(uiInventory.getSlot(i).getStyle());
                     style.imageUp = new TextureRegionDrawable(atlas.findRegion("environ/empty"));
 
-                    invSlots.get(i).setStyle(style);
+                    uiInventory.getSlot(i).setStyle(style);
                 }
             }
         }
@@ -189,11 +193,11 @@ public class InventorySystem extends GameSystem {
         Map<String, Object> typeData = (Map<String, Object>) itemData.get(type);
 
         typeComp.setType(type);
-        infoComp.setName((String) typeData.get("name"));
-        infoComp.setDesc((String) typeData.get("desc"));
-        itemComp.setUsable((Boolean) typeData.get("usable"));
-        itemComp.setWeight(((Double) typeData.get("weight")).floatValue());
-        itemComp.setBaseValue(((Double) typeData.get("base_value")).floatValue());
+        infoComp.setName((String)typeData.get("name"));
+        infoComp.setDesc((String)typeData.get("desc"));
+        itemComp.setUsable((Boolean)typeData.get("usable"));
+        itemComp.setWeight(((Double)typeData.get("weight")).floatValue());
+        itemComp.setBaseValue(((Double)typeData.get("baseValue")).floatValue());
         itemComp.setCondition(itemComp.getCondition() - itemComp.getDecayRate());
 
         if(itemComp.getCondition() <= 0) {
@@ -232,6 +236,29 @@ public class InventorySystem extends GameSystem {
         mgr.addComp(item, new SizeComp(renderComp.getW() * C.WTB, renderComp.getH() * C.WTB));
 
         return item;
+    }
+
+    public boolean pickupItem(String entity) {
+        PositionComp posComp = mgr.comp(entity, PositionComp.class);
+        InventoryComp invComp = mgr.comp(entity, InventoryComp.class);
+
+        String item = map.getNearItem(posComp.getX(), posComp.getY());
+
+        if (item != null) {
+            TypeComp typeComp = mgr.comp(item, TypeComp.class);
+
+            if (addItemByType(invComp, typeComp.getType()) != null) {
+                ItemComp itemComp = mgr.comp(item, ItemComp.class);
+                invComp.setWeight(invComp.getWeight() + itemComp.getWeight());
+
+                map.removeItem(item);
+                uiInventory.setPrevSelection(null);
+
+                return true;
+            }
+
+        }
+        return false;
     }
 
     public boolean pickupItemAt(String entity, int screenX, int screenY) {

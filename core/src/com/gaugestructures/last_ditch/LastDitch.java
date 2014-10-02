@@ -61,7 +61,6 @@ public class LastDitch extends ApplicationAdapter {
         inventory.setMap(map);
         input = new InputSystem(mgr, player, map, ui, inventory, actions, time);
         render = new RenderSystem(mgr, player, atlas, map);
-        map.setRender(render);
         physics = new PhysicsSystem(mgr, player, map);
         map.setPhysicsSystem(physics);
         lighting = new LightingSystem(map.getCam(), physics);
@@ -92,6 +91,7 @@ public class LastDitch extends ApplicationAdapter {
             steps--;
         }
         map.update();
+        ui.update();
     }
 
 	@Override

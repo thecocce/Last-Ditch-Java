@@ -117,6 +117,20 @@ public class UIInventorySystem extends GameSystem {
         selection.setStyle(style);
     }
 
+    private void exitTable() {
+        if (noExit) {
+            noExit = false;
+        } else {
+            if (selection != null) {
+                ImageButton.ImageButtonStyle style = new ImageButton.ImageButtonStyle(selection.getStyle());
+                style.up = new TextureRegionDrawable(atlas.findRegion("ui/invSlot"));
+                selection.setStyle(style);
+
+                selection = null;
+            }
+        }
+    }
+
     private boolean useItem() {
         if(selection == null) return false;
 
@@ -147,11 +161,19 @@ public class UIInventorySystem extends GameSystem {
     }
 
     private void setItemName(String name) {
-        itemName.setText(name.substring(0, 1).toUpperCase() + name.substring(1));
+        if (name.equals("")) {
+            itemName.setText("");
+        } else {
+            itemName.setText(name.substring(0, 1).toUpperCase() + name.substring(1));
+        }
     }
 
     private void setItemDesc(String desc) {
-        itemDesc.setText(desc);
+        if (desc.equals("")) {
+            itemDesc.setText("");
+        } else {
+            itemDesc.setText(desc);
+        }
     }
 
     private void setItemQualAndCond(float quality, float condition) {
@@ -178,20 +200,6 @@ public class UIInventorySystem extends GameSystem {
         }
     }
 
-    private void exitTable() {
-        if(noExit) {
-            noExit = false;
-        } else {
-            if(selection != null) {
-                ImageButton.ImageButtonStyle style = new ImageButton.ImageButtonStyle(selection.getStyle());
-                style.up = new TextureRegionDrawable(atlas.findRegion("ui/invSlot"));
-                selection.setStyle(style);
-
-                selection = null;
-            }
-        }
-    }
-
     public void activate() {
         active = true;
     }
@@ -214,7 +222,7 @@ public class UIInventorySystem extends GameSystem {
                     if (index != -1) {
                         String item = invComp.getItem(index);
 
-                        if (!item.equals("")) {
+                        if (item != null && !item.equals("")) {
                             ItemComp itemComp = mgr.comp(item, ItemComp.class);
                             InfoComp infoComp = mgr.comp(item, InfoComp.class);
 
@@ -231,8 +239,8 @@ public class UIInventorySystem extends GameSystem {
                     resetInfo();
                 }
             }
+            prevSelection = selection;
         }
-        prevSelection = selection;
     }
 
     public ImageButton getPrevSelection() {
@@ -249,5 +257,13 @@ public class UIInventorySystem extends GameSystem {
         setItemValue(-1);
         setItemWeight(-1);
         setItemDesc("");
+    }
+
+    public ArrayList<ImageButton> getSlots() {
+        return slots;
+    }
+
+    public ImageButton getSlot(int i) {
+        return slots.get(i);
     }
 }

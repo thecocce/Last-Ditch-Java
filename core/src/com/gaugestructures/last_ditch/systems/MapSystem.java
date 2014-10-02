@@ -27,7 +27,7 @@ public class MapSystem extends GameSystem {
     private int startX, startY, endX, endY;
     private int iterations = 120;
     private int numOfRooms = 200;
-    private int numOfItems = 3200;
+    private int numOfItems = 600;
     private InventorySystem inventory;
     private int numOfChunks = C.MAP_WIDTH * C.MAP_HEIGHT;
     private int width = C.MAP_WIDTH * C.CHUNK_SIZE, height = C.MAP_HEIGHT * C.CHUNK_SIZE;
@@ -39,7 +39,6 @@ public class MapSystem extends GameSystem {
     private boolean[][][] sight = new boolean[numOfChunks][C.CHUNK_SIZE][C.CHUNK_SIZE];
     private float[][][] rot = new float[numOfChunks][C.CHUNK_SIZE][C.CHUNK_SIZE];
     private TextureRegion[][][] tiles = new TextureRegion[numOfChunks][C.CHUNK_SIZE][C.CHUNK_SIZE];
-    private RenderSystem render;
     private PhysicsSystem physics;
     private OrthographicCamera cam = new OrthographicCamera();
 
@@ -88,7 +87,6 @@ public class MapSystem extends GameSystem {
 
     public boolean useDoorAt(String entity, int screenX, int screenY) {
         PositionComp posComp = mgr.comp(entity, PositionComp.class);
-        InventoryComp invComp = mgr.comp(entity, InventoryComp.class);
 
         float x = posComp.getX() + C.WTB * (screenX - C.WIDTH / 2);
         float y = posComp.getY() - C.WTB * (screenY - C.HEIGHT / 2);
@@ -111,7 +109,6 @@ public class MapSystem extends GameSystem {
 
     public boolean useDoor(String entity) {
         PositionComp posComp = mgr.comp(entity, PositionComp.class);
-        InventoryComp invComp = mgr.comp(entity, InventoryComp.class);
 
         String door = getNearDoor(posComp.getX(), posComp.getY());
 
@@ -130,10 +127,7 @@ public class MapSystem extends GameSystem {
     }
 
     private void updateDoor(String door, boolean open) {
-        PositionComp posComp = mgr.comp(door, PositionComp.class);
-        RotationComp rotComp = mgr.comp(door, RotationComp.class);
         CollisionComp colComp = mgr.comp(door, CollisionComp.class);
-        SizeComp sizeComp = mgr.comp(door, SizeComp.class);
 
         if (open) {
             mgr.removeComp(door, RenderComp.class);
@@ -200,10 +194,6 @@ public class MapSystem extends GameSystem {
 
         items.get(getChunk(posComp.getX(), posComp.getY())).remove(item);
         inventory.setUpdateSlots(true);
-    }
-
-    public void setRender(RenderSystem render) {
-        this.render = render;
     }
 
     public void generateRooms() {
@@ -421,28 +411,32 @@ public class MapSystem extends GameSystem {
     }
 
     public String getItem(float x, float y) {
-        for (int cx = (int)focus.getX() - 1; cx <= focus.getX() + 1; cx++) {
-            for (int cy = (int)focus.getY() - 1; cy <= focus.getY() + 1; cy++) {
-                for (String door : doors.get(getChunk(cx, cy))) {
-                    PositionComp posComp = mgr.comp(door, PositionComp.class);
-                    double distSqr = Math.pow((posComp.getX() - x), 2) + Math.pow((posComp.getY() - y), 2);
+        for (int cx = (int)focus.getX() - C.CHUNK_SIZE; cx <= focus.getX() + C.CHUNK_SIZE; cx++) {
+            for (int cy = (int)focus.getY() - C.CHUNK_SIZE; cy <= focus.getY() + C.CHUNK_SIZE; cy++) {
+                int chunk = getChunk(cx, cy);
 
-                    if (distSqr < 1.4) {
-                        RotationComp rotComp = mgr.comp(door, RotationComp.class);
-                        RenderComp renderComp = mgr.comp(door, RenderComp.class);
+                if (chunk != -1) {
+                    for (String item : items.get(chunk)) {
+                        PositionComp posComp = mgr.comp(item, PositionComp.class);
+                        double distSqr = Math.pow((posComp.getX() - x), 2) + Math.pow((posComp.getY() - y), 2);
 
-                        double c = Math.cos(-rotComp.getAng() * Math.PI / 180);
-                        double s = Math.sin(-rotComp.getAng() * Math.PI / 180);
-                        double rotX = posComp.getX() + c * (x - posComp.getX()) - s * (y - posComp.getY());
-                        double rotY = posComp.getY() + s * (x - posComp.getX()) + c * (y - posComp.getY());
+                        if (distSqr < 1.4) {
+                            RotationComp rotComp = mgr.comp(item, RotationComp.class);
+                            RenderComp renderComp = mgr.comp(item, RenderComp.class);
 
-                        double left = posComp.getX() - renderComp.getW() * C.WTB / 2;
-                        double right = posComp.getX() + renderComp.getW() * C.WTB / 2;
-                        double top = posComp.getY() - renderComp.getH() * C.WTB / 2;
-                        double bottom = posComp.getY() + renderComp.getH() * C.WTB / 2;
+                            double c = Math.cos(-rotComp.getAng() * Math.PI / 180);
+                            double s = Math.sin(-rotComp.getAng() * Math.PI / 180);
+                            double rotX = posComp.getX() + c * (x - posComp.getX()) - s * (y - posComp.getY());
+                            double rotY = posComp.getY() + s * (x - posComp.getX()) + c * (y - posComp.getY());
 
-                        if (left <= rotX && rotX <= right && top <= rotY && rotY <= bottom) {
-                            return door;
+                            double left = posComp.getX() - renderComp.getW() * C.WTB / 2;
+                            double right = posComp.getX() + renderComp.getW() * C.WTB / 2;
+                            double top = posComp.getY() - renderComp.getH() * C.WTB / 2;
+                            double bottom = posComp.getY() + renderComp.getH() * C.WTB / 2;
+
+                            if (left <= rotX && rotX <= right && top <= rotY && rotY <= bottom) {
+                                return item;
+                            }
                         }
                     }
                 }
@@ -451,7 +445,20 @@ public class MapSystem extends GameSystem {
         return null;
     }
 
+    public String getNearItem(float x, float y) {
+        int chunk = getChunk(focus.getX(), focus.getY());
 
+        for (String item : items.get(chunk)) {
+            PositionComp posComp = mgr.comp(item, PositionComp.class);
+
+            double distSqr = Math.pow((posComp.getX() - x), 2) + Math.pow((posComp.getY() - y), 2);
+
+            if (distSqr < 1.4) {
+                return item;
+            }
+        }
+        return null;
+    }
 
     public void update() {
         startX = (int)Math.max(focus.getX() - 13, 0);

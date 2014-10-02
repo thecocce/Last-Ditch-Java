@@ -9,6 +9,7 @@ import com.badlogic.gdx.utils.Array;
 import com.gaugestructures.last_ditch.C;
 import com.gaugestructures.last_ditch.Manager;
 import com.gaugestructures.last_ditch.components.*;
+import com.google.common.collect.Iterables;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -18,7 +19,6 @@ import java.util.Map;
 public class RenderSystem extends GameSystem {
     private Manager mgr;
     private String player;
-    private int updateTimer = 0;
     private TextureAtlas atlas;
     private MapSystem map;
     private PositionComp focus;
@@ -65,7 +65,7 @@ public class RenderSystem extends GameSystem {
                 }
 
                 animComp.getAnims().put(
-                    (String) pairs.getKey(),
+                    (String)pairs.getKey(),
                     new Animation(animComp.getDuration(), frameList));
 
                 if (first) {
@@ -99,41 +99,29 @@ public class RenderSystem extends GameSystem {
     }
 
     public void render(SpriteBatch batch) {
-        for (int cx = (int)focus.getX() - 1; cx <= focus.getX() + 1; cx++) {
-            for (int cy = (int)focus.getY() - 1; cy <= focus.getY() + 1; cy++) {
-                int curChunk = map.getChunk(cx, cy);
+        for (int cx = (int)focus.getX() - C.CHUNK_SIZE; cx <= focus.getX() + C.CHUNK_SIZE; cx += C.CHUNK_SIZE) {
+            for (int cy = (int)focus.getY() - C.CHUNK_SIZE; cy <= focus.getY() + C.CHUNK_SIZE; cy += C.CHUNK_SIZE) {
+                int chunk = map.getChunk(cx, cy);
 
-                if (curChunk != -1) {
-                    for (String door : map.getDoors().get(map.getChunk(cx, cy))) {
-                        if (mgr.hasComp(door, RenderComp.class)) {
-                            PositionComp posComp = mgr.comp(door, PositionComp.class);
-                            RotationComp rotComp = mgr.comp(door, RotationComp.class);
-                            SizeComp sizeComp = mgr.comp(door, SizeComp.class);
-                            RenderComp renderComp = mgr.comp(door, RenderComp.class);
-                            TypeComp typeComp = mgr.comp(door, TypeComp.class);
+                if (chunk != -1) {
+                    Iterable<String> entities = Iterables.concat(
+                        map.getDoors().get(chunk), map.getItems().get(chunk));
 
-                            batch.draw(
-                                    renderComp.getRegion(),
-                                    C.BTW * (posComp.getX() - sizeComp.getW() / 2),
-                                    C.BTW * (posComp.getY() - sizeComp.getH() / 2),
-                                    C.BTW * sizeComp.getW() / 2, C.BTW * sizeComp.getH() / 2,
-                                    C.BTW * sizeComp.getW(), C.BTW * sizeComp.getH(),
-                                    renderComp.getScale(), renderComp.getScale(),
-                                    rotComp.getAng());
-
-                        } else if (mgr.hasComp(door, AnimationComp.class)) {
-                            PositionComp posComp = mgr.comp(door, PositionComp.class);
-                            RotationComp rotComp = mgr.comp(door, RotationComp.class);
-                            AnimationComp animComp = mgr.comp(door, AnimationComp.class);
+                    for (String entity : entities) {
+                        if (mgr.hasComp(entity, RenderComp.class)) {
+                            PositionComp posComp = mgr.comp(entity, PositionComp.class);
+                            RotationComp rotComp = mgr.comp(entity, RotationComp.class);
+                            SizeComp sizeComp = mgr.comp(entity, SizeComp.class);
+                            RenderComp renderComp = mgr.comp(entity, RenderComp.class);
 
                             batch.draw(
-                                    animComp.getKeyFrame(),
-                                    C.BTW * posComp.getX() - animComp.getW() / 2,
-                                    C.BTW * posComp.getY() - animComp.getH() / 2,
-                                    animComp.getW() / 2, animComp.getH() / 2,
-                                    animComp.getW(), animComp.getH(),
-                                    animComp.getScale(), animComp.getScale(),
-                                    rotComp.getAng());
+                                renderComp.getRegion(),
+                                C.BTW * (posComp.getX() - sizeComp.getW() / 2),
+                                C.BTW * (posComp.getY() - sizeComp.getH() / 2),
+                                C.BTW * sizeComp.getW() / 2, C.BTW * sizeComp.getH() / 2,
+                                C.BTW * sizeComp.getW(), C.BTW * sizeComp.getH(),
+                                renderComp.getScale(), renderComp.getScale(),
+                                rotComp.getAng());
                         }
                     }
                 }

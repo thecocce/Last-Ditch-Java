@@ -117,6 +117,9 @@ public class UISystem extends GameSystem {
         window.getCell(focusActor).setActor(uiActions.getTable());
 
         actionsButton.setChecked(true);
+        inventoryButton.setChecked(false);
+        equipmentButton.setChecked(false);
+        statusButton.setChecked(false);
     }
 
     private void switchFocus(String focus) {
