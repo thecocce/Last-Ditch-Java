@@ -7,6 +7,7 @@ import com.gaugestructures.last_ditch.C;
 import com.gaugestructures.last_ditch.Manager;
 import com.gaugestructures.last_ditch.components.*;
 import com.google.common.collect.Sets;
+import javafx.geometry.Pos;
 import org.yaml.snakeyaml.Yaml;
 import sun.swing.UIAction;
 
@@ -25,7 +26,10 @@ public class MapSystem extends GameSystem {
     private int iterations = 120;
     private int numOfRooms = 200;
     private int numOfItems = 600;
+    private TimeSystem time;
+    private ActionsSystem actions;
     private InventorySystem inventory;
+    private UISystem ui;
     private UIActionsSystem uiActions;
     private UIInventorySystem uiInventory;
     private int numOfChunks = C.MAP_WIDTH * C.MAP_HEIGHT;
@@ -41,9 +45,12 @@ public class MapSystem extends GameSystem {
     private PhysicsSystem physics;
     private OrthographicCamera cam = new OrthographicCamera();
 
-    public MapSystem(Manager mgr, InventorySystem inventory, UIActionsSystem uiActions, UIInventorySystem uiInventory) {
+    public MapSystem(Manager mgr, TimeSystem time, ActionsSystem actions, InventorySystem inventory, UISystem ui, UIActionsSystem uiActions, UIInventorySystem uiInventory) {
         this.mgr = mgr;
         this.inventory = inventory;
+        this.time = time;
+        this.actions = actions;
+        this.ui = ui;
         this.uiActions = uiActions;
         this.uiInventory = uiInventory;
 
@@ -188,7 +195,43 @@ public class MapSystem extends GameSystem {
     }
 
     public boolean useStation(String entity) {
-        return false;
+        PositionComp posComp = mgr.comp(entity, PositionComp.class);
+        InventoryComp invComp = mgr.comp(entity, InventoryComp.class);
+
+        String station = getNearStation(posComp.getX(), posComp.getY());
+
+        if (station == null)
+            return false;
+
+        StationComp stationComp = mgr.comp(station, StationComp.class);
+
+        if (stationComp == null)
+            return false;
+
+        mgr.setPaused(true);
+        time.setActive(false);
+
+        actions.setCurStation(station);
+
+        ui.activate("actions");
+        uiActions.activate();
+
+        return true;
+    }
+
+    public String getNearStation(float x, float y) {
+        int chunk = getChunk(x, y);
+
+        for (String station : stations.get(chunk)) {
+            PositionComp posComp = mgr.comp(station, PositionComp.class);
+
+            double distSqr = Math.pow((posComp.getX() - x), 2) + Math.pow((posComp.getY() - y), 2);
+
+            if (distSqr < 2.6) {
+                return station;
+            }
+        }
+        return null;
     }
 
     public boolean dropItem(String entity) {
@@ -430,9 +473,9 @@ public class MapSystem extends GameSystem {
 
                 ResourcesComp resourcesComp = mgr.addComp(station, new ResourcesComp());
 
-                if (stationType.equals("purification_station")) {
+                if (stationType.equals("purificationStation")) {
                     resourcesComp.setWater(2);
-                } else if (stationType.equals("charging_station")) {
+                } else if (stationType.equals("chargingStation")) {
                     resourcesComp.setEnergy(2);
                 } else if (stationType.equals("incinerator")) {
                     resourcesComp.setEnergy(1);

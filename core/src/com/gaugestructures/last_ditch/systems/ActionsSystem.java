@@ -15,6 +15,10 @@ public class ActionsSystem extends GameSystem {
 
     }
 
+    public void setCurStation(String station) {
+        curStation = station;
+    }
+
     public String getCurStation() {
         return curStation;
     }

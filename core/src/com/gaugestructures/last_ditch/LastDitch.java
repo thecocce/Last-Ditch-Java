@@ -57,7 +57,7 @@ public class LastDitch extends ApplicationAdapter {
         inventory.setUIEquipmentSystem(ui.getEquipment());
         inventory.setUIInventorySystem(ui.getInventory());
         equipment.setUIStatusSystem(ui.getStatus());
-        map = new MapSystem(mgr, inventory, ui.getActions(), ui.getInventory());
+        map = new MapSystem(mgr, time, actions, inventory, ui, ui.getActions(), ui.getInventory());
         inventory.setMap(map);
         input = new InputSystem(mgr, map, ui, inventory, actions, ui.getInventory(), time);
         render = new RenderSystem(mgr, map);

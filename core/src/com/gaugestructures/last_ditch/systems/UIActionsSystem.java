@@ -1,5 +1,6 @@
 package com.gaugestructures.last_ditch.systems;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Colors;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -315,6 +316,8 @@ public class UIActionsSystem extends GameSystem {
             StationComp curStationComp = mgr.comp(actions.getCurStation(), StationComp.class);
 
             if (curStationComp != null && curStationComp.getType().equals(newStationComp.getType())) {
+
+                Gdx.app.log("highlight", "");
                 setStationHighlight(true);
             } else {
                 recipeCheck = false;
