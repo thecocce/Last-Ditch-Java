@@ -52,7 +52,6 @@ public class InventorySystem extends GameSystem {
                 return item;
             }
         }
-
         return null;
     }
 
@@ -139,7 +138,7 @@ public class InventorySystem extends GameSystem {
     }
 
     public String removeItem(InventoryComp invComp, String item) {
-        int index = Arrays.asList(invComp.getItems()).indexOf(item);
+        int index = invComp.getItems().indexOf(item);
 
         if(index != -1) {
             updateSlots = true;
@@ -252,8 +251,9 @@ public class InventorySystem extends GameSystem {
         float condition = mgr.randFloat(0.1f, 0.4f);
 
         ItemComp itemComp = mgr.addComp(item, new ItemComp(quality, condition));
-        itemComp.setBaseValue(((Double) typeData.get("baseValue")).floatValue());
-        itemComp.setUsable((Boolean) typeData.get("usable"));
+        itemComp.setBaseValue(((Double)typeData.get("baseValue")).floatValue());
+        itemComp.setUsable((Boolean)typeData.get("usable"));
+        itemComp.setWeight(((Double)typeData.get("weight")).floatValue());
 
         //Equippable types
 
@@ -275,9 +275,8 @@ public class InventorySystem extends GameSystem {
         if (item != null) {
             TypeComp typeComp = mgr.comp(item, TypeComp.class);
 
-            if (addItemByType(invComp, typeComp.getType()) != null) {
+            if (addItem(invComp, item) != null) {
                 ItemComp itemComp = mgr.comp(item, ItemComp.class);
-                invComp.setWeight(invComp.getWeight() + itemComp.getWeight());
 
                 map.removeItem(item);
                 uiInventory.setPrevSelection(null);
@@ -299,11 +298,9 @@ public class InventorySystem extends GameSystem {
 
         if(item != null) {
             TypeComp type = mgr.comp(item, TypeComp.class);
-            String newItem = addItemByType(invComp, type.getType());
 
-            if(newItem != null) {
+            if(addItem(invComp, item) != null) {
                 ItemComp itemComp = mgr.comp(item, ItemComp.class);
-                invComp.setWeight(invComp.getWeight() + itemComp.getWeight());
 
                 map.removeItem(item);
                 uiInventory.setPrevSelection(null);

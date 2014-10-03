@@ -196,7 +196,6 @@ public class MapSystem extends GameSystem {
 
     public boolean useStation(String entity) {
         PositionComp posComp = mgr.comp(entity, PositionComp.class);
-        InventoryComp invComp = mgr.comp(entity, InventoryComp.class);
 
         String station = getNearStation(posComp.getX(), posComp.getY());
 
@@ -258,13 +257,9 @@ public class MapSystem extends GameSystem {
                 mgr.addComp(item, itemPosComp);
                 mgr.addComp(item, itemRenderComp);
 
-                items.get(getChunk(itemPosComp.getX(), itemPosComp.getY())).add(item);
                 inventory.setUpdateSlots(true);
-
-                ItemComp itemComp = mgr.comp(item, ItemComp.class);
-
-                invComp.setWeight(invComp.getWeight() - itemComp.getWeight());
                 inventory.removeItem(invComp, item);
+                items.get(getChunk(itemPosComp.getX(), itemPosComp.getY())).add(item);
 
                 uiInventory.resetInfo();
                 uiActions.updateCraftingInfo();
