@@ -8,6 +8,7 @@ import com.gaugestructures.last_ditch.components.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 public class InventorySystem extends GameSystem {
@@ -152,6 +153,40 @@ public class InventorySystem extends GameSystem {
         return null;
     }
 
+    public List<String> removeItemsByType(InventoryComp invComp, String type, int amt) {
+        List<String> itemsToRemove = new ArrayList<String>();
+
+        for (String item : invComp.getItems()) {
+            if (item == null) {
+                continue;
+            }
+
+            TypeComp typeComp = mgr.comp(item, TypeComp.class);
+
+            if (type.equals(typeComp.getType())) {
+                amt -= 1;
+                itemsToRemove.add(item);
+
+                if (amt == 0) {
+                    break;
+                }
+            }
+        }
+
+        if (amt > 0) {
+            return null;
+        } else {
+            for (String item : itemsToRemove) {
+                int index = invComp.getItems().indexOf(item);
+                invComp.setItem(index, null);
+            }
+
+            updateSlots = true;
+
+            return itemsToRemove;
+        }
+    }
+
     public void destroyItem(String item) {
         InfoComp info_comp = mgr.comp(item, InfoComp.class);
         ItemComp item_comp = mgr.comp(item, ItemComp.class);
@@ -277,6 +312,21 @@ public class InventorySystem extends GameSystem {
             }
         }
         return false;
+    }
+
+    public int itemCount(String entity, String type) {
+        int count = 0;
+        InventoryComp invComp = mgr.comp(entity, InventoryComp.class);
+
+        for (String item : invComp.getItems()) {
+            TypeComp typeComp = mgr.comp(item, TypeComp.class);
+
+            if (typeComp != null && typeComp.getType().equals(type)) {
+                count += 1;
+            }
+        }
+
+        return count;
     }
 
     public void setUpdateSlots(boolean updateSlots) {

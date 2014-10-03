@@ -90,15 +90,20 @@ public class InputSystem extends GameSystem implements InputProcessor {
                     } else {
                         ui.activate(ui.getFocus());
                     }
-
                 }
-
+                break;
             case Keys.E:
                 if (shift) {
 
                 } else {
-                    if(!map.useDoor(mgr.getPlayer())) {
-                        //map.useStation();
+                    if (ui.isActive()) {
+                        mgr.setPaused(false);
+                        time.setActive(true);
+                        ui.deactivate();
+                    } else {
+                        if (!map.useDoor(mgr.getPlayer())) {
+                            map.useStation(mgr.getPlayer());
+                        }
                     }
                 }
                 break;

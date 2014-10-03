@@ -6,11 +6,15 @@ public class InventoryComp extends Component {
     private int size;
     private float weight = 0;
     private float money = 0.34f;
-    private String[] items;
+    private ArrayList<String> items;
 
     public InventoryComp(int size) {
         this.size = size;
-        items = new String[size];
+        items = new ArrayList<String>(size);
+
+        for (int i = 0; i < size; i++) {
+            items.add(null);
+        }
     }
 
     public void addMoney(float amt) {
@@ -43,14 +47,14 @@ public class InventoryComp extends Component {
     }
 
     public void setItem(int i, String item) {
-        items[i] = item;
+        items.set(i, item);
     }
 
     public String getItem(int i) {
-        return items[i];
+        return items.get(i);
     }
 
-    public String[] getItems() {
+    public ArrayList<String> getItems() {
         return items;
     }
 }

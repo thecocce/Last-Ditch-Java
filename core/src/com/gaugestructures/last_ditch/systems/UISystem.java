@@ -32,7 +32,7 @@ public class UISystem extends GameSystem {
         stage = new Stage();
 
         window = new Window("", mgr.getSkin(), "window1");
-        window.setPosition(24, 24);
+        window.setPosition(24, 54);
         window.setSize(750, 490);
         window.setMovable(false);
         window.padTop(9);

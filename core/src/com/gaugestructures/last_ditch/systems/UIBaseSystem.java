@@ -34,7 +34,7 @@ public class UIBaseSystem extends GameSystem {
 
         setup();
 
-        if (1 == 1) {
+        if (1 == 0) {
             tableInfo.debug();
             tableNeeds.debug();
             tableSlots.debug();

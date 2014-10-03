@@ -187,6 +187,10 @@ public class MapSystem extends GameSystem {
         return null;
     }
 
+    public boolean useStation(String entity) {
+        return false;
+    }
+
     public boolean dropItem(String entity) {
         PositionComp posComp = mgr.comp(entity, PositionComp.class);
         RotationComp rotComp = mgr.comp(entity, RotationComp.class);
@@ -408,8 +412,8 @@ public class MapSystem extends GameSystem {
 
                 float w = renderComp.getW() * C.WTB;
                 float h = renderComp.getH() * C.WTB;
-                float x = mgr.randFloat(room.getX1() + 2, room.getX2() - 3);
-                float y = mgr.randFloat(room.getY1() + 2, room.getY2() - 3);
+                float x = mgr.randInt(room.getX1() + 2, room.getX2() - 3);
+                float y = mgr.randInt(room.getY1() + 2, room.getY2() - 3);
 
                 if (rot == 0 || rot == 180) {
                     mgr.addComp(station, new PositionComp(x + w/2, y + h/2));
