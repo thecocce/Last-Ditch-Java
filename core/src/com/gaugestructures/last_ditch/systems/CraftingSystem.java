@@ -9,6 +9,7 @@ import java.util.Map;
 public class CraftingSystem extends GameSystem {
     private Manager mgr;
     private boolean active = false;
+    private String curRecipe;
     private Map<String, Object> recipeData;
     private HashMap<String, String> recipes = new HashMap<String, String>();
 
@@ -46,6 +47,22 @@ public class CraftingSystem extends GameSystem {
 
     public void update() {
 
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    public String getCurRecipe() {
+        return curRecipe;
+    }
+
+    public void setCurRecipe(String curRecipe) {
+        this.curRecipe = curRecipe;
     }
 
     public HashMap<String, String> getRecipes() {

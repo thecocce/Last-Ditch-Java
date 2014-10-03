@@ -284,7 +284,6 @@ public class InventorySystem extends GameSystem {
 
                 return true;
             }
-
         }
         return false;
     }
@@ -304,6 +303,7 @@ public class InventorySystem extends GameSystem {
 
             if(newItem != null) {
                 ItemComp itemComp = mgr.comp(item, ItemComp.class);
+                invComp.setWeight(invComp.getWeight() + itemComp.getWeight());
 
                 map.removeItem(item);
                 uiInventory.setPrevSelection(null);

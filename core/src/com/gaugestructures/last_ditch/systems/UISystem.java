@@ -26,7 +26,7 @@ public class UISystem extends GameSystem {
 
     private TextButton actionsButton, inventoryButton, equipmentButton, statusButton;
 
-    public UISystem(Manager mgr, TimeSystem time, EquipmentSystem equipment, InventorySystem inventory, CraftingSystem crafting) {
+    public UISystem(Manager mgr, TimeSystem time, ActionsSystem actions, EquipmentSystem equipment, InventorySystem inventory, CraftingSystem crafting) {
         this.mgr = mgr;
 
         stage = new Stage();
@@ -38,7 +38,7 @@ public class UISystem extends GameSystem {
         window.padTop(9);
 
         uiBase = new UIBaseSystem(mgr, stage, time);
-        uiActions = new UIActionsSystem(mgr, crafting, window);
+        uiActions = new UIActionsSystem(mgr, actions, crafting, inventory, window);
         uiInventory = new UIInventorySystem(mgr, inventory, window);
         uiEquipment = new UIEquipSystem(mgr, equipment, inventory, window);
         uiStatus = new UIStatusSystem(mgr, window);

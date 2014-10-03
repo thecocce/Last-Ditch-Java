@@ -139,7 +139,6 @@ public class InputSystem extends GameSystem implements InputProcessor {
                 Gdx.app.exit();
                 break;
         }
-
         return true;
     }
 
@@ -171,7 +170,6 @@ public class InputSystem extends GameSystem implements InputProcessor {
                 shift = false;
                 break;
         }
-
         return true;
     }
 

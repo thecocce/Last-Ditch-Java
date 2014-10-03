@@ -292,7 +292,7 @@ public class MapSystem extends GameSystem {
         Map<String, Object> itemData = mgr.getData("items");
 
         @SuppressWarnings("unchecked")
-        List<String> itemList = (List<String>) itemData.get("itemsList");
+        List<String> itemList = (List<String>) itemData.get("itemList");
 
         float x = 0, y = 0;
         for(int i = 0; i < numOfItems; i++) {
@@ -397,7 +397,7 @@ public class MapSystem extends GameSystem {
         Map<String, Object> stationData = mgr.getData("stations");
 
         @SuppressWarnings("unchecked")
-        List<String> stationList = (List<String>)stationData.get("stationsList");
+        List<String> stationList = (List<String>)stationData.get("stationList");
 
         for (Room room : rooms) {
             if (room.getX1() + 2 < room.getX2() - 4 && room.getY1() + 2 < room.getY2() - 4) {

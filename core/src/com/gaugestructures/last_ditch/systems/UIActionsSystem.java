@@ -1,26 +1,35 @@
 package com.gaugestructures.last_ditch.systems;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Colors;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.Align;
+import com.badlogic.gdx.scenes.scene2d.utils.ArraySelection;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Array;
 import com.gaugestructures.last_ditch.Manager;
-import com.gaugestructures.last_ditch.components.InfoComp;
+import com.gaugestructures.last_ditch.components.*;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.text.WordUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 public class UIActionsSystem extends GameSystem {
     private boolean active = false;
+    private int curIndex;
     private Manager mgr;
     private CraftingSystem crafting;
     private Window window;
     private ScrollPane scrollpane;
     private SplitPane split;
+    private ActionsSystem actions;
+    private InventorySystem inventory;
     private List<String> craftingList, objectList;
     private Label craftingNameLabel, craftablesLabel, stationIdentifierLabel, stationLabel;
     private Table table, actionsListTable, craftingInfoTable, objectInfoTable;
@@ -28,14 +37,15 @@ public class UIActionsSystem extends GameSystem {
     private TextButton craftingButton, objectButton;
     private ArrayList<Label> reqsAndIngsLabelList = new ArrayList<Label>();
 
-    private int curIndex = 0;
     private boolean recipeCheck = false;
     private String focus = "crafting", prevSelection;
     private int numOfCraftables = 0, totNumOfCraftables = 0;
 
-    public UIActionsSystem(Manager mgr, CraftingSystem crafting, Window window) {
+    public UIActionsSystem(Manager mgr, ActionsSystem actions, CraftingSystem crafting, InventorySystem inventory, Window window) {
         this.mgr = mgr;
+        this.actions = actions;
         this.crafting = crafting;
+        this.inventory = inventory;
         this.window = window;
 
         table = new Table();
@@ -240,6 +250,216 @@ public class UIActionsSystem extends GameSystem {
         updateCraftingInfo();
     }
 
+    public void setCurAction(ArraySelection<String> selectionList) {
+        for(Map.Entry<String, String> entry : crafting.getRecipes().entrySet()) {
+            String recipeType = entry.getKey();
+            String recipe = entry.getValue();
+
+            InfoComp infoComp = mgr.comp(recipe, InfoComp.class);
+
+            if (selectionList.contains(infoComp.getName())) {
+                IngredientsComp ingsComp = mgr.comp(recipe, IngredientsComp.class);
+                RequirementsComp reqsComp = mgr.comp(recipe, RequirementsComp.class);
+                StationComp stationComp = mgr.comp(recipe, StationComp.class);
+
+                curIndex = 0;
+                recipeCheck = true;
+                totNumOfCraftables = 1000;
+                crafting.setCurRecipe(recipe);
+
+                setName(infoComp.getName());
+                setStation(stationComp);
+                setReqs(reqsComp.getRequirements());
+                setIngs(ingsComp.getIngredients());
+
+                setNumOfCraftables();
+            }
+        }
+    }
+
+    public void setRecipeActive() {
+        if (recipeCheck) {
+            setNameHighlight(true);
+        } else {
+            setNameHighlight(false);
+        }
+    }
+
+    public void setName(String name) {
+        craftingNameLabel.setText(StringUtils.capitalize(name));
+    }
+
+    public void setNameHighlight(boolean highlight) {
+        if (highlight) {
+            craftingNameLabel.setColor(Color.WHITE);
+        } else {
+            craftingNameLabel.setColor(Color.GRAY);
+        }
+    }
+
+    public void setStationHighlight(boolean highlight) {
+        if (highlight) {
+            stationLabel.setColor(Color.WHITE);
+        } else {
+            stationLabel.setColor(Color.GRAY);
+        }
+    }
+
+    public void setNumOfCraftables() {
+        craftablesLabel.setText(String.format(
+            "%d / %d", numOfCraftables, totNumOfCraftables));
+    }
+
+    public void setStation(StationComp newStationComp) {
+        if (actions.getCurStation() != null) {
+            StationComp curStationComp = mgr.comp(actions.getCurStation(), StationComp.class);
+
+            if (curStationComp != null && curStationComp.getType().equals(newStationComp.getType())) {
+                setStationHighlight(true);
+            } else {
+                recipeCheck = false;
+                numOfCraftables = 0;
+                totNumOfCraftables = 0;
+                setStationHighlight(false);
+            }
+        } else {
+            recipeCheck = false;
+            numOfCraftables = 0;
+            totNumOfCraftables = 0;
+            setStationHighlight(false);
+        }
+        stationLabel.setText(WordUtils.capitalize(newStationComp.getName()));
+    }
+
+    public void setReqs(HashMap<String, Float> reqs) {
+        SkillsComp skillsComp = mgr.comp(mgr.getPlayer(), SkillsComp.class);
+
+        Map<String, Object> skillsData = mgr.getData("skills");
+
+        reqsAndIngsLabelList.get(curIndex).setText("  Skills:");
+        reqsAndIngsLabelList.get(curIndex).setColor(Color.WHITE);
+
+        curIndex += 1;
+
+        for(Map.Entry<String, Float> entry : reqs.entrySet()) {
+            String req = entry.getKey();
+
+            @SuppressWarnings("unchecked")
+            Map<String, Object> skillData = (Map<String, Object>)skillsData.get(req);
+
+            String skillName = (String)skillData.get("name");
+            int displayLvl = (int)(entry.getValue() * 100);
+            int skillLvl = (int)(skillsComp.getLevel(req) * 100);
+
+            if (skillLvl < displayLvl) {
+                recipeCheck = false;
+                numOfCraftables = 0;
+                totNumOfCraftables = 0;
+                reqsAndIngsLabelList.get(curIndex).setColor(Color.GRAY);
+            } else {
+                reqsAndIngsLabelList.get(curIndex).setColor(Color.WHITE);
+            }
+
+            String txt = String.format("    - %s %d / %d", skillName, skillLvl, displayLvl);
+            reqsAndIngsLabelList.get(curIndex).setText(txt);
+
+            curIndex += 1;
+        }
+    }
+
+    public void setIngs(HashMap<String, Float> ings) {
+        int craftables = 0;
+
+        reqsAndIngsLabelList.get(curIndex).setText("  Ingredients:");
+        reqsAndIngsLabelList.get(curIndex).setColor(Color.WHITE);
+
+        curIndex += 1;
+
+        Map<String, Object> itemsData = mgr.getData("items");
+        Map<String, Object> resourcesData = mgr.getData("resources");
+
+        for (Map.Entry<String, Float> entry: ings.entrySet()) {
+            String ing = entry.getKey();
+            float amt = entry.getValue();
+
+            @SuppressWarnings("unchecked")
+            Map<String, Object> resData = (Map<String, Object>)resourcesData.get(ing);
+
+            @SuppressWarnings("unchecked")
+            Map<String, Object> itemData = (Map<String, Object>)itemsData.get(ing);
+
+            if (resData != null) {
+                String resName = (String)resData.get("name");
+
+                if (actions.getCurStation() != null) {
+                    ResourcesComp resComp = mgr.comp(actions.getCurStation(), ResourcesComp.class);
+
+                    float resAmt = resComp.getAmount(ing);
+
+                    if (resAmt < amt) {
+                        craftables = 0;
+                        recipeCheck = false;
+                        reqsAndIngsLabelList.get(curIndex).setColor(Color.GRAY);
+                    } else {
+                        craftables = (int)(resAmt / amt);
+                        reqsAndIngsLabelList.get(curIndex).setColor(Color.WHITE);
+                    }
+
+                    if (craftables < totNumOfCraftables) {
+                        totNumOfCraftables = craftables;
+                    }
+
+                    String txt = String.format(
+                        "    - %s %.1f / %.1f", resName, resAmt, amt);
+
+                    reqsAndIngsLabelList.get(curIndex).setText(txt);
+                } else {
+                    String txt = String.format(
+                        "    - %s 0.0 / %.1f", resName, amt);
+
+                    reqsAndIngsLabelList.get(curIndex).setText(txt);
+                    reqsAndIngsLabelList.get(curIndex).setColor(Color.GRAY);
+                }
+            } else if (itemData != null) {
+                String itemName = (String)itemData.get("name");
+                int itemAmt = inventory.itemCount(mgr.getPlayer(), ing);
+
+                if (itemAmt < amt) {
+                    craftables = 0;
+                    recipeCheck = false;
+                    reqsAndIngsLabelList.get(curIndex).setColor(Color.GRAY);
+                } else {
+                    craftables = (int)(itemAmt / amt);
+                    reqsAndIngsLabelList.get(curIndex).setColor(Color.WHITE);
+                }
+
+                if (craftables < totNumOfCraftables) {
+                    totNumOfCraftables = craftables;
+                }
+
+                String txt = String.format(
+                    "    - %s %d / %d", itemName, itemAmt, (int)amt);
+
+                reqsAndIngsLabelList.get(curIndex).setText(txt);
+            }
+
+            if (totNumOfCraftables > 0 && numOfCraftables == 0) {
+                numOfCraftables = totNumOfCraftables;
+            }
+
+            if (numOfCraftables > totNumOfCraftables) {
+                numOfCraftables = totNumOfCraftables;
+            }
+
+            curIndex += 1;
+        }
+
+        while (curIndex < 10) {
+            reqsAndIngsLabelList.get(curIndex).setText("");
+            curIndex += 1;
+        }
+    }
+
     public void update() {
 
     }
@@ -259,7 +479,10 @@ public class UIActionsSystem extends GameSystem {
     }
 
     public void updateCraftingInfo() {
-
+        setStationHighlight(false);
+        ArraySelection<String> itemSelection = craftingList.getSelection();
+        setCurAction(itemSelection);
+        setRecipeActive();
     }
 
     private void updateObjectInfo() {
