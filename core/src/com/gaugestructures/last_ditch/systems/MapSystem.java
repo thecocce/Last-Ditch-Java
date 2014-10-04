@@ -7,7 +7,6 @@ import com.gaugestructures.last_ditch.C;
 import com.gaugestructures.last_ditch.Manager;
 import com.gaugestructures.last_ditch.components.*;
 import com.google.common.collect.Sets;
-import org.yaml.snakeyaml.Yaml;
 
 import java.util.*;
 
@@ -28,6 +27,7 @@ public class MapSystem extends GameSystem {
     private InventorySystem inventory;
     private UISystem ui;
     private UIActionsSystem uiActions;
+    private UIEquipSystem uiEquipment;
     private UIInventorySystem uiInventory;
     private int numOfChunks = C.MAP_WIDTH * C.MAP_HEIGHT;
     private int width = C.MAP_WIDTH * C.CHUNK_SIZE, height = C.MAP_HEIGHT * C.CHUNK_SIZE;
@@ -42,13 +42,14 @@ public class MapSystem extends GameSystem {
     private PhysicsSystem physics;
     private OrthographicCamera cam = new OrthographicCamera();
 
-    public MapSystem(Manager mgr, TimeSystem time, ActionsSystem actions, InventorySystem inventory, UISystem ui, UIActionsSystem uiActions, UIInventorySystem uiInventory) {
+    public MapSystem(Manager mgr, TimeSystem time, ActionsSystem actions, InventorySystem inventory, UISystem ui, UIActionsSystem uiActions, UIEquipSystem uiEquipment, UIInventorySystem uiInventory) {
         this.mgr = mgr;
         this.inventory = inventory;
         this.time = time;
         this.actions = actions;
         this.ui = ui;
         this.uiActions = uiActions;
+        this.uiEquipment = uiEquipment;
         this.uiInventory = uiInventory;
 
         for(int i = 0; i < numOfChunks; i++) {
@@ -243,7 +244,7 @@ public class MapSystem extends GameSystem {
             PositionComp posComp = mgr.comp(station, PositionComp.class);
             double distSqr = Math.pow((posComp.getX() - x), 2) + Math.pow((posComp.getY() - y), 2);
 
-            if (distSqr < 1.4) {
+            if (distSqr < 2.6) {
                 SizeComp sizeComp = mgr.comp(station, SizeComp.class);
                 RotationComp rotComp = mgr.comp(station, RotationComp.class);
 
@@ -252,10 +253,10 @@ public class MapSystem extends GameSystem {
                 double rotX = posComp.getX() + c * (x - posComp.getX()) - s * (y - posComp.getY());
                 double rotY = posComp.getY() + s * (x - posComp.getX()) + c * (y - posComp.getY());
 
-                double left = posComp.getX() - sizeComp.getW()/2;
-                double right = posComp.getX() + sizeComp.getW()/2;
-                double top = posComp.getY() - sizeComp.getH()/2;
-                double bottom = posComp.getY() + sizeComp.getH()/2;
+                double left = posComp.getX() - sizeComp.getW() / 2;
+                double right = posComp.getX() + sizeComp.getW() / 2;
+                double top = posComp.getY() - sizeComp.getH() / 2;
+                double bottom = posComp.getY() + sizeComp.getH() / 2;
 
                 if (left <= rotX && rotX <= right && top <= rotY && rotY <= bottom)
                     return station;
@@ -309,6 +310,7 @@ public class MapSystem extends GameSystem {
 
                 uiInventory.resetInfo();
                 uiActions.updateCraftingInfo();
+                uiEquipment.updateEquipmentLists();
 
                 return true;
             }

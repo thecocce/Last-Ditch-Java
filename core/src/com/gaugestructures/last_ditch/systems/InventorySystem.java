@@ -47,7 +47,7 @@ public class InventorySystem extends GameSystem {
                 invComp.setItem(i, item);
                 ItemComp itemComp = mgr.comp(item, ItemComp.class);
                 invComp.setWeight(invComp.getWeight() + itemComp.getWeight());
-                uiEquipment.setupEquipmentLists();
+                uiEquipment.updateEquipmentLists();
 
                 return item;
             }
@@ -65,7 +65,7 @@ public class InventorySystem extends GameSystem {
                 ItemComp itemComp = mgr.comp(item, ItemComp.class);
                 invComp.setWeight(invComp.getWeight() + itemComp.getWeight());
 
-                uiEquipment.setupEquipmentLists();
+                uiEquipment.updateEquipmentLists();
                 return item;
             }
         }
@@ -145,7 +145,7 @@ public class InventorySystem extends GameSystem {
             invComp.setItem(index, null);
             ItemComp itemComp = mgr.comp(item, ItemComp.class);
             invComp.setWeight(invComp.getWeight() - itemComp.getWeight());
-            uiEquipment.setupEquipmentLists();
+            uiEquipment.updateEquipmentLists();
 
             return item;
         }
@@ -254,7 +254,12 @@ public class InventorySystem extends GameSystem {
         itemComp.setUsable((Boolean)typeData.get("usable"));
         itemComp.setWeight(((Double)typeData.get("weight")).floatValue());
 
-        //Equippable types
+        @SuppressWarnings("unchecked")
+        List<String> equippableData = (List<String>)typeData.get("equippable");
+
+        if (equippableData != null) {
+            mgr.addComp(item, new EquippableComp(equippableData));
+        }
 
         RenderComp renderComp = mgr.addComp(item, new RenderComp(""));
         renderComp.setRegionName(String.format("items/%s", type));

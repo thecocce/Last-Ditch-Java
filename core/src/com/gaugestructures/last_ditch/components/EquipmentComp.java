@@ -3,10 +3,6 @@ package com.gaugestructures.last_ditch.components;
 public class EquipmentComp extends Component {
     private String lHead, rHead, lHand, rHand, lArm, rArm, torso, belt, lLeg, rLeg, lFoot, rFoot;
 
-    public EquipmentComp() {
-
-    }
-
     public String getSlot(String slot) {
         if(slot.equals("lHead")) {
             return lHead;

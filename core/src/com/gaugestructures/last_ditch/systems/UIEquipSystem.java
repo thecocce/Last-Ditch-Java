@@ -14,6 +14,7 @@ import com.gaugestructures.last_ditch.components.InfoComp;
 import com.gaugestructures.last_ditch.components.InventoryComp;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class UIEquipSystem extends GameSystem {
     private boolean active = false, toggle = false;
@@ -24,7 +25,8 @@ public class UIEquipSystem extends GameSystem {
     private InventorySystem inventory;
     private Label desc;
     private ArrayList<String> headItems, armItems, torsoItems, handItems, beltItems, legItems, footItems;
-    private SelectBox lHeadBox, rHeadBox, lArmBox, lHandBox, rHandBox, rArmBox, torsoBox, beltBox, lLegBox, rLegBox, lFootBox, rFootBox;
+    private Array<String> headList, armList, torsoList, handList, beltList, legList, footList;
+    private SelectBox<String> lHeadBox, rHeadBox, lArmBox, lHandBox, rHandBox, rArmBox, torsoBox, beltBox, lLegBox, rLegBox, lFootBox, rFootBox;
 
     public UIEquipSystem(Manager mgr, EquipmentSystem equipment, InventorySystem inventory, Window window) {
         this.mgr = mgr;
@@ -33,6 +35,7 @@ public class UIEquipSystem extends GameSystem {
         this.equipment = equipment;
 
         setup();
+        setupEquipmentLists();
 
         if(1 == 0) {
             table.setDebug(true);
@@ -44,7 +47,7 @@ public class UIEquipSystem extends GameSystem {
         table.setPosition(0, 44);
         table.setSize(250, 290);
 
-        lHeadBox = new SelectBox(mgr.getSkin(), "equipment");
+        lHeadBox = new SelectBox<String>(mgr.getSkin(), "equipment");
         lHeadBox.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -53,7 +56,7 @@ public class UIEquipSystem extends GameSystem {
             }
         });
 
-        rHeadBox = new SelectBox(mgr.getSkin(), "equipment");
+        rHeadBox = new SelectBox<String>(mgr.getSkin(), "equipment");
         rHeadBox.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -62,7 +65,7 @@ public class UIEquipSystem extends GameSystem {
             }
         });
 
-        lArmBox = new SelectBox(mgr.getSkin(), "equipment");
+        lArmBox = new SelectBox<String>(mgr.getSkin(), "equipment");
         lArmBox.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -71,7 +74,7 @@ public class UIEquipSystem extends GameSystem {
             }
         });
 
-        rArmBox = new SelectBox(mgr.getSkin(), "equipment");
+        rArmBox = new SelectBox<String>(mgr.getSkin(), "equipment");
         rArmBox.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -80,7 +83,7 @@ public class UIEquipSystem extends GameSystem {
             }
         });
 
-        torsoBox = new SelectBox(mgr.getSkin(), "equipment");
+        torsoBox = new SelectBox<String>(mgr.getSkin(), "equipment");
         torsoBox.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -89,7 +92,7 @@ public class UIEquipSystem extends GameSystem {
             }
         });
 
-        beltBox = new SelectBox(mgr.getSkin(), "equipment");
+        beltBox = new SelectBox<String>(mgr.getSkin(), "equipment");
         beltBox.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -98,7 +101,7 @@ public class UIEquipSystem extends GameSystem {
             }
         });
 
-        lHandBox = new SelectBox(mgr.getSkin(), "equipment");
+        lHandBox = new SelectBox<String>(mgr.getSkin(), "equipment");
         lHandBox.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -107,7 +110,7 @@ public class UIEquipSystem extends GameSystem {
             }
         });
 
-        rHandBox = new SelectBox(mgr.getSkin(), "equipment");
+        rHandBox = new SelectBox<String>(mgr.getSkin(), "equipment");
         rHandBox.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -116,7 +119,7 @@ public class UIEquipSystem extends GameSystem {
             }
         });
 
-        lLegBox = new SelectBox(mgr.getSkin(), "equipment");
+        lLegBox = new SelectBox<String>(mgr.getSkin(), "equipment");
         lLegBox.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -125,7 +128,7 @@ public class UIEquipSystem extends GameSystem {
             }
         });
 
-        rLegBox = new SelectBox(mgr.getSkin(), "equipment");
+        rLegBox = new SelectBox<String>(mgr.getSkin(), "equipment");
         rLegBox.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -134,7 +137,7 @@ public class UIEquipSystem extends GameSystem {
             }
         });
 
-        lFootBox = new SelectBox(mgr.getSkin(), "equipment");
+        lFootBox = new SelectBox<String>(mgr.getSkin(), "equipment");
         lFootBox.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -143,7 +146,7 @@ public class UIEquipSystem extends GameSystem {
             }
         });
 
-        rFootBox = new SelectBox(mgr.getSkin(), "equipment");
+        rFootBox = new SelectBox<String>(mgr.getSkin(), "equipment");
         rFootBox.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -179,10 +182,10 @@ public class UIEquipSystem extends GameSystem {
         if(index == 0) {
             String item = equipment.dequip(mgr.getPlayer(), slot);
 
-            if(!item.equals("")) {
+            if(item != null && !item.equals("")) {
                 inventory.addItem(invComp, item);
-                return;
             }
+            return;
         }
 
         if(slot.equals("lHead") || slot.equals("rHead")) {
@@ -218,13 +221,46 @@ public class UIEquipSystem extends GameSystem {
         legItems = new ArrayList<String>();
         footItems = new ArrayList<String>();
 
-        Array<String> headList = new Array<String>();
-        Array<String> armList = new Array<String>();
-        Array<String> torsoList = new Array<String>();
-        Array<String> handList = new Array<String>();
-        Array<String> beltList = new Array<String>();
-        Array<String> legList = new Array<String>();
-        Array<String> footList = new Array<String>();
+        headList = new Array<String>();
+        armList = new Array<String>();
+        torsoList = new Array<String>();
+        handList = new Array<String>();
+        beltList = new Array<String>();
+        legList = new Array<String>();
+        footList = new Array<String>();
+
+        headList.add("none");
+        armList.add("none");
+        torsoList.add("none");
+        handList.add("none");
+        beltList.add("none");
+        legList.add("none");
+        footList.add("none");
+
+        updateEquipmentLists();
+
+        lHeadBox.setItems(headList);
+        rHeadBox.setItems(headList);
+        lArmBox.setItems(armList);
+        rArmBox.setItems(armList);
+        torsoBox.setItems(torsoList);
+        beltBox.setItems(beltList);
+        lHandBox.setItems(handList);
+        rHandBox.setItems(handList);
+        lLegBox.setItems(legList);
+        rLegBox.setItems(legList);
+        lFootBox.setItems(footList);
+        rFootBox.setItems(footList);
+    }
+
+    public void updateEquipmentLists() {
+        headList.clear();
+        armList.clear();
+        torsoList.clear();
+        handList.clear();
+        beltList.clear();
+        legList.clear();
+        footList.clear();
 
         headList.add("none");
         armList.add("none");
@@ -240,7 +276,7 @@ public class UIEquipSystem extends GameSystem {
             EquippableComp equippableComp = mgr.comp(item, EquippableComp.class);
 
             if(equippableComp != null) {
-                ArrayList<String> types = equippableComp.getTypes();
+                List<String> types = equippableComp.getTypes();
                 InfoComp infoComp = mgr.comp(item, InfoComp.class);
 
                 if(types.contains("lHead") || types.contains("rHead")) {
@@ -268,81 +304,6 @@ public class UIEquipSystem extends GameSystem {
             }
         }
 
-        InfoComp infoComp;
-        EquipmentComp equipComp = mgr.comp(mgr.getPlayer(), EquipmentComp.class);
-
-        if(equipComp.getRHead() != null) {
-            infoComp = mgr.comp(equipComp.getRHead(), InfoComp.class);
-            headList.add(infoComp.getName());
-            headItems.add(equipComp.getRHead());
-        }
-
-        if(equipComp.getLHead() != null) {
-            infoComp = mgr.comp(equipComp.getLHead(), InfoComp.class);
-            headList.add(infoComp.getName());
-            headItems.add(equipComp.getLHead());
-        }
-
-        if(equipComp.getLHand() != null) {
-            infoComp = mgr.comp(equipComp.getLHand(), InfoComp.class);
-            handList.add(infoComp.getName());
-            handItems.add(equipComp.getLHand());
-        }
-
-        if(equipComp.getRHand() != null) {
-            infoComp = mgr.comp(equipComp.getRHand(), InfoComp.class);
-            handList.add(infoComp.getName());
-            handItems.add(equipComp.getRHand());
-        }
-
-        if(equipComp.getTorso() != null) {
-            infoComp = mgr.comp(equipComp.getTorso(), InfoComp.class);
-            torsoList.add(infoComp.getName());
-            torsoItems.add(equipComp.getTorso());
-        }
-
-        if(equipComp.getBelt() != null) {
-            infoComp = mgr.comp(equipComp.getBelt(), InfoComp.class);
-            beltList.add(infoComp.getName());
-            beltItems.add(equipComp.getBelt());
-        }
-
-        if(equipComp.getLArm() != null) {
-            infoComp = mgr.comp(equipComp.getLArm(), InfoComp.class);
-            armList.add(infoComp.getName());
-            armItems.add(equipComp.getLArm());
-        }
-
-        if(equipComp.getRArm() != null) {
-            infoComp = mgr.comp(equipComp.getRArm(), InfoComp.class);
-            armList.add(infoComp.getName());
-            armItems.add(equipComp.getRArm());
-        }
-
-        if(equipComp.getLLeg() != null) {
-            infoComp = mgr.comp(equipComp.getLLeg(), InfoComp.class);
-            legList.add(infoComp.getName());
-            legItems.add(equipComp.getLLeg());
-        }
-
-        if(equipComp.getRLeg() != null) {
-            infoComp = mgr.comp(equipComp.getRLeg(), InfoComp.class);
-            legList.add(infoComp.getName());
-            legItems.add(equipComp.getRLeg());
-        }
-
-        if(equipComp.getLFoot() != null) {
-            infoComp = mgr.comp(equipComp.getLFoot(), InfoComp.class);
-            footList.add(infoComp.getName());
-            footItems.add(equipComp.getLFoot());
-        }
-
-        if(equipComp.getRFoot() != null) {
-            infoComp = mgr.comp(equipComp.getRFoot(), InfoComp.class);
-            footList.add(infoComp.getName());
-            footItems.add(equipComp.getRFoot());
-        }
-
         lHeadBox.setItems(headList);
         rHeadBox.setItems(headList);
         lArmBox.setItems(armList);
@@ -355,6 +316,81 @@ public class UIEquipSystem extends GameSystem {
         rLegBox.setItems(legList);
         lFootBox.setItems(footList);
         rFootBox.setItems(footList);
+
+//        InfoComp infoComp;
+//        EquipmentComp equipComp = mgr.comp(mgr.getPlayer(), EquipmentComp.class);
+//
+//        if(equipComp.getRHead() != null) {
+//            infoComp = mgr.comp(equipComp.getRHead(), InfoComp.class);
+//            headList.add(infoComp.getName());
+//            headItems.add(equipComp.getRHead());
+//        }
+//
+//        if(equipComp.getLHead() != null) {
+//            infoComp = mgr.comp(equipComp.getLHead(), InfoComp.class);
+//            headList.add(infoComp.getName());
+//            headItems.add(equipComp.getLHead());
+//        }
+//
+//        if(equipComp.getLHand() != null) {
+//            infoComp = mgr.comp(equipComp.getLHand(), InfoComp.class);
+//            handList.add(infoComp.getName());
+//            handItems.add(equipComp.getLHand());
+//        }
+//
+//        if(equipComp.getRHand() != null) {
+//            infoComp = mgr.comp(equipComp.getRHand(), InfoComp.class);
+//            handList.add(infoComp.getName());
+//            handItems.add(equipComp.getRHand());
+//        }
+//
+//        if(equipComp.getTorso() != null) {
+//            infoComp = mgr.comp(equipComp.getTorso(), InfoComp.class);
+//            torsoList.add(infoComp.getName());
+//            torsoItems.add(equipComp.getTorso());
+//        }
+//
+//        if(equipComp.getBelt() != null) {
+//            infoComp = mgr.comp(equipComp.getBelt(), InfoComp.class);
+//            beltList.add(infoComp.getName());
+//            beltItems.add(equipComp.getBelt());
+//        }
+//
+//        if(equipComp.getLArm() != null) {
+//            infoComp = mgr.comp(equipComp.getLArm(), InfoComp.class);
+//            armList.add(infoComp.getName());
+//            armItems.add(equipComp.getLArm());
+//        }
+//
+//        if(equipComp.getRArm() != null) {
+//            infoComp = mgr.comp(equipComp.getRArm(), InfoComp.class);
+//            armList.add(infoComp.getName());
+//            armItems.add(equipComp.getRArm());
+//        }
+//
+//        if(equipComp.getLLeg() != null) {
+//            infoComp = mgr.comp(equipComp.getLLeg(), InfoComp.class);
+//            legList.add(infoComp.getName());
+//            legItems.add(equipComp.getLLeg());
+//        }
+//
+//        if(equipComp.getRLeg() != null) {
+//            infoComp = mgr.comp(equipComp.getRLeg(), InfoComp.class);
+//            legList.add(infoComp.getName());
+//            legItems.add(equipComp.getRLeg());
+//        }
+//
+//        if(equipComp.getLFoot() != null) {
+//            infoComp = mgr.comp(equipComp.getLFoot(), InfoComp.class);
+//            footList.add(infoComp.getName());
+//            footItems.add(equipComp.getLFoot());
+//        }
+//
+//        if(equipComp.getRFoot() != null) {
+//            infoComp = mgr.comp(equipComp.getRFoot(), InfoComp.class);
+//            footList.add(infoComp.getName());
+//            footItems.add(equipComp.getRFoot());
+//        }
     }
 
     public void activate() {

@@ -23,7 +23,7 @@ public class EquipmentSystem extends GameSystem {
     public void equip(String entity, String slot, String item) {
         dequip(entity, slot);
 
-        EquipmentComp equipComp = mgr.comp(item, EquipmentComp.class);
+        EquipmentComp equipComp = mgr.comp(entity, EquipmentComp.class);
         equipComp.setSlot(slot, item);
 
         Map<String, Object> itemData = mgr.getData("items");
@@ -70,7 +70,7 @@ public class EquipmentSystem extends GameSystem {
         String item = equipComp.getSlot(slot);
         equipComp.setSlot(slot, null);
 
-        if(!item.equals("")) {
+        if(item != null && !item.equals("")) {
             Map<String, Object> itemData = mgr.getData("items");
             String type = mgr.comp(item, TypeComp.class).getType();
 
