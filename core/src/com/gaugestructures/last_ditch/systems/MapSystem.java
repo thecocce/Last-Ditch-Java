@@ -7,15 +7,12 @@ import com.gaugestructures.last_ditch.C;
 import com.gaugestructures.last_ditch.Manager;
 import com.gaugestructures.last_ditch.components.*;
 import com.google.common.collect.Sets;
-import javafx.geometry.Pos;
 import org.yaml.snakeyaml.Yaml;
-import sun.swing.UIAction;
 
 import java.util.*;
 
 public class MapSystem extends GameSystem {
     private Manager mgr;
-    private Yaml yaml = new Yaml();
     private PositionComp focus;
     private int prevChunk = -1;
     private Set<Integer> curChunks = new HashSet<Integer>();
@@ -153,43 +150,42 @@ public class MapSystem extends GameSystem {
     }
 
     private String getDoor(float x, float y) {
-        for (int cx = (int)focus.getX() - 1; cx <= focus.getX() + 1; cx++) {
-            for (int cy = (int)focus.getY() - 1; cy <= focus.getY() + 1; cy++) {
-                for (String door: doors.get(getChunk(cx, cy))) {
-                    PositionComp posComp = mgr.comp(door, PositionComp.class);
-                    SizeComp sizeComp = mgr.comp(door, SizeComp.class);
-                    RotationComp rotComp = mgr.comp(door, RotationComp.class);
+        int chunk = getChunk(x, y);
 
-                    double c = Math.cos(-rotComp.getAng() * Math.PI / 180);
-                    double s = Math.sin(-rotComp.getAng() * Math.PI / 180);
-                    double rotX = posComp.getX() + c * (x - posComp.getX()) - s * (y - posComp.getY());
-                    double rotY = posComp.getY() + s * (x - posComp.getX()) + c * (y - posComp.getY());
+        for (String door: doors.get(chunk)) {
+            PositionComp posComp = mgr.comp(door, PositionComp.class);
+            double distSqr = Math.pow((posComp.getX() - x), 2) + Math.pow((posComp.getY() - y), 2);
 
-                    double left = posComp.getX() - sizeComp.getW();
-                    double right = posComp.getX() + sizeComp.getW();
-                    double top = posComp.getY() - sizeComp.getH();
-                    double bottom = posComp.getY() + sizeComp.getH();
+            if (distSqr < 1.4) {
+                SizeComp sizeComp = mgr.comp(door, SizeComp.class);
+                RotationComp rotComp = mgr.comp(door, RotationComp.class);
 
-                    if(left <= rotX && rotX <= right && top <= rotY && rotY <= bottom) {
-                        return door;
-                    }
-                }
+                double c = Math.cos(-rotComp.getAng() * Math.PI/180);
+                double s = Math.sin(-rotComp.getAng() * Math.PI/180);
+                double rotX = posComp.getX() + c * (x - posComp.getX()) - s * (y - posComp.getY());
+                double rotY = posComp.getY() + s * (x - posComp.getX()) + c * (y - posComp.getY());
+
+                double left = posComp.getX() - sizeComp.getW()/2;
+                double right = posComp.getX() + sizeComp.getW()/2;
+                double top = posComp.getY() - sizeComp.getH()/2;
+                double bottom = posComp.getY() + sizeComp.getH()/2;
+
+                if (left <= rotX && rotX <= right && top <= rotY && rotY <= bottom)
+                    return door;
             }
         }
         return null;
     }
 
     private String getNearDoor(float x, float y) {
-        for (int cx = (int)focus.getX() - 1; cx <= focus.getX() + 1; cx++) {
-            for (int cy = (int)focus.getY() - 1; cy <= focus.getY() + 1; cy++) {
-                for (String door: doors.get(getChunk(cx, cy))) {
-                    PositionComp posComp = mgr.comp(door, PositionComp.class);
-                    double distSqr = Math.pow((posComp.getX() - x), 2) + Math.pow((posComp.getY() - y), 2);
+        int chunk = getChunk(x, y);
 
-                    if (distSqr < 2.6)
-                        return door;
-                }
-            }
+        for (String door: doors.get(chunk)) {
+            PositionComp posComp = mgr.comp(door, PositionComp.class);
+            double distSqr = Math.pow((posComp.getX() - x), 2) + Math.pow((posComp.getY() - y), 2);
+
+            if (distSqr < 2.6)
+                return door;
         }
         return null;
     }
@@ -216,6 +212,56 @@ public class MapSystem extends GameSystem {
         uiActions.activate();
 
         return true;
+    }
+
+    public boolean useStationAt(String entity, int screenX, int screenY) {
+        PositionComp posComp = mgr.comp(entity, PositionComp.class);
+
+        float x = posComp.getX() + C.WTB * (screenX - C.WIDTH/2);
+        float y = posComp.getY() - C.WTB * (screenY - C.HEIGHT/2);
+
+        String station = getStation(x, y);
+
+        if (station == null)
+            return false;
+
+        mgr.setPaused(true);
+        time.setActive(false);
+
+        actions.setCurStation(station);
+
+        ui.activate("actions");
+        uiActions.activate();
+
+        return true;
+    }
+
+    public String getStation(float x, float y) {
+        int chunk = getChunk(x, y);
+
+        for (String station: stations.get(chunk)) {
+            PositionComp posComp = mgr.comp(station, PositionComp.class);
+            double distSqr = Math.pow((posComp.getX() - x), 2) + Math.pow((posComp.getY() - y), 2);
+
+            if (distSqr < 1.4) {
+                SizeComp sizeComp = mgr.comp(station, SizeComp.class);
+                RotationComp rotComp = mgr.comp(station, RotationComp.class);
+
+                double c = Math.cos(-rotComp.getAng() * Math.PI/180);
+                double s = Math.sin(-rotComp.getAng() * Math.PI/180);
+                double rotX = posComp.getX() + c * (x - posComp.getX()) - s * (y - posComp.getY());
+                double rotY = posComp.getY() + s * (x - posComp.getX()) + c * (y - posComp.getY());
+
+                double left = posComp.getX() - sizeComp.getW()/2;
+                double right = posComp.getX() + sizeComp.getW()/2;
+                double top = posComp.getY() - sizeComp.getH()/2;
+                double bottom = posComp.getY() + sizeComp.getH()/2;
+
+                if (left <= rotX && rotX <= right && top <= rotY && rotY <= bottom)
+                    return station;
+            }
+        }
+        return null;
     }
 
     public String getNearStation(float x, float y) {
@@ -259,7 +305,7 @@ public class MapSystem extends GameSystem {
 
                 inventory.setUpdateSlots(true);
                 inventory.removeItem(invComp, item);
-                items.get(getChunk(itemPosComp.getX(), itemPosComp.getY())).add(item);
+                items.get(getChunk(itemPosComp.getX(), itemPosComp.getY())).add(0, item);
 
                 uiInventory.resetInfo();
                 uiActions.updateCraftingInfo();
@@ -342,7 +388,7 @@ public class MapSystem extends GameSystem {
             String choice = itemList.get(rnd.nextInt(itemList.size()));
             String item = inventory.createItem(choice, x, y);
 
-            items.get(getChunk(x, y)).add(item);
+            items.get(getChunk(x, y)).add(0, item);
         }
     }
 
@@ -539,35 +585,22 @@ public class MapSystem extends GameSystem {
     }
 
     public String getItem(float x, float y) {
-        for (int cx = (int)focus.getX() - C.CHUNK_SIZE; cx <= focus.getX() + C.CHUNK_SIZE; cx++) {
-            for (int cy = (int)focus.getY() - C.CHUNK_SIZE; cy <= focus.getY() + C.CHUNK_SIZE; cy++) {
-                int chunk = getChunk(cx, cy);
+        int chunk = getChunk(x, y);
 
-                if (chunk != -1) {
-                    for (String item : items.get(chunk)) {
-                        PositionComp posComp = mgr.comp(item, PositionComp.class);
-                        double distSqr = Math.pow((posComp.getX() - x), 2) + Math.pow((posComp.getY() - y), 2);
+        for (String item : items.get(chunk)) {
+            PositionComp posComp = mgr.comp(item, PositionComp.class);
+            double distSqr = Math.pow((posComp.getX() - x), 2) + Math.pow((posComp.getY() - y), 2);
 
-                        if (distSqr < 1.4) {
-                            RotationComp rotComp = mgr.comp(item, RotationComp.class);
-                            RenderComp renderComp = mgr.comp(item, RenderComp.class);
+            if (distSqr < 1.4) {
+                SizeComp sizeComp = mgr.comp(item, SizeComp.class);
 
-                            double c = Math.cos(-rotComp.getAng() * Math.PI / 180);
-                            double s = Math.sin(-rotComp.getAng() * Math.PI / 180);
-                            double rotX = posComp.getX() + c * (x - posComp.getX()) - s * (y - posComp.getY());
-                            double rotY = posComp.getY() + s * (x - posComp.getX()) + c * (y - posComp.getY());
+                double left = posComp.getX() - sizeComp.getW()/2;
+                double right = posComp.getX() + sizeComp.getW()/2;
+                double top = posComp.getY() + sizeComp.getH()/2;
+                double bottom = posComp.getY() - sizeComp.getH()/2;
 
-                            double left = posComp.getX() - renderComp.getW() * C.WTB / 2;
-                            double right = posComp.getX() + renderComp.getW() * C.WTB / 2;
-                            double top = posComp.getY() - renderComp.getH() * C.WTB / 2;
-                            double bottom = posComp.getY() + renderComp.getH() * C.WTB / 2;
-
-                            if (left <= rotX && rotX <= right && top <= rotY && rotY <= bottom) {
-                                return item;
-                            }
-                        }
-                    }
-                }
+                if (x >= left && x <= right && y <= top && y >= bottom)
+                    return item;
             }
         }
         return null;

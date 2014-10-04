@@ -34,15 +34,17 @@ public class InputSystem extends GameSystem implements InputProcessor {
                 if (ui.isActive()) {
 
                 } else {
-                    if (!inventory.pickupItemAt(mgr.getPlayer(), screenX, screenY)) {
-                        map.useDoorAt(mgr.getPlayer(), screenX, screenY);
-                    }
+                    if (inventory.pickupItemAt(mgr.getPlayer(), screenX, screenY))
+                        return true;
 
+                    if (map.useDoorAt(mgr.getPlayer(), screenX, screenY))
+                        return true;
 
+                    if (map.useStationAt(mgr.getPlayer(), screenX, screenY))
+                        return true;
                 }
             } else {
                 if (ui.isActive()) {
-
 
                 } else {
                     inventory.pickupItem(mgr.getPlayer());
@@ -94,16 +96,22 @@ public class InputSystem extends GameSystem implements InputProcessor {
                 break;
             case Keys.E:
                 if (shift) {
+                    if (ui.isActive()) {
 
+                    } else {
+
+                    }
                 } else {
                     if (ui.isActive()) {
                         mgr.setPaused(false);
                         time.setActive(true);
                         ui.deactivate();
                     } else {
-                        if (!map.useDoor(mgr.getPlayer())) {
-                            map.useStation(mgr.getPlayer());
-                        }
+                        if (map.useDoor(mgr.getPlayer()))
+                            return true;
+
+                        if (map.useStation(mgr.getPlayer()))
+                            return true;
                     }
                 }
                 break;

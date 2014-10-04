@@ -110,6 +110,11 @@ public class RenderSystem extends GameSystem {
                             SizeComp sizeComp = mgr.comp(entity, SizeComp.class);
                             RenderComp renderComp = mgr.comp(entity, RenderComp.class);
 
+                            float ang = 0;
+                            if (rotComp != null) {
+                                ang = rotComp.getAng();
+                            }
+
                             batch.draw(
                                 renderComp.getRegion(),
                                 C.BTW * (posComp.getX() - sizeComp.getW() / 2),
@@ -117,7 +122,7 @@ public class RenderSystem extends GameSystem {
                                 C.BTW * sizeComp.getW() / 2, C.BTW * sizeComp.getH() / 2,
                                 C.BTW * sizeComp.getW(), C.BTW * sizeComp.getH(),
                                 renderComp.getScale(), renderComp.getScale(),
-                                rotComp.getAng());
+                                ang);
                         }
                     }
                 }

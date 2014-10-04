@@ -316,8 +316,6 @@ public class UIActionsSystem extends GameSystem {
             StationComp curStationComp = mgr.comp(actions.getCurStation(), StationComp.class);
 
             if (curStationComp != null && curStationComp.getType().equals(newStationComp.getType())) {
-
-                Gdx.app.log("highlight", "");
                 setStationHighlight(true);
             } else {
                 recipeCheck = false;

@@ -241,7 +241,6 @@ public class InventorySystem extends GameSystem {
         Map<String, Object> typeData = (Map<String, Object>) itemData.get(type);
 
         mgr.addComp(item, new PositionComp(x, y));
-        mgr.addComp(item, new RotationComp(0));
         mgr.addComp(item, new TypeComp(type));
 
         InfoComp infoComp = mgr.addComp(item, new InfoComp((String) typeData.get("name")));
@@ -297,11 +296,7 @@ public class InventorySystem extends GameSystem {
         String item = map.getItem(x, y);
 
         if(item != null) {
-            TypeComp type = mgr.comp(item, TypeComp.class);
-
             if(addItem(invComp, item) != null) {
-                ItemComp itemComp = mgr.comp(item, ItemComp.class);
-
                 map.removeItem(item);
                 uiInventory.setPrevSelection(null);
 
