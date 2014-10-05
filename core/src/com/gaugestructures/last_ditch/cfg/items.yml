@@ -110,9 +110,8 @@ handgun1:
   stats:
     dmg: 1.0
   equippable: 
-    - lHand
-    - rHand
-  dmg: 1.0 
+    - hand
+  dmg: 1.0
   dmgType: projectile
   weight: 0.36
   baseValue: 0.54
@@ -140,8 +139,7 @@ headset:
     intelligence: 0.2
     dexterity: 0.3
   equippable:
-    - lHead
-    - rHead
+    - head
   weight: 0.03
   baseValue: 0.13
 
