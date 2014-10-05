@@ -194,6 +194,7 @@ public class UIEquipSystem extends GameSystem {
 
         if(slot.equals("lHead")) {
             item = lHeadItems.get(index - 1);
+            System.out.println(item);
         } else if (slot.equals("rHead")) {
             item = rHeadItems.get(index - 1);
         } else if (slot.equals("lHand")) {
@@ -290,6 +291,19 @@ public class UIEquipSystem extends GameSystem {
         rLegList.clear();
         lFootList.clear();
         rFootList.clear();
+
+        lHeadItems.clear();
+        rHeadItems.clear();
+        lArmItems.clear();
+        rArmItems.clear();
+        torsoItems.clear();
+        lHandItems.clear();
+        rHandItems.clear();
+        beltItems.clear();
+        lLegItems.clear();
+        rLegItems.clear();
+        lFootItems.clear();
+        rFootItems.clear();
 
         lHeadList.add("none");
         rHeadList.add("none");
@@ -542,6 +556,8 @@ public class UIEquipSystem extends GameSystem {
                 rFootList.add(infoComp.getName());
             }
         }
+
+        System.out.println(lHeadItems.toString());
 
         lHeadBox.setItems(lHeadList);
         rHeadBox.setItems(rHeadList);
