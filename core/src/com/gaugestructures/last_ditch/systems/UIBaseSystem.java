@@ -160,7 +160,7 @@ public class UIBaseSystem extends GameSystem {
             timeLabel.setText(time.getTime());
             dateLabel.setText(time.getDate());
             moneyLabel.setText(String.format("$%.2f", invComp.getMoney()));
-            weightLabel.setText(String.format("%.1fkg", invComp.getWeight()));
+            weightLabel.setText(String.format("%.2fkg", invComp.getWeight()));
 
             hungerBar.setWidth((int)(needsComp.getHunger() * 100 + 4));
             thirstBar.setWidth((int)(needsComp.getThirst() * 100 + 4));

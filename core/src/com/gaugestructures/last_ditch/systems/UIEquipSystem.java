@@ -177,10 +177,11 @@ public class UIEquipSystem extends GameSystem {
     }
 
     private void setEquipment(String slot, int index) {
+        String item = "";
         InventoryComp invComp = mgr.comp(mgr.getPlayer(), InventoryComp.class);
 
         if(index == 0) {
-            String item = equipment.dequip(mgr.getPlayer(), slot);
+            item = equipment.dequip(mgr.getPlayer(), slot);
 
             if(item != null && !item.equals("")) {
                 inventory.addItem(invComp, item);
@@ -189,27 +190,22 @@ public class UIEquipSystem extends GameSystem {
         }
 
         if(slot.equals("lHead") || slot.equals("rHead")) {
-            equipment.equip(mgr.getPlayer(), slot, headItems.get(index - 1));
-            inventory.removeItem(invComp, headItems.get(index - 1));
+            item = headItems.get(index - 1);
         } else if(slot.equals("lHand") || slot.equals("rHand")) {
-            equipment.equip(mgr.getPlayer(), slot, handItems.get(index - 1));
-            inventory.removeItem(invComp, handItems.get(index - 1));
+            item = handItems.get(index - 1);
         } else if(slot.equals("lArm") || slot.equals("rArm")) {
-            equipment.equip(mgr.getPlayer(), slot, armItems.get(index - 1));
-            inventory.removeItem(invComp, armItems.get(index - 1));
+            item = armItems.get(index - 1);
         } else if(slot.equals("torso")) {
-            equipment.equip(mgr.getPlayer(), slot, torsoItems.get(index - 1));
-            inventory.removeItem(invComp, torsoItems.get(index - 1));
+            item = torsoItems.get(index - 1);
         } else if(slot.equals("belt")) {
-            equipment.equip(mgr.getPlayer(), slot, beltItems.get(index - 1));
-            inventory.removeItem(invComp, beltItems.get(index - 1));
+            item = headItems.get(index - 1);
         } else if(slot.equals("lLeg") || slot.equals("rLeg")) {
-            equipment.equip(mgr.getPlayer(), slot, legItems.get(index - 1));
-            inventory.removeItem(invComp, legItems.get(index - 1));
+            item = headItems.get(index - 1);
         } else if(slot.equals("lFoot") || slot.equals("rFoot")) {
-            equipment.equip(mgr.getPlayer(), slot, footItems.get(index - 1));
-            inventory.removeItem(invComp, footItems.get(index - 1));
+            item = headItems.get(index - 1);
         }
+        equipment.equip(mgr.getPlayer(), slot, item);
+        inventory.removeItem(invComp, item);
     }
 
     public void setupEquipmentLists() {
@@ -278,29 +274,174 @@ public class UIEquipSystem extends GameSystem {
             if(equippableComp != null) {
                 List<String> types = equippableComp.getTypes();
                 InfoComp infoComp = mgr.comp(item, InfoComp.class);
+                Array<String> equipList;
 
                 if(types.contains("lHead") || types.contains("rHead")) {
                     headItems.add(item);
-                    headList.add(infoComp.getName());
+                    equipList = headList;
                 } else if(types.contains("lArm") || types.contains("rArm")) {
                     armItems.add(item);
-                    armList.add(infoComp.getName());
+                    equipList = armList;
                 } else if(types.contains("torso")) {
                     torsoItems.add(item);
-                    torsoList.add(infoComp.getName());
+                    equipList = torsoList;
                 } else if(types.contains("lHand") || types.contains("rHand")) {
                     handItems.add(item);
-                    handList.add(infoComp.getName());
+                    equipList = handList;
                 } else if(types.contains("belt")) {
                     beltItems.add(item);
-                    beltList.add(infoComp.getName());
+                    equipList = beltList;
                 } else if(types.contains("lLeg") || types.contains("rLeg")) {
                     legItems.add(item);
-                    legList.add(infoComp.getName());
+                    equipList = legList;
                 } else if(types.contains("lFoot") || types.contains("rFoot")) {
                     footItems.add(item);
-                    footList.add(infoComp.getName());
+                    equipList = footList;
+                } else {
+                    equipList = new Array<String>();
                 }
+
+                if (equipList.contains(infoComp.getName(), false)) {
+                    equipList.add(infoComp.getName() + " ");
+                } else {
+                    equipList.add(infoComp.getName());
+                }
+
+            }
+        }
+
+        InfoComp infoComp;
+        EquipmentComp equipComp = mgr.comp(mgr.getPlayer(), EquipmentComp.class);
+
+        if (equipComp.getRHead() != null) {
+            headItems.add(equipComp.getRHead());
+            infoComp = mgr.comp(equipComp.getRHead(), InfoComp.class);
+
+            if (headList.contains(infoComp.getName(), false)) {
+                headList.add(infoComp.getName() + " ");
+            } else {
+                headList.add(infoComp.getName());
+            }
+        }
+
+        if (equipComp.getLHead() != null) {
+            headItems.add(equipComp.getLHead());
+            infoComp = mgr.comp(equipComp.getLHead(), InfoComp.class);
+
+            if (headList.contains(infoComp.getName(), false)) {
+                headList.add(infoComp.getName() + " ");
+            } else {
+                headList.add(infoComp.getName());
+            }
+        }
+
+        if (equipComp.getLHand() != null) {
+            handItems.add(equipComp.getLHand());
+            infoComp = mgr.comp(equipComp.getLHand(), InfoComp.class);
+
+            if (handList.contains(infoComp.getName(), false)) {
+                handList.add(infoComp.getName() + " ");
+            } else {
+                handList.add(infoComp.getName());
+            }
+        }
+
+        if (equipComp.getRHand() != null) {
+            handItems.add(equipComp.getRHand());
+            infoComp = mgr.comp(equipComp.getRHand(), InfoComp.class);
+
+            if (handList.contains(infoComp.getName(), false)) {
+                handList.add(infoComp.getName() + " ");
+            } else {
+                handList.add(infoComp.getName());
+            }
+        }
+
+        if (equipComp.getTorso() != null) {
+            torsoItems.add(equipComp.getTorso());
+            infoComp = mgr.comp(equipComp.getTorso(), InfoComp.class);
+
+            if (torsoList.contains(infoComp.getName(), false)) {
+                torsoList.add(infoComp.getName() + " ");
+            } else {
+                torsoList.add(infoComp.getName());
+            }
+        }
+
+        if (equipComp.getBelt() != null) {
+            beltItems.add(equipComp.getBelt());
+            infoComp = mgr.comp(equipComp.getBelt(), InfoComp.class);
+
+            if (beltList.contains(infoComp.getName(), false)) {
+                beltList.add(infoComp.getName() + " ");
+            } else {
+                beltList.add(infoComp.getName());
+            }
+        }
+
+        if (equipComp.getLArm() != null) {
+            armItems.add(equipComp.getLArm());
+            infoComp = mgr.comp(equipComp.getLArm(), InfoComp.class);
+
+            if (armList.contains(infoComp.getName(), false)) {
+                armList.add(infoComp.getName() + " ");
+            } else {
+                armList.add(infoComp.getName());
+            }
+        }
+
+        if (equipComp.getRArm() != null) {
+            armItems.add(equipComp.getRArm());
+            infoComp = mgr.comp(equipComp.getRArm(), InfoComp.class);
+
+            if (armList.contains(infoComp.getName(), false)) {
+                armList.add(infoComp.getName() + " ");
+            } else {
+                armList.add(infoComp.getName());
+            }
+        }
+
+        if (equipComp.getLLeg() != null) {
+            legItems.add(equipComp.getLLeg());
+            infoComp = mgr.comp(equipComp.getLLeg(), InfoComp.class);
+
+            if (legList.contains(infoComp.getName(), false)) {
+                legList.add(infoComp.getName() + " ");
+            } else {
+                legList.add(infoComp.getName());
+            }
+        }
+
+        if (equipComp.getRLeg() != null) {
+            legItems.add(equipComp.getRLeg());
+            infoComp = mgr.comp(equipComp.getRLeg(), InfoComp.class);
+
+            if (legList.contains(infoComp.getName(), false)) {
+                legList.add(infoComp.getName() + " ");
+            } else {
+                legList.add(infoComp.getName());
+            }
+        }
+
+        if (equipComp.getLFoot() != null) {
+            footItems.add(equipComp.getLFoot());
+            infoComp = mgr.comp(equipComp.getLFoot(), InfoComp.class);
+
+            if (footList.contains(infoComp.getName(), false)) {
+                footList.add(infoComp.getName() + " ");
+            } else {
+                footList.add(infoComp.getName());
+            }
+        }
+
+        if (equipComp.getRFoot() != null) {
+            footItems.add(equipComp.getRFoot());
+            infoComp = mgr.comp(equipComp.getRFoot(), InfoComp.class);
+
+            if (footList.contains(infoComp.getName(), false)) {
+                footList.add(infoComp.getName() + " ");
+            } else {
+                footList.add(infoComp.getName());
             }
         }
 
@@ -316,81 +457,6 @@ public class UIEquipSystem extends GameSystem {
         rLegBox.setItems(legList);
         lFootBox.setItems(footList);
         rFootBox.setItems(footList);
-
-//        InfoComp infoComp;
-//        EquipmentComp equipComp = mgr.comp(mgr.getPlayer(), EquipmentComp.class);
-//
-//        if(equipComp.getRHead() != null) {
-//            infoComp = mgr.comp(equipComp.getRHead(), InfoComp.class);
-//            headList.add(infoComp.getName());
-//            headItems.add(equipComp.getRHead());
-//        }
-//
-//        if(equipComp.getLHead() != null) {
-//            infoComp = mgr.comp(equipComp.getLHead(), InfoComp.class);
-//            headList.add(infoComp.getName());
-//            headItems.add(equipComp.getLHead());
-//        }
-//
-//        if(equipComp.getLHand() != null) {
-//            infoComp = mgr.comp(equipComp.getLHand(), InfoComp.class);
-//            handList.add(infoComp.getName());
-//            handItems.add(equipComp.getLHand());
-//        }
-//
-//        if(equipComp.getRHand() != null) {
-//            infoComp = mgr.comp(equipComp.getRHand(), InfoComp.class);
-//            handList.add(infoComp.getName());
-//            handItems.add(equipComp.getRHand());
-//        }
-//
-//        if(equipComp.getTorso() != null) {
-//            infoComp = mgr.comp(equipComp.getTorso(), InfoComp.class);
-//            torsoList.add(infoComp.getName());
-//            torsoItems.add(equipComp.getTorso());
-//        }
-//
-//        if(equipComp.getBelt() != null) {
-//            infoComp = mgr.comp(equipComp.getBelt(), InfoComp.class);
-//            beltList.add(infoComp.getName());
-//            beltItems.add(equipComp.getBelt());
-//        }
-//
-//        if(equipComp.getLArm() != null) {
-//            infoComp = mgr.comp(equipComp.getLArm(), InfoComp.class);
-//            armList.add(infoComp.getName());
-//            armItems.add(equipComp.getLArm());
-//        }
-//
-//        if(equipComp.getRArm() != null) {
-//            infoComp = mgr.comp(equipComp.getRArm(), InfoComp.class);
-//            armList.add(infoComp.getName());
-//            armItems.add(equipComp.getRArm());
-//        }
-//
-//        if(equipComp.getLLeg() != null) {
-//            infoComp = mgr.comp(equipComp.getLLeg(), InfoComp.class);
-//            legList.add(infoComp.getName());
-//            legItems.add(equipComp.getLLeg());
-//        }
-//
-//        if(equipComp.getRLeg() != null) {
-//            infoComp = mgr.comp(equipComp.getRLeg(), InfoComp.class);
-//            legList.add(infoComp.getName());
-//            legItems.add(equipComp.getRLeg());
-//        }
-//
-//        if(equipComp.getLFoot() != null) {
-//            infoComp = mgr.comp(equipComp.getLFoot(), InfoComp.class);
-//            footList.add(infoComp.getName());
-//            footItems.add(equipComp.getLFoot());
-//        }
-//
-//        if(equipComp.getRFoot() != null) {
-//            infoComp = mgr.comp(equipComp.getRFoot(), InfoComp.class);
-//            footList.add(infoComp.getName());
-//            footItems.add(equipComp.getRFoot());
-//        }
     }
 
     public void activate() {
