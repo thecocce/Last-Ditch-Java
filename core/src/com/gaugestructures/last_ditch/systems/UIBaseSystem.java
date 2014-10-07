@@ -112,6 +112,14 @@ public class UIBaseSystem extends GameSystem {
                 @Override
                 public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                     noExit = true;
+
+                    if (button == 0) {
+                        if (ui.getActiveIcon() != null) {
+                            setSlotAction(slot, ui.getActiveAction());
+                        }
+                    } else if (button == 1) {
+                        setSlotAction(slot, null);
+                    }
                     return super.touchDown(event, x, y, pointer, button);
                 }
 
@@ -133,6 +141,20 @@ public class UIBaseSystem extends GameSystem {
             stage.addActor(tableNeeds);
             stage.addActor(tableSlots);
         }
+    }
+
+    private void setSlotAction(ImageButton slot, String action) {
+        ImageButton.ImageButtonStyle style = new ImageButton.ImageButtonStyle(slot.getStyle());
+
+        if (action != null) {
+            style.imageUp = new TextureRegionDrawable(mgr.getAtlas().findRegion(String.format("items/%s", action)));
+        } else {
+            style.imageUp = new TextureRegionDrawable(mgr.getAtlas().findRegion("environ/empty"));
+        }
+
+        slot.setStyle(style);
+
+        ui.setActiveAction(null);
     }
 
     private void enterSlot(ImageButton slot) {

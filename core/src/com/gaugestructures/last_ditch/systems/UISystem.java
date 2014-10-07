@@ -170,6 +170,10 @@ public class UISystem extends GameSystem {
         return activeIcon;
     }
 
+    public String getActiveAction() {
+        return activeAction;
+    }
+
     public void setActiveAction(String action) {
         if (action == null) {
             activeAction = null;

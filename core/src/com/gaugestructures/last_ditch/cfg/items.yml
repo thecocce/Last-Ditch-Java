@@ -111,7 +111,7 @@ rations1Empty:
 handgun1:
     name: handgun
     desc: >
-        This is a handgun that fires bursts of energy.
+        This is a handgun that fires small energized projectiles.
     usable: true
     stats:
         dmg: 1.0
