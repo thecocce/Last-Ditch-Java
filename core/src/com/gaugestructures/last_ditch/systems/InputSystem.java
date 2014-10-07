@@ -8,23 +8,31 @@ import com.gaugestructures.last_ditch.Manager;
 import com.gaugestructures.last_ditch.components.VelocityComp;
 
 public class InputSystem extends GameSystem implements InputProcessor {
+    private boolean ctrl = false, shift = false;
+    private String player;
+
     private Manager mgr;
-    private UISystem ui;
     private TimeSystem time;
     private ActionsSystem actions;
     private InventorySystem inventory;
-    private UIInventorySystem uiInventory;
     private MapSystem map;
-    private boolean ctrl = false, shift = false;
+    private SkillTestSystem skillTest;
+    private UISystem ui;
+    private UIBaseSystem uiBase;
+    private UIInventorySystem uiInventory;
 
-    public InputSystem(Manager mgr, MapSystem map, UISystem ui, InventorySystem inventory, ActionsSystem actions, UIInventorySystem uiInventory, TimeSystem time) {
+    public InputSystem(Manager mgr, MapSystem map, ActionsSystem actions, InventorySystem inventory, SkillTestSystem skillTest, UISystem ui) {
         this.mgr = mgr;
-        this.ui = ui;
-        this.inventory = inventory;
-        this.uiInventory = uiInventory;
+        this.time = mgr.getTime();
         this.map = map;
-        this.time = time;
         this.actions = actions;
+        this.inventory = inventory;
+        this.skillTest = skillTest;
+        this.ui = ui;
+        this.uiBase = ui.getBase();
+        this.uiInventory = ui.getInventory();
+
+        player = mgr.getPlayer();
     }
 
     @Override
@@ -34,34 +42,40 @@ public class InputSystem extends GameSystem implements InputProcessor {
                 if (ui.isActive()) {
 
                 } else {
-                    if (inventory.pickupItemAt(mgr.getPlayer(), screenX, screenY))
+                    if (inventory.pickupItemAt(player, screenX, screenY))
                         return true;
 
-                    if (map.useDoorAt(mgr.getPlayer(), screenX, screenY))
+                    if (map.useDoorAt(player, screenX, screenY))
                         return true;
 
-                    if (map.useStationAt(mgr.getPlayer(), screenX, screenY))
+                    if (map.useStationAt(player, screenX, screenY))
                         return true;
                 }
             } else {
                 if (ui.isActive()) {
 
+                } else if (skillTest.isActive()) {
+                    skillTest.score();
                 } else {
-                    inventory.pickupItem(mgr.getPlayer());
+                    inventory.pickupItem(player);
                 }
-
             }
         } else if (button == 1) {
             if (shift) {
 
             } else {
-                if (ui.getUiBase().isActive()) {
-                    ui.getUiBase().setNoExit(true);
+                if (uiBase.isActive()) {
+                    uiBase.setNoExit(true);
                 }
 
                 if (ui.isActive()) {
                     uiInventory.setNoExit(true);
-                    map.dropItem(mgr.getPlayer());
+
+                    if (ui.getActiveIcon() == null) {
+                        map.dropItem(player);
+                    } else {
+                        ui.setActiveAction(null);
+                    }
                 }
             }
         }
@@ -71,26 +85,26 @@ public class InputSystem extends GameSystem implements InputProcessor {
 
     @Override
     public boolean keyDown(int keycode) {
-        VelocityComp vel_comp;
+        VelocityComp velComp;
 
         switch (keycode) {
             case Keys.TAB:
                 if(ctrl) {
-                    ui.getUiBase().toggleActive();
+                    uiBase.toggleActive();
                 } else {
-                    VelocityComp velComp = mgr.comp(mgr.getPlayer(), VelocityComp.class);
+                    velComp = mgr.comp(player, VelocityComp.class);
                     velComp.setSpd(0);
                     velComp.setAngSpd(0);
 
                     mgr.setPaused(!mgr.isPaused());
                     time.toggleActive();
-                    actions.clearCurStation();
+                    actions.setCurStation(null);
 
                     if(ui.isActive()) {
                         ui.deactivate();
-
+                        skillTest.deactivate();
                     } else {
-                        ui.activate(ui.getFocus());
+                        ui.activate("inventory");
                     }
                 }
                 break;
@@ -105,35 +119,36 @@ public class InputSystem extends GameSystem implements InputProcessor {
                     if (ui.isActive()) {
                         mgr.setPaused(false);
                         time.setActive(true);
+                        actions.setCurStation(null);
                         ui.deactivate();
                     } else {
-                        if (map.useDoor(mgr.getPlayer()))
+                        if (map.useDoor(player))
                             return true;
 
-                        if (map.useStation(mgr.getPlayer()))
+                        if (map.useStation(player))
                             return true;
                     }
                 }
                 break;
             case Keys.W:
             case Keys.UP:
-                vel_comp = mgr.comp(mgr.getPlayer(), VelocityComp.class);
-                vel_comp.setSpd(C.PLAYER_SPD);
+                velComp = mgr.comp(player, VelocityComp.class);
+                velComp.setSpd(C.PLAYER_SPD);
                 break;
             case Keys.S:
             case Keys.DOWN:
-                vel_comp = mgr.comp(mgr.getPlayer(), VelocityComp.class);
-                vel_comp.setSpd(-C.PLAYER_SPD * 0.5f);
+                velComp = mgr.comp(player, VelocityComp.class);
+                velComp.setSpd(-C.PLAYER_SPD * 0.5f);
                 break;
             case Keys.A:
             case Keys.LEFT:
-                vel_comp = mgr.comp(mgr.getPlayer(), VelocityComp.class);
-                vel_comp.setAngSpd(C.PLAYER_ROT_SPD);
+                velComp = mgr.comp(player, VelocityComp.class);
+                velComp.setAngSpd(C.PLAYER_ROT_SPD);
                 break;
             case Keys.D:
             case Keys.RIGHT:
-                vel_comp = mgr.comp(mgr.getPlayer(), VelocityComp.class);
-                vel_comp.setAngSpd(-C.PLAYER_ROT_SPD);
+                velComp = mgr.comp(player, VelocityComp.class);
+                velComp.setAngSpd(-C.PLAYER_ROT_SPD);
                 break;
             case Keys.CONTROL_LEFT:
             case Keys.CONTROL_RIGHT:
@@ -152,22 +167,22 @@ public class InputSystem extends GameSystem implements InputProcessor {
 
     @Override
     public boolean keyUp(int keycode) {
-        VelocityComp vel_comp;
+        VelocityComp velComp;
 
         switch (keycode) {
             case Keys.W:
             case Keys.S:
             case Keys.UP:
             case Keys.DOWN:
-                vel_comp = mgr.comp(mgr.getPlayer(), VelocityComp.class);
-                vel_comp.setSpd(0);
+                velComp = mgr.comp(player, VelocityComp.class);
+                velComp.setSpd(0);
                 break;
             case Keys.A:
             case Keys.D:
             case Keys.LEFT:
             case Keys.RIGHT:
-                vel_comp = mgr.comp(mgr.getPlayer(), VelocityComp.class);
-                vel_comp.setAngSpd(0);
+                velComp = mgr.comp(player, VelocityComp.class);
+                velComp.setAngSpd(0);
                 break;
             case Keys.CONTROL_LEFT:
             case Keys.CONTROL_RIGHT:
@@ -198,7 +213,11 @@ public class InputSystem extends GameSystem implements InputProcessor {
 
     @Override
     public boolean mouseMoved(int screenX, int screenY) {
-        return false;
+        if (ui.getInventory().isActive()) {
+            ui.setIconPosition(screenX, screenY);
+        }
+
+        return true;
     }
 
     @Override

@@ -8,9 +8,9 @@ public class StatusSystem extends GameSystem {
     private Manager mgr;
     private TimeSystem time;
 
-    public StatusSystem(Manager mgr, TimeSystem time) {
+    public StatusSystem(Manager mgr) {
         this.mgr = mgr;
-        this.time = time;
+        this.time = mgr.getTime();
     }
 
     public void update() {

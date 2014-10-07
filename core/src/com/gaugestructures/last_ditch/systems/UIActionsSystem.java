@@ -1,11 +1,8 @@
 package com.gaugestructures.last_ditch.systems;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Colors;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.Align;
 import com.badlogic.gdx.scenes.scene2d.utils.ArraySelection;
@@ -18,37 +15,39 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.WordUtils;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 
 public class UIActionsSystem extends GameSystem {
     private boolean active = false;
+    private boolean recipeCheck = false;
     private int curIndex;
+    private int numOfCraftables = 0, totNumOfCraftables = 0;
+    private String focus = "crafting", prevSelection;
+    private List<String> craftingList, objectList;
+
     private Manager mgr;
-    private CraftingSystem crafting;
-    private Window window;
-    private ScrollPane scrollpane;
-    private SplitPane split;
+    private Skin skin;
     private ActionsSystem actions;
     private InventorySystem inventory;
-    private List<String> craftingList, objectList;
+    private SkillTestSystem skillTest;
+    private CraftingSystem crafting;
+    private UISystem ui;
+    private SplitPane split;
+    private ScrollPane scrollpane;
+    private TextButton craftingButton, objectButton;
     private Label craftingNameLabel, craftablesLabel, stationIdentifierLabel, stationLabel;
     private Table table, actionsListTable, craftingInfoTable, objectInfoTable;
     private Button craftablesLeftArrowButton, craftablesRightArrowButton;
-    private TextButton craftingButton, objectButton;
     private ArrayList<Label> reqsAndIngsLabelList = new ArrayList<Label>();
 
-    private boolean recipeCheck = false;
-    private String focus = "crafting", prevSelection;
-    private int numOfCraftables = 0, totNumOfCraftables = 0;
-
-    public UIActionsSystem(Manager mgr, ActionsSystem actions, CraftingSystem crafting, InventorySystem inventory, Window window) {
+    public UIActionsSystem(Manager mgr, ActionsSystem actions, CraftingSystem crafting, InventorySystem inventory) {
         this.mgr = mgr;
         this.actions = actions;
         this.crafting = crafting;
         this.inventory = inventory;
-        this.window = window;
 
+        skin = mgr.getSkin();
+        
         table = new Table();
         table.setPosition(128, 342);
         table.setSize(548, 254);
@@ -72,7 +71,7 @@ public class UIActionsSystem extends GameSystem {
     }
 
     public void setupMainButtons() {
-        craftingButton = new TextButton("Crafting", mgr.getSkin(), "actionsButton");
+        craftingButton = new TextButton("Crafting", skin, "actionsButton");
         craftingButton.setChecked(true);
 
         craftingButton.addListener(new ClickListener() {
@@ -83,7 +82,7 @@ public class UIActionsSystem extends GameSystem {
             }
         });
 
-        objectButton = new TextButton("Object", mgr.getSkin(), "actionsButton");
+        objectButton = new TextButton("Object", skin, "actionsButton");
 
         objectButton.addListener(new ClickListener() {
             @Override
@@ -101,8 +100,8 @@ public class UIActionsSystem extends GameSystem {
         craftingInfoTable = new Table();
         craftingInfoTable.align(Align.left | Align.top);
 
-        craftingNameLabel = new Label("Name:", mgr.getSkin(), "actionsTitle");
-        craftablesLeftArrowButton = new Button(mgr.getSkin(), "actionsLeftArrowButton");
+        craftingNameLabel = new Label("Name:", skin, "actionsTitle");
+        craftablesLeftArrowButton = new Button(skin, "actionsLeftArrowButton");
 
         craftablesLeftArrowButton.addListener(new ChangeListener() {
             @Override
@@ -111,9 +110,9 @@ public class UIActionsSystem extends GameSystem {
             }
         });
 
-        craftablesLabel = new Label("", mgr.getSkin(), "actions");
+        craftablesLabel = new Label("", skin, "actions");
         craftablesLabel.setAlignment(Align.center);
-        craftablesRightArrowButton = new Button(mgr.getSkin(), "actionsRightArrowButton");
+        craftablesRightArrowButton = new Button(skin, "actionsRightArrowButton");
 
         craftablesRightArrowButton.addListener(new ChangeListener() {
             @Override
@@ -122,8 +121,8 @@ public class UIActionsSystem extends GameSystem {
             }
         });
 
-        stationIdentifierLabel = new Label("  Station: ", mgr.getSkin(), "actions");
-        stationLabel = new Label("", mgr.getSkin(), "actions");
+        stationIdentifierLabel = new Label("  Station: ", skin, "actions");
+        stationLabel = new Label("", skin, "actions");
         stationLabel.setAlignment(Align.left);
 
         craftingInfoTable.add(craftingNameLabel).width(190).padLeft(8).align(Align.left);
@@ -135,7 +134,7 @@ public class UIActionsSystem extends GameSystem {
         reqsAndIngsLabelList = new ArrayList<Label>();
 
         for(int i = 0; i < 10; i++) {
-            Label newReq = new Label("", mgr.getSkin(), "actions");
+            Label newReq = new Label("", skin, "actions");
             newReq.setColor(Color.GRAY);
 
             reqsAndIngsLabelList.add(newReq);
@@ -149,7 +148,7 @@ public class UIActionsSystem extends GameSystem {
     }
 
     public void setupCraftingList() {
-        craftingList = new List<String>(mgr.getSkin(), "actions");
+        craftingList = new List<String>(skin, "actions");
         craftingList.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -167,29 +166,10 @@ public class UIActionsSystem extends GameSystem {
         craftingList.setItems(craftingItems);
     }
 
-    private void listItemChanged() {
-        if(focus.equals("crafting")) {
-            updateCraftingInfo();
 
-            if(totNumOfCraftables > 0) {
-                numOfCraftables = totNumOfCraftables;
-            }
-
-            String curSelection = craftingList.getSelection().first();
-
-            if(recipeCheck && curSelection.equals(prevSelection)) {
-                deactivate();
-                // Skill test activate
-            }
-
-            prevSelection = curSelection;
-        } else if(focus.equals("object")) {
-            updateObjectInfo();
-        }
-    }
 
     public void setupObjectList() {
-        objectList = new List<String>(mgr.getSkin(), "actions");
+        objectList = new List<String>(skin, "actions");
         objectList.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -205,14 +185,14 @@ public class UIActionsSystem extends GameSystem {
     }
 
     public void setupScrollpane() {
-        scrollpane = new ScrollPane(craftingList, mgr.getSkin(), "actions");
+        scrollpane = new ScrollPane(craftingList, skin, "actions");
         scrollpane.setOverscroll(false, false);
         scrollpane.setFadeScrollBars(false);
         scrollpane.setFlickScroll(false);
 
         actionsListTable.add(scrollpane).width(264).height(202).padTop(6).colspan(2);
 
-        split = new SplitPane(actionsListTable, craftingInfoTable, false, mgr.getSkin(), "actionsSplitPane");
+        split = new SplitPane(actionsListTable, craftingInfoTable, false, skin, "actionsSplitPane");
 
         table.add(split).width(540).height(239).padTop(10);
 
@@ -232,6 +212,28 @@ public class UIActionsSystem extends GameSystem {
             objectButton.setChecked(true);
             scrollpane.setWidget(objectList);
             split.setSecondWidget(objectInfoTable);
+        }
+    }
+
+    private void listItemChanged() {
+        if(focus.equals("crafting")) {
+            updateCraftingInfo();
+
+            if(totNumOfCraftables > 0) {
+                numOfCraftables = totNumOfCraftables;
+            }
+
+            String curSelection = craftingList.getSelection().first();
+
+            if(recipeCheck && curSelection.equals(prevSelection)) {
+                deactivate();
+                ui.deactivate();
+                skillTest.activate();
+            }
+
+            prevSelection = curSelection;
+        } else if(focus.equals("object")) {
+            updateObjectInfo();
         }
     }
 
@@ -332,44 +334,8 @@ public class UIActionsSystem extends GameSystem {
         stationLabel.setText(WordUtils.capitalize(newStationComp.getName()));
     }
 
-    public void setReqs(HashMap<String, Float> reqs) {
-        SkillsComp skillsComp = mgr.comp(mgr.getPlayer(), SkillsComp.class);
-
-        Map<String, Object> skillsData = mgr.getData("skills");
-
-        reqsAndIngsLabelList.get(curIndex).setText("  Skills:");
-        reqsAndIngsLabelList.get(curIndex).setColor(Color.WHITE);
-
-        curIndex += 1;
-
-        for(Map.Entry<String, Float> entry : reqs.entrySet()) {
-            String req = entry.getKey();
-
-            @SuppressWarnings("unchecked")
-            Map<String, Object> skillData = (Map<String, Object>)skillsData.get(req);
-
-            String skillName = (String)skillData.get("name");
-            int displayLvl = (int)(entry.getValue() * 100);
-            int skillLvl = (int)(skillsComp.getLevel(req) * 100);
-
-            if (skillLvl < displayLvl) {
-                recipeCheck = false;
-                numOfCraftables = 0;
-                totNumOfCraftables = 0;
-                reqsAndIngsLabelList.get(curIndex).setColor(Color.GRAY);
-            } else {
-                reqsAndIngsLabelList.get(curIndex).setColor(Color.WHITE);
-            }
-
-            String txt = String.format("    - %s %d / %d", skillName, skillLvl, displayLvl);
-            reqsAndIngsLabelList.get(curIndex).setText(txt);
-
-            curIndex += 1;
-        }
-    }
-
-    public void setIngs(HashMap<String, Float> ings) {
-        int craftables = 0;
+    public void setIngs(Map<String, Float> ings) {
+        int craftables;
 
         reqsAndIngsLabelList.get(curIndex).setText("  Ingredients:");
         reqsAndIngsLabelList.get(curIndex).setColor(Color.WHITE);
@@ -461,6 +427,53 @@ public class UIActionsSystem extends GameSystem {
         }
     }
 
+    public void setReqs(Map<String, Float> reqs) {
+        SkillsComp skillsComp = mgr.comp(mgr.getPlayer(), SkillsComp.class);
+
+        Map<String, Object> skillsData = mgr.getData("skills");
+
+        reqsAndIngsLabelList.get(curIndex).setText("  Skills:");
+        reqsAndIngsLabelList.get(curIndex).setColor(Color.WHITE);
+
+        curIndex += 1;
+
+        for(Map.Entry<String, Float> entry : reqs.entrySet()) {
+            String req = entry.getKey();
+
+            @SuppressWarnings("unchecked")
+            Map<String, Object> skillData = (Map<String, Object>)skillsData.get(req);
+
+            String skillName = (String)skillData.get("name");
+            int displayLvl = (int)(entry.getValue() * 100);
+            int skillLvl = (int)(skillsComp.getLevel(req) * 100);
+
+            if (skillLvl < displayLvl) {
+                recipeCheck = false;
+                numOfCraftables = 0;
+                totNumOfCraftables = 0;
+                reqsAndIngsLabelList.get(curIndex).setColor(Color.GRAY);
+            } else {
+                reqsAndIngsLabelList.get(curIndex).setColor(Color.WHITE);
+            }
+
+            String txt = String.format("    - %s %d / %d", skillName, skillLvl, displayLvl);
+            reqsAndIngsLabelList.get(curIndex).setText(txt);
+
+            curIndex += 1;
+        }
+    }
+
+    public void updateCraftingInfo() {
+        setStationHighlight(false);
+        ArraySelection<String> itemSelection = craftingList.getSelection();
+        setCurAction(itemSelection);
+        setRecipeActive();
+    }
+
+    private void updateObjectInfo() {
+
+    }
+
     public void update() {
 
     }
@@ -479,20 +492,19 @@ public class UIActionsSystem extends GameSystem {
         active = false;
     }
 
-    public void updateCraftingInfo() {
-        setStationHighlight(false);
-        ArraySelection<String> itemSelection = craftingList.getSelection();
-        setCurAction(itemSelection);
-        setRecipeActive();
+    public void setUISystem(UISystem ui) {
+        this.ui = ui;
     }
 
-    private void updateObjectInfo() {
-
+    public void setSkillTestSystem(SkillTestSystem skillTest) {
+        this.skillTest = skillTest;
     }
 
     public Table getTable() {
         return table;
     }
 
-
+    public int getNumOfCraftables() {
+        return numOfCraftables;
+    }
 }

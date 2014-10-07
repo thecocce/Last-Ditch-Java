@@ -2,10 +2,7 @@ package com.gaugestructures.last_ditch.systems;
 
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.Window;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.Align;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
@@ -15,24 +12,30 @@ import com.gaugestructures.last_ditch.components.InfoComp;
 import com.gaugestructures.last_ditch.components.InventoryComp;
 import com.gaugestructures.last_ditch.components.ItemComp;
 import com.gaugestructures.last_ditch.components.TypeComp;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 
 public class UIInventorySystem extends GameSystem {
     private boolean active = false, noExit = false;
-    private ImageButton selection, prevSelection;
+    private String player;
+
     private Manager mgr;
-    private Window window;
+    private Skin skin;
     private Table table;
     private InventorySystem inventory;
+    private UISystem ui;
+    private ImageButton selection, prevSelection;
     private ArrayList<ImageButton> slots;
-
     private Label itemName, itemDesc, itemValue, itemWeight, itemQualityDur;
 
-    public UIInventorySystem(Manager mgr, InventorySystem inventory, Window window) {
+    public UIInventorySystem(Manager mgr, InventorySystem inventory, UISystem ui) {
         this.mgr = mgr;
         this.inventory = inventory;
-        this.window = window;
+        this.ui = ui;
+
+        skin = mgr.getSkin();
+        player = mgr.getPlayer();
 
         setup();
 
@@ -42,11 +45,11 @@ public class UIInventorySystem extends GameSystem {
     }
 
     private void setup() {
-        itemName = new Label("", mgr.getSkin(), "inventory");
-        itemDesc = new Label("", mgr.getSkin(), "inventory");
-        itemValue = new Label("", mgr.getSkin(), "inventory");
-        itemWeight = new Label("", mgr.getSkin(), "inventory");
-        itemQualityDur = new Label("", mgr.getSkin(), "inventory");
+        itemName = new Label("", skin, "inventory");
+        itemDesc = new Label("", skin, "inventory");
+        itemValue = new Label("", skin, "inventory");
+        itemWeight = new Label("", skin, "inventory");
+        itemQualityDur = new Label("", skin, "inventory");
 
         itemValue.setColor(0.75f, 0.82f, 0.7f, 1f);
         itemWeight.setColor(0.75f, 0.75f, 0.89f, 1f);
@@ -61,8 +64,8 @@ public class UIInventorySystem extends GameSystem {
 
         table.addListener(new ClickListener() {
             @Override
-            public void clicked(InputEvent event, float x, float y) {
-                super.clicked(event, x, y);
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                super.exit(event, x, y, pointer, toActor);
                 exitTable();
             }
         });
@@ -76,7 +79,7 @@ public class UIInventorySystem extends GameSystem {
         slots = new ArrayList<ImageButton>();
 
         for(int i = 1; i <= C.INVENTORY_SLOTS; i++) {
-            final ImageButton slot = new ImageButton(mgr.getSkin(), "invSlot");
+            final ImageButton slot = new ImageButton(skin, "invSlot");
 
             slots.add(slot);
 
@@ -88,10 +91,20 @@ public class UIInventorySystem extends GameSystem {
                 }
 
                 @Override
-                public void clicked(InputEvent event, float x, float y) {
-                    super.clicked(event, x, y);
+                public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                    if (button == 0) {
+                        setActiveAction();
+                    } else if (button == 1) {
+
+                    }
+
+                    return super.touchDown(event, x, y, pointer, button);
+                }
+
+                @Override
+                public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
+                    super.touchUp(event, x, y, pointer, button);
                     noExit = true;
-                    useItem();
                 }
             });
 
@@ -101,6 +114,57 @@ public class UIInventorySystem extends GameSystem {
                 table.add(slot).pad(0);
             }
         }
+    }
+
+    private void setActiveAction() {
+        if (selection == null) {
+            ui.setActiveAction(null);
+            return;
+        }
+
+        int index = slots.indexOf(selection);
+        InventoryComp invComp = mgr.comp(player, InventoryComp.class);
+
+        if (index != -1) {
+            String item = invComp.getItem(index);
+            ItemComp itemComp = mgr.comp(item, ItemComp.class);
+
+            if (itemComp != null && itemComp.isUsable()) {
+                TypeComp typeComp = mgr.comp(item, TypeComp.class);
+
+                ui.setActiveAction(typeComp.getType());
+            }
+        }
+    }
+
+    private boolean useItem() {
+        if (selection == null)
+            return false;
+
+        int index = slots.indexOf(selection);
+        InventoryComp invComp = mgr.comp(player, InventoryComp.class);
+
+        if (index != -1) {
+            String item = invComp.getItem(index);
+            ItemComp itemComp = mgr.comp(item, ItemComp.class);
+
+            if (itemComp != null && itemComp.isUsable()) {
+                TypeComp typeComp = mgr.comp(item, TypeComp.class);
+                InfoComp infoComp = mgr.comp(item, InfoComp.class);
+
+                inventory.useItem(player, item, typeComp.getType());
+
+                setItemName(infoComp.getName());
+                setItemDesc(infoComp.getDesc());
+                setItemQualAndCond(itemComp.getQuality(), itemComp.getCondition());
+                setItemValue(itemComp.getValue());
+                setItemWeight(itemComp.getWeight());
+
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private void enterSlot(ImageButton slot) {
@@ -131,75 +195,6 @@ public class UIInventorySystem extends GameSystem {
         }
     }
 
-    private boolean useItem() {
-        if(selection == null) return false;
-
-        int index = slots.indexOf(selection);
-        InventoryComp invComp = mgr.comp(mgr.getPlayer(), InventoryComp.class);
-
-        if(index != -1) {
-            String item = invComp.getItem(index);
-            ItemComp itemComp = mgr.comp(item, ItemComp.class);
-
-            if(itemComp != null && itemComp.isUsable()) {
-                TypeComp typeComp = mgr.comp(item, TypeComp.class);
-                InfoComp infoComp = mgr.comp(item, InfoComp.class);
-
-                inventory.useItem(mgr.getPlayer(), item, typeComp.getType());
-
-                setItemName(infoComp.getName());
-                setItemDesc(infoComp.getDesc());
-                setItemQualAndCond(itemComp.getQuality(), itemComp.getCondition());
-                setItemValue(itemComp.getValue());
-                setItemWeight(itemComp.getWeight());
-
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private void setItemName(String name) {
-        if (name.equals("")) {
-            itemName.setText("");
-        } else {
-            itemName.setText(name.substring(0, 1).toUpperCase() + name.substring(1));
-        }
-    }
-
-    private void setItemDesc(String desc) {
-        if (desc.equals("")) {
-            itemDesc.setText("");
-        } else {
-            itemDesc.setText(desc);
-        }
-    }
-
-    private void setItemQualAndCond(float quality, float condition) {
-        if(quality == -1 && condition == -1) {
-            itemQualityDur.setText("");
-        } else {
-            itemQualityDur.setText(String.format("Q-%d C-%d", (int)(quality * 100), (int)(condition * 100)));
-        }
-    }
-
-    private void setItemValue(float value) {
-        if(value == -1) {
-            itemValue.setText("");
-        } else {
-            itemValue.setText(String.format("$%.2f", value));
-        }
-    }
-
-    private void setItemWeight(float weight) {
-        if(weight == -1) {
-            itemValue.setText("");
-        } else {
-            itemValue.setText(String.format("$%.2f", weight));
-        }
-    }
-
     public void activate() {
         active = true;
     }
@@ -208,15 +203,19 @@ public class UIInventorySystem extends GameSystem {
         active = false;
     }
 
-    public Table getTable() {
-        return table;
+    public void resetInfo() {
+        setItemName("");
+        setItemQualAndCond(-1, -1);
+        setItemValue(-1);
+        setItemWeight(-1);
+        setItemDesc("");
     }
 
     public void update() {
         if(active) {
             if(selection != prevSelection) {
                 if(selection != null) {
-                    InventoryComp invComp = mgr.comp(mgr.getPlayer(), InventoryComp.class);
+                    InventoryComp invComp = mgr.comp(player, InventoryComp.class);
                     int index = slots.indexOf(selection);
 
                     if (index != -1) {
@@ -243,24 +242,52 @@ public class UIInventorySystem extends GameSystem {
         }
     }
 
-    public ImageButton getPrevSelection() {
-        return prevSelection;
+    private void setItemName(String name) {
+        if (name.equals("")) {
+            itemName.setText("");
+        } else {
+            itemName.setText(StringUtils.capitalize(name));
+        }
+    }
+
+    private void setItemDesc(String desc) {
+        if (desc.equals("")) {
+            itemDesc.setText("");
+        } else {
+            itemDesc.setText("  " + desc);
+        }
+    }
+
+    private void setItemQualAndCond(float quality, float condition) {
+        if(quality == -1 && condition == -1) {
+            itemQualityDur.setText("");
+        } else {
+            itemQualityDur.setText(String.format("Q-%d C-%d", (int)(quality * 100), (int)(condition * 100)));
+        }
+    }
+
+    private void setItemValue(float value) {
+        if(value == -1) {
+            itemValue.setText("");
+        } else {
+            itemValue.setText(String.format("$%.2f", value));
+        }
+    }
+
+    private void setItemWeight(float weight) {
+        if(weight == -1) {
+            itemWeight.setText("");
+        } else {
+            itemWeight.setText(String.format("%.2fkg", weight));
+        }
     }
 
     public void setPrevSelection(ImageButton prevSelection) {
         this.prevSelection = prevSelection;
     }
 
-    public void resetInfo() {
-        setItemName("");
-        setItemQualAndCond(-1, -1);
-        setItemValue(-1);
-        setItemWeight(-1);
-        setItemDesc("");
-    }
-
-    public ArrayList<ImageButton> getSlots() {
-        return slots;
+    public Table getTable() {
+        return table;
     }
 
     public ImageButton getSlot(int i) {

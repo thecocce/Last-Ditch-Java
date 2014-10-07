@@ -3,17 +3,17 @@ package com.gaugestructures.last_ditch.components;
 import java.util.HashMap;
 import java.util.Map;
 
-public class RequirementsComp extends Component {
-    private HashMap<String, Float> requirements = new HashMap<String, Float>();
+public class RequirementsComp extends GameComponent {
+    private Map<String, Float> requirements = new HashMap<String, Float>();
 
-    public RequirementsComp(HashMap<String, Object> reqHash) {
-        for(Map.Entry<String, Object> entry : reqHash.entrySet()) {
+    public RequirementsComp(Map<String, Object> reqs) {
+        for(Map.Entry<String, Object> entry : reqs.entrySet()) {
             Double lvl = (Double)entry.getValue();
             requirements.put(entry.getKey(), lvl.floatValue());
         }
     }
 
-    public HashMap<String, Float> getRequirements() {
+    public Map<String, Float> getRequirements() {
         return requirements;
     }
 }

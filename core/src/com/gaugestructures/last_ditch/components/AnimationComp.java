@@ -7,11 +7,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 
-public class AnimationComp extends Component {
-    private String cur;
+public class AnimationComp extends GameComponent {
     private float scale = 1f;
     private float stateTime = 0;
     private float duration = 0.1f;
+    private String cur;
+
     private Animation curAnim;
     private HashMap<String, Animation> anims = new HashMap<String, Animation>();
     private HashMap<String, ArrayList<String>> namesAndFrames = new HashMap<String, ArrayList<String>>();
@@ -28,6 +29,10 @@ public class AnimationComp extends Component {
         namesAndFrames.put(name, frameList);
     }
 
+    public void updateStateTime(float dt) {
+        stateTime += dt;
+    }
+
     public String getCur() {
         return cur;
     }
@@ -35,10 +40,6 @@ public class AnimationComp extends Component {
     public void setCur(String cur) {
         this.cur = cur;
         curAnim = anims.get(cur);
-    }
-
-    public void updateStateTime(float dt) {
-        stateTime += dt;
     }
 
     public float getW() {

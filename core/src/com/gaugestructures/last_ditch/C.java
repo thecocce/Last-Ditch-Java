@@ -18,9 +18,8 @@ public class C {
 
     public static final short BIT_ZERO = 0;
     public static final short BIT_PLAYER = 2;
-    public static final short BIT_LIGHT = 4;
-    public static final short BIT_WALL = 8;
-    public static final short BIT_WINDOW = 16;
-    public static final short BIT_ENTITY = 32;
-
+    public static final short BIT_NPC = 4;
+    public static final short BIT_LIGHT = 8;
+    public static final short BIT_WALL = 16;
+    public static final short BIT_WINDOW = 32;
 }

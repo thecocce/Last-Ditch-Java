@@ -1,23 +1,17 @@
 package com.gaugestructures.last_ditch.systems;
 
 import com.gaugestructures.last_ditch.Manager;
-import com.gaugestructures.last_ditch.components.AttributesComp;
-import com.gaugestructures.last_ditch.components.EquipmentComp;
-import com.gaugestructures.last_ditch.components.StatsComp;
-import com.gaugestructures.last_ditch.components.TypeComp;
+import com.gaugestructures.last_ditch.components.*;
 
 import java.util.Map;
 
 public class EquipmentSystem extends GameSystem {
     private Manager mgr;
+    private UISystem ui;
     private UIStatusSystem uiStatus;
 
     public EquipmentSystem(Manager mgr) {
         this.mgr = mgr;
-    }
-
-    public void setUIStatusSystem(UIStatusSystem uiStatus) {
-        this.uiStatus = uiStatus;
     }
 
     public void equip(String entity, String slot, String item) {
@@ -37,14 +31,14 @@ public class EquipmentSystem extends GameSystem {
 
         @SuppressWarnings("unchecked")
         Map<String, Object> statsData = (Map<String, Object>)typeData.get("stats");
-        if(statsData != null) {
+        if (statsData != null) {
             Double dmg = (Double)statsData.get("dmg");
-            if(dmg != null) {
+            if (dmg != null) {
                 statsComp.setDmg(dmg.floatValue());
             }
 
             Double armor = (Double)statsData.get("armor");
-            if(armor != null) {
+            if (armor != null) {
                 statsComp.setArmor(armor.floatValue());
             }
 
@@ -55,13 +49,18 @@ public class EquipmentSystem extends GameSystem {
 
         @SuppressWarnings("unchecked")
         Map<String, Object> attributesData = (Map<String, Object>)typeData.get("attributes");
-        if(attributesData != null) {
-            for(Map.Entry<String, Object> entry : attributesData.entrySet()) {
+        if (attributesData != null) {
+            for (Map.Entry<String, Object> entry : attributesData.entrySet()) {
                 Double runningMod = attrComp.getModifiers().get(entry.getKey()) + (Double)entry.getValue();
                 attrComp.getModifiers().put(entry.getKey(), runningMod.floatValue());
             }
             uiStatus.updateAttributesList();
         }
+
+        InventoryComp invComp = mgr.comp(mgr.getPlayer(), InventoryComp.class);
+        ItemComp itemComp = mgr.comp(item, ItemComp.class);
+
+        invComp.setWeight(invComp.getWeight() + itemComp.getWeight());
     }
 
     public String dequip(String entity, String slot) {
@@ -70,7 +69,7 @@ public class EquipmentSystem extends GameSystem {
         String item = equipComp.getSlot(slot);
         equipComp.setSlot(slot, null);
 
-        if(item != null && !item.equals("")) {
+        if (item != null && !item.equals("")) {
             Map<String, Object> itemData = mgr.getData("items");
             String type = mgr.comp(item, TypeComp.class).getType();
 
@@ -82,14 +81,14 @@ public class EquipmentSystem extends GameSystem {
             @SuppressWarnings("unchecked")
             Map<String, Object> statsData = (Map<String, Object>)typeData.get("stats");
 
-            if(statsData != null) {
+            if (statsData != null) {
                 Double dmg = (Double)statsData.get("dmg");
-                if(dmg != null) {
+                if (dmg != null) {
                     statsComp.setDmg(0);
                 }
 
                 Double armor = (Double)statsData.get("armor");
-                if(armor != null) {
+                if (armor != null) {
                     statsComp.setArmor(0);
                 }
 
@@ -100,18 +99,30 @@ public class EquipmentSystem extends GameSystem {
 
             @SuppressWarnings("unchecked")
             Map<String, Object> attributesData = (Map<String, Object>)typeData.get("attributes");
-            if(attributesData != null) {
-                for(Map.Entry<String, Object> entry : attributesData.entrySet()) {
+            if (attributesData != null) {
+                for (Map.Entry<String, Object> entry : attributesData.entrySet()) {
                     Double runningMod = attrComp.getModifiers().get(entry.getKey()) - (Double)entry.getValue();
                     attrComp.getModifiers().put(entry.getKey(), runningMod.floatValue());
                 }
+
                 uiStatus.updateAttributesList();
             }
+
+            InventoryComp invComp = mgr.comp(mgr.getPlayer(), InventoryComp.class);
+            ItemComp itemComp = mgr.comp(item, ItemComp.class);
+
+            invComp.setWeight(invComp.getWeight() - itemComp.getWeight());
         }
+
         return item;
     }
 
     public void update() {
 
+    }
+
+    public void setUISystem(UISystem ui) {
+        this.ui = ui;
+        this.uiStatus = ui.getStatus();
     }
 }

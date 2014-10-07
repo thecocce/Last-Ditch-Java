@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class SkillsComp extends Component {
+public class SkillsComp extends GameComponent {
     private HashMap<String, Float> skills = new HashMap<String, Float>();
 
     public SkillsComp() {

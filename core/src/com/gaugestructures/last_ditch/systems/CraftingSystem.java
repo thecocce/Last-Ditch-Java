@@ -7,9 +7,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class CraftingSystem extends GameSystem {
-    private Manager mgr;
     private boolean active = false;
     private String curRecipe;
+
+    private Manager mgr;
     private Map<String, Object> recipeData;
     private HashMap<String, String> recipes = new HashMap<String, String>();
 
@@ -19,7 +20,9 @@ public class CraftingSystem extends GameSystem {
         recipeData = mgr.getData("recipes");
 
         for(Map.Entry<String, Object> entry : recipeData.entrySet()) {
-            if(!entry.getKey().equals("recipeList")) {
+            String recipeType = entry.getKey();
+
+            if(!recipeType.equals("recipeList")) {
                 String recipe = mgr.createEntity();
 
                 @SuppressWarnings("unchecked")
@@ -29,15 +32,19 @@ public class CraftingSystem extends GameSystem {
                 infoComp.setName((String)recipeInfo.get("name"));
                 infoComp.setDesc((String)recipeInfo.get("desc"));
 
-                mgr.addComp(recipe, new TypeComp(entry.getKey()));
+                mgr.addComp(recipe, new TypeComp(recipeType));
                 mgr.addComp(recipe, new StationComp((String)recipeInfo.get("station")));
 
                 @SuppressWarnings("unchecked")
-                IngredientsComp ingComp = new IngredientsComp((HashMap<String, Object>)recipeInfo.get("ingredients"));
+                Map<String, Object> ings = (Map<String, Object>)recipeInfo.get("ingredients");
+
+                IngredientsComp ingComp = new IngredientsComp(ings);
                 mgr.addComp(recipe, ingComp);
 
                 @SuppressWarnings("unchecked")
-                RequirementsComp reqComp = new RequirementsComp((HashMap<String, Object>)recipeInfo.get("requirements"));
+                Map<String, Object> reqs = (Map<String, Object>)recipeInfo.get("requirements");
+
+                RequirementsComp reqComp = new RequirementsComp(reqs);
                 mgr.addComp(recipe, reqComp);
 
                 recipes.put(entry.getKey(), recipe);

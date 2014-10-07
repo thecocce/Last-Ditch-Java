@@ -1,6 +1,6 @@
 package com.gaugestructures.last_ditch.components;
 
-public class VelocityComp extends Component {
+public class VelocityComp extends GameComponent {
     private float spd, angSpd, maxSpd, maxAng;
 
     public VelocityComp(float spd, float angSpd, float maxSpd, float maxAng) {

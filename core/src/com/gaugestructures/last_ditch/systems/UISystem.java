@@ -1,35 +1,42 @@
 package com.gaugestructures.last_ditch.systems;
 
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.ui.Window;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.gaugestructures.last_ditch.C;
 import com.gaugestructures.last_ditch.Manager;
+import com.gaugestructures.last_ditch.components.PositionComp;
+import com.gaugestructures.last_ditch.components.RenderComp;
 
 public class UISystem extends GameSystem {
     private boolean active = false;
+    private float iconX, iconY;
+
     private Manager mgr;
+    private String uiFocus, activeAction;
+    private PositionComp focus;
     private Stage stage;
     private Window window;
-    private String focus;
     private Actor focusActor;
     private Table buttonTable;
+    private Image activeIcon;
+    private TextButton actionsButton, equipmentButton, inventoryButton, statusButton;
 
     private UIBaseSystem uiBase;
     private UIActionsSystem uiActions;
+    private UIEquipmentSystem uiEquipment;
     private UIInventorySystem uiInventory;
-    private UIEquipSystem uiEquipment;
     private UIStatusSystem uiStatus;
 
-    private TextButton actionsButton, inventoryButton, equipmentButton, statusButton;
-
-    public UISystem(Manager mgr, TimeSystem time, ActionsSystem actions, EquipmentSystem equipment, InventorySystem inventory, CraftingSystem crafting) {
+    public UISystem(Manager mgr, ActionsSystem actions, CraftingSystem crafting, EquipmentSystem equipment, InventorySystem inventory) {
         this.mgr = mgr;
 
         stage = new Stage();
+        focus = mgr.comp(mgr.getPlayer(), PositionComp.class);
 
         window = new Window("", mgr.getSkin(), "window1");
         window.setPosition(24, 54);
@@ -37,11 +44,13 @@ public class UISystem extends GameSystem {
         window.setMovable(false);
         window.padTop(9);
 
-        uiBase = new UIBaseSystem(mgr, stage, time);
-        uiActions = new UIActionsSystem(mgr, actions, crafting, inventory, window);
-        uiInventory = new UIInventorySystem(mgr, inventory, window);
-        uiEquipment = new UIEquipSystem(mgr, equipment, inventory, window);
-        uiStatus = new UIStatusSystem(mgr, window);
+        uiBase = new UIBaseSystem(mgr, stage, this);
+        uiActions = new UIActionsSystem(mgr, actions, crafting, inventory);
+        uiInventory = new UIInventorySystem(mgr, inventory, this);
+        uiEquipment = new UIEquipmentSystem(mgr, equipment, inventory);
+        uiStatus = new UIStatusSystem(mgr);
+
+        uiActions.setUISystem(this);
 
         setupButtons();
         setupInitialState();
@@ -99,7 +108,7 @@ public class UISystem extends GameSystem {
     }
 
     private void setupInitialState() {
-        focus = "actions";
+        uiFocus = "actions";
         focusActor = uiActions.getTable();
 
         window.add(focusActor).width(680).height(432);
@@ -157,18 +166,31 @@ public class UISystem extends GameSystem {
         }
     }
 
-    public void update() {
-        uiBase.update();
-        uiActions.update();
-        uiInventory.update();
-        uiEquipment.update();
-        uiStatus.update();
+    public Image getActiveIcon() {
+        return activeIcon;
     }
 
-    public void activate(String focus) {
+    public void setActiveAction(String action) {
+        if (action == null) {
+            activeAction = null;
+            activeIcon = null;
+        } else {
+            activeAction = action;
+
+            TextureRegion actionRegion = mgr.getAtlas().findRegion(String.format("items/%s", action));
+            activeIcon = new Image(actionRegion);
+        }
+    }
+
+    public void setIconPosition(float screenX, float screenY) {
+        iconX = screenX + C.BTW * focus.getX() - C.WIDTH / 2 - 14;
+        iconY = C.HEIGHT - screenY + C.BTW * focus.getY() - C.HEIGHT / 2 - 14;
+    }
+
+    public void activate(String uiFocus) {
         active = true;
-        this.focus = focus;
-        switchFocus(focus);
+        this.uiFocus = uiFocus;
+        switchFocus(uiFocus);
         stage.addActor(window);
     }
 
@@ -183,20 +205,34 @@ public class UISystem extends GameSystem {
         window.remove();
     }
 
+    public void update() {
+        uiBase.update();
+        uiActions.update();
+        uiInventory.update();
+        uiEquipment.update();
+        uiStatus.update();
+
+        if (activeIcon != null) {
+            activeIcon.setPosition(iconX, iconY);
+        }
+    }
+
+    public void render(SpriteBatch batch) {
+        stage.act();
+        stage.draw();
+
+        if (activeIcon != null) {
+            batch.begin();
+            activeIcon.draw(batch, 1);
+            batch.end();
+        }
+    }
+
     public boolean isActive() {
         return active;
     }
 
-    public void toggleActive() {
-        active = !active;
-    }
-
-    public void render() {
-        stage.act();
-        stage.draw();
-    }
-
-    public UIBaseSystem getUiBase() {
+    public UIBaseSystem getBase() {
         return uiBase;
     }
 
@@ -208,7 +244,7 @@ public class UISystem extends GameSystem {
         return uiInventory;
     }
 
-    public UIEquipSystem getEquipment() {
+    public UIEquipmentSystem getEquipment() {
         return uiEquipment;
     }
 
@@ -216,13 +252,11 @@ public class UISystem extends GameSystem {
         return uiStatus;
     }
 
-    public String getFocus() {
-        return focus;
+    public String getUiFocus() {
+        return uiFocus;
     }
 
     public Stage getStage() {
         return stage;
     }
-
-
 }

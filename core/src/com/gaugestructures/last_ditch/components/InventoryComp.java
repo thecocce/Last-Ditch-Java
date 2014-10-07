@@ -2,7 +2,7 @@ package com.gaugestructures.last_ditch.components;
 
 import java.util.ArrayList;
 
-public class InventoryComp extends Component {
+public class InventoryComp extends GameComponent {
     private int size;
     private float weight = 0;
     private float money = 0.34f;
@@ -10,11 +10,11 @@ public class InventoryComp extends Component {
 
     public InventoryComp(int size) {
         this.size = size;
+
         items = new ArrayList<String>(size);
 
-        for (int i = 0; i < size; i++) {
+        for (int i = 0; i < size; i++)
             items.add(null);
-        }
     }
 
     public void addMoney(float amt) {
@@ -36,6 +36,10 @@ public class InventoryComp extends Component {
 
     public void setWeight(float weight) {
         this.weight = weight;
+    }
+
+    public void modWeight(float amt) {
+        weight += amt;
     }
 
     public float getWeight() {

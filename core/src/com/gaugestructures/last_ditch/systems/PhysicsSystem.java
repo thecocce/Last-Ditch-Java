@@ -15,22 +15,20 @@ public class PhysicsSystem extends GameSystem {
     private Manager mgr;
     private MapSystem map;
     private Body playerBody;
-    private List<List<Body>> tileBodies = new ArrayList<List<Body>>();
     private Vector2 gravity = new Vector2(0, 0);
     private World world = new World(gravity, false);
-    private PositionComp focus;
+    private List<List<Body>> tileBodies = new ArrayList<List<Body>>();
 
     public PhysicsSystem(Manager mgr, MapSystem map) {
         this.mgr = mgr;
         this.map = map;
-
-        focus = mgr.comp(mgr.getPlayer(), PositionComp.class);
 
         for(int i = 0; i < map.getNumOfChunks(); i++) {
             tileBodies.add(i, new ArrayList<Body>());
         }
 
         generatePlayerBody();
+        generateNPCBodies();
         generateTileBodies();
         generateDoorBodies();
         generateStationBodies();
@@ -67,6 +65,39 @@ public class PhysicsSystem extends GameSystem {
         playerBody = colComp.getBody();
     }
 
+    private void generateNPCBodies() {
+        Set<String> npcs = mgr.entitiesWith(AIComp.class);
+
+        for (String npc : npcs) {
+            PositionComp posComp = mgr.comp(npc, PositionComp.class);
+            AnimationComp animComp = mgr.comp(npc, AnimationComp.class);
+            CollisionComp colComp = mgr.comp(npc, CollisionComp.class);
+
+            float w = animComp.getW() * C.WTB;
+            float h = animComp.getH() * C.WTB;
+
+            BodyDef bodyDef = new BodyDef();
+            bodyDef.type = BodyDef.BodyType.DynamicBody;
+            bodyDef.linearDamping = 20.0f;
+            bodyDef.position.set(posComp.getX() + w / 2, posComp.getY() + h / 2);
+
+            CircleShape shape = new CircleShape();
+            shape.setRadius(w / 2 - 0.01f);
+
+            FixtureDef fixtureDef = new FixtureDef();
+            fixtureDef.shape = shape;
+            fixtureDef.friction = 0.2f;
+            fixtureDef.density = 1f;
+
+            fixtureDef.filter.categoryBits = C.BIT_NPC;
+
+            colComp.setBody(world.createBody(bodyDef));
+            colComp.getBody().createFixture(fixtureDef);
+            colComp.getBody().setFixedRotation(true);
+            colComp.getBody().setUserData(npc);
+        }
+    }
+
     private void generateTileBodies() {
         for (int i = 0; i < map.getNumOfChunks(); i++) {
             int chunkX = map.getChunkX(i);
@@ -101,20 +132,6 @@ public class PhysicsSystem extends GameSystem {
         }
     }
 
-    public void updateTileBodies() {
-        for (int chunk : map.getNewChunks()) {
-            for (Body body : tileBodies.get(chunk)) {
-                body.setActive(true);
-            }
-        }
-
-        for (int chunk: map.getOldChunks()) {
-            for (Body body : tileBodies.get(chunk)) {
-                body.setActive(false);
-            }
-        }
-    }
-
     private void generateDoorBodies() {
         for (int i = 0; i < map.getNumOfChunks(); i++) {
             for (String door : map.getDoors().get(i)) {
@@ -133,6 +150,67 @@ public class PhysicsSystem extends GameSystem {
 
                     colComp.setBody(body);
                 }
+            }
+        }
+    }
+
+    private void generateStationBodies() {
+        for (int i = 0; i < map.getNumOfChunks(); i++) {
+            for (String station : map.getStations().get(i)) {
+                createStationBody(station);
+            }
+        }
+    }
+
+    public Body createBody(float x, float y, float w, float h, boolean sight, float ang) {
+        BodyDef bodyDef = new BodyDef();
+        bodyDef.position.set(x, y);
+
+        PolygonShape shape = new PolygonShape();
+        shape.setAsBox(w / 2, h / 2);
+
+        FixtureDef fixtureDef = new FixtureDef();
+        fixtureDef.shape = shape;
+
+        if (sight) {
+            fixtureDef.filter.categoryBits = C.BIT_WINDOW;
+        } else {
+            fixtureDef.filter.categoryBits = C.BIT_WALL;
+        }
+
+        Body body = world.createBody(bodyDef);
+        body.createFixture(fixtureDef);
+        body.setTransform(x, y, (float)(ang * Math.PI / 180));
+
+        shape.dispose();
+
+        return body;
+    }
+
+    public void createStationBody(String station) {
+        PositionComp posComp = mgr.comp(station, PositionComp.class);
+        RotationComp rotComp = mgr.comp(station, RotationComp.class);
+        SizeComp sizeComp = mgr.comp(station, SizeComp.class);
+        CollisionComp colComp = mgr.comp(station, CollisionComp.class);
+
+        Body body = createBody(
+            posComp.getX(), posComp.getY(),
+            sizeComp.getW(), sizeComp.getH(),
+            true, rotComp.getAng());
+
+        colComp.setBody(body);
+    }
+
+    public void updateTileBodies() {
+        for (int chunk : map.getNewChunks()) {
+            for (Body body : tileBodies.get(chunk)) {
+                body.setActive(true);
+            }
+        }
+
+        for (int chunk: map.getOldChunks()) {
+            for (Body body : tileBodies.get(chunk)) {
+                body.setActive(false);
             }
         }
     }
@@ -163,24 +241,6 @@ public class PhysicsSystem extends GameSystem {
         }
     }
 
-    private void generateStationBodies() {
-        for (int i = 0; i < map.getNumOfChunks(); i++) {
-            for (String station : map.getStations().get(i)) {
-                PositionComp posComp = mgr.comp(station, PositionComp.class);
-                RotationComp rotComp = mgr.comp(station, RotationComp.class);
-                SizeComp sizeComp = mgr.comp(station, SizeComp.class);
-                CollisionComp colComp = mgr.comp(station, CollisionComp.class);
-
-                Body body = createBody(
-                    posComp.getX(), posComp.getY(),
-                    sizeComp.getW(), sizeComp.getH(),
-                    true, rotComp.getAng());
-
-                colComp.setBody(body);
-            }
-        }
-    }
-
     public void updateStationBodies() {
         for (int chunk : map.getNewChunks()) {
             for (String station : map.getStations().get(chunk)) {
@@ -197,31 +257,6 @@ public class PhysicsSystem extends GameSystem {
                 colComp.getBody().setActive(false);
             }
         }
-    }
-
-    public Body createBody(float x, float y, float w, float h, boolean sight, float ang) {
-        BodyDef bodyDef = new BodyDef();
-        bodyDef.position.set(x, y);
-
-        PolygonShape shape = new PolygonShape();
-        shape.setAsBox(w / 2, h / 2);
-
-        FixtureDef fixtureDef = new FixtureDef();
-        fixtureDef.shape = shape;
-
-        if (sight) {
-            fixtureDef.filter.categoryBits = C.BIT_WINDOW;
-        } else {
-            fixtureDef.filter.categoryBits = C.BIT_WALL;
-        }
-
-        Body body = world.createBody(bodyDef);
-        body.createFixture(fixtureDef);
-        body.setTransform(x, y, (float)(ang * Math.PI / 180));
-
-        shape.dispose();
-
-        return body;
     }
 
     public void update() {

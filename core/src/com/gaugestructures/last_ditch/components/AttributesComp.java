@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class AttributesComp extends Component {
+public class AttributesComp extends GameComponent {
     private HashMap<String, Float> attributes = new HashMap<String, Float>();
     private HashMap<String, Float> modifiers = new HashMap<String, Float>();
 

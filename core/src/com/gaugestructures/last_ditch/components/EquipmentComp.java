@@ -1,6 +1,6 @@
 package com.gaugestructures.last_ditch.components;
 
-public class EquipmentComp extends Component {
+public class EquipmentComp extends GameComponent {
     private String lHead, rHead, lHand, rHand, lArm, rArm, torso, belt, lLeg, rLeg, lFoot, rFoot;
 
     public String getSlot(String slot) {

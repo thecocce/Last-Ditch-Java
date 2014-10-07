@@ -2,6 +2,7 @@ package com.gaugestructures.last_ditch.systems;
 
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
@@ -13,31 +14,34 @@ import com.google.common.collect.Iterables;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 public class RenderSystem extends GameSystem {
+    private String player;
+
     private Manager mgr;
+    private TextureAtlas atlas;
     private MapSystem map;
     private PositionComp focus;
 
     public RenderSystem(Manager mgr, MapSystem map) {
         this.mgr = mgr;
         this.map = map;
+
+        atlas = mgr.getAtlas();
+        player = mgr.getPlayer();
         focus = map.getFocus();
 
         for (String entity : mgr.entitiesWith(RenderComp.class)) {
             RenderComp renderComp = mgr.comp(entity, RenderComp.class);
-            renderComp.setRegion(mgr.getAtlas().findRegion(renderComp.getRegionName()));
-
-            PositionComp posComp = mgr.comp(entity, PositionComp.class);
-            PositionComp playerPosComp = mgr.comp(mgr.getPlayer(), PositionComp.class);
-
-            float x_dist = posComp.getX() - playerPosComp.getX();
-            float y_dist = posComp.getY() - playerPosComp.getY();
+            renderComp.setRegion(atlas.findRegion(renderComp.getRegionName()));
         }
 
         for (String entity : mgr.entitiesWith(AnimationComp.class)) {
             boolean first = true;
+
             AnimationComp animComp = mgr.comp(entity, AnimationComp.class);
+
             Iterator it = animComp.getNamesAndFrames().entrySet().iterator();
 
             while (it.hasNext()) {
@@ -50,11 +54,11 @@ public class RenderSystem extends GameSystem {
                 for (String frame : frames) {
                     if (frame.endsWith("-f")) {
                         frame = frame.replace("-f", "");
-                        TextureRegion region = new TextureRegion(mgr.getAtlas().findRegion(frame));
+                        TextureRegion region = new TextureRegion(atlas.findRegion(frame));
                         region.flip(false, true);
                         frameList.add(region);
                     } else {
-                        frameList.add(mgr.getAtlas().findRegion(frame));
+                        frameList.add(atlas.findRegion(frame));
                     }
                 }
 
@@ -80,8 +84,8 @@ public class RenderSystem extends GameSystem {
             animComp.updateStateTime(C.BOX_STEP);
             Vector2 velVec = colComp.getBody().getLinearVelocity();
 
-            if (entity.equals(mgr.getPlayer())) {
-                InfoComp infoComp = mgr.comp(mgr.getPlayer(), InfoComp.class);
+            if (entity.equals(player)) {
+                InfoComp infoComp = mgr.comp(player, InfoComp.class);
 
                 if (Math.abs(velVec.x) < 0.02f && Math.abs(velVec.y) < 0.02f) {
                     animComp.setCur(String.format("%s1/idle", infoComp.getGender()));
@@ -125,13 +129,33 @@ public class RenderSystem extends GameSystem {
                                 ang);
                         }
                     }
+
+                    Set<String> npcs = mgr.entitiesWith(AIComp.class);
+
+                    for (String npc : npcs) {
+                        PositionComp posComp = mgr.comp(npc, PositionComp.class);
+                        
+                        if (chunk == map.getChunk(posComp.getX(), posComp.getY())) {
+                            RotationComp rotComp = mgr.comp(npc, RotationComp.class);
+                            AnimationComp animComp = mgr.comp(npc, AnimationComp.class);
+                            
+                            batch.draw(
+                                animComp.getKeyFrame(),
+                                C.BTW * posComp.getX() - animComp.getW()/2,
+                                C.BTW * posComp.getY() - animComp.getH()/2,
+                                animComp.getW()/2, animComp.getH()/2,
+                                animComp.getW(), animComp.getH(),
+                                animComp.getScale(), animComp.getScale(),
+                                rotComp.getAng());
+                        }
+                    }
                 }
             }
         }
 
-        AnimationComp animComp = mgr.comp(mgr.getPlayer(), AnimationComp.class);
-        PositionComp posComp = mgr.comp(mgr.getPlayer(), PositionComp.class);
-        RotationComp rotComp = mgr.comp(mgr.getPlayer(), RotationComp.class);
+        AnimationComp animComp = mgr.comp(player, AnimationComp.class);
+        PositionComp posComp = mgr.comp(player, PositionComp.class);
+        RotationComp rotComp = mgr.comp(player, RotationComp.class);
 
         batch.draw(
             animComp.getKeyFrame(),

@@ -2,9 +2,10 @@ package com.gaugestructures.last_ditch.components;
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
-public class RenderComp extends Component {
+public class RenderComp extends GameComponent {
     private float scale = 1f;
     private String regionName;
+
     private TextureRegion region;
 
     public RenderComp(String regionName) {

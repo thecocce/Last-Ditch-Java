@@ -1,6 +1,6 @@
 package com.gaugestructures.last_ditch.components;
 
-public class PositionComp extends Component {
+public class PositionComp extends GameComponent {
     private float x = 0, y = 0;
     private float px = 0, py = 0;
 

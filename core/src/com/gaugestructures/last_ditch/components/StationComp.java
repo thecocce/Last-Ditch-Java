@@ -8,7 +8,7 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.Map;
 
-public class StationComp extends Component {
+public class StationComp extends GameComponent {
     private String name, type;
 
     public StationComp(String type) {

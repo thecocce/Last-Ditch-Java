@@ -1,6 +1,6 @@
 package com.gaugestructures.last_ditch.components;
 
-public class StatsComp extends Component {
+public class StatsComp extends GameComponent {
     private float dmg, armor;
 
     public StatsComp() {

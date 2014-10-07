@@ -1,17 +1,13 @@
 package com.gaugestructures.last_ditch.components;
 
-public class TypeComp extends GameComponent {
+public class ActionComp extends GameComponent {
     private String type;
 
-    public TypeComp(String type) {
+    public ActionComp(String type) {
         this.type = type;
     }
 
     public String getType() {
         return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
     }
 }

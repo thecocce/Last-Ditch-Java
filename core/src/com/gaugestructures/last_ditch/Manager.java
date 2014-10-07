@@ -2,7 +2,8 @@ package com.gaugestructures.last_ditch;
 
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.gaugestructures.last_ditch.components.Component;
+import com.gaugestructures.last_ditch.components.GameComponent;
+import com.gaugestructures.last_ditch.systems.TimeSystem;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
@@ -13,13 +14,15 @@ import java.util.*;
 
 public class Manager {
     private boolean paused = false;
+
     private Skin skin;
     private String player;
+    private TimeSystem time;
     private TextureAtlas atlas;
     private Yaml yaml = new Yaml();
     private Random rnd = new Random();
     private HashSet<String> entities = new HashSet<String>();
-    private HashMap<Class<?>, HashMap<String, Component>> componentStores = new HashMap<Class<?>, HashMap<String, Component>>();
+    private HashMap<Class<?>, HashMap<String, GameComponent>> componentStores = new HashMap<Class<?>, HashMap<String, GameComponent>>();
 
     public Manager(TextureAtlas atlas, Skin skin) {
         this.atlas = atlas;
@@ -38,11 +41,11 @@ public class Manager {
         return entity;
     }
 
-    public final <T extends Component> T addComp(String entity, T comp) {
-        HashMap<String, Component> store = componentStores.get(comp.getClass());
+    public final <T extends GameComponent> T addComp(String entity, T comp) {
+        HashMap<String, GameComponent> store = componentStores.get(comp.getClass());
 
         if (store == null) {
-            store = new HashMap<String, Component>();
+            store = new HashMap<String, GameComponent>();
             componentStores.put(comp.getClass(), store);
         }
 
@@ -54,8 +57,8 @@ public class Manager {
         }
     }
 
-    public final <T extends Component> T removeComp(String entity, Class<?> comp_type) {
-        HashMap<String, Component> store = componentStores.get(comp_type);
+    public final <T extends GameComponent> T removeComp(String entity, Class<?> comp_type) {
+        HashMap<String, GameComponent> store = componentStores.get(comp_type);
 
         if (store != null) {
             @SuppressWarnings("unchecked")
@@ -69,8 +72,8 @@ public class Manager {
         return null;
     }
 
-    public final <T extends Component> T removeComp(String entity, T comp) {
-        HashMap<String, Component> store = componentStores.get(comp.getClass());
+    public final <T extends GameComponent> T removeComp(String entity, T comp) {
+        HashMap<String, GameComponent> store = componentStores.get(comp.getClass());
 
         if (store != null) {
             store.remove(entity, comp);
@@ -79,8 +82,8 @@ public class Manager {
         return null;
     }
 
-    public final <T extends Component> T comp(String entity, Class<T> compClass) {
-        HashMap<String, Component> store = componentStores.get(compClass);
+    public final <T extends GameComponent> T comp(String entity, Class<T> compClass) {
+        HashMap<String, GameComponent> store = componentStores.get(compClass);
 
         if (store != null) {
             @SuppressWarnings("unchecked")
@@ -92,8 +95,8 @@ public class Manager {
         return null;
     }
 
-    public final <T extends Component> boolean hasComp(String entity, Class<T> compClass) {
-        HashMap<String, Component> store = componentStores.get(compClass);
+    public final <T extends GameComponent> boolean hasComp(String entity, Class<T> compClass) {
+        HashMap<String, GameComponent> store = componentStores.get(compClass);
 
         if(store != null) {
             @SuppressWarnings("unchecked")
@@ -108,7 +111,7 @@ public class Manager {
     }
 
     public final Set<String> entitiesWith(Class<?> compClass) {
-        HashMap<String, Component> store = componentStores.get(compClass);
+        HashMap<String, GameComponent> store = componentStores.get(compClass);
 
         if (store != null) {
             return store.keySet();
@@ -127,14 +130,6 @@ public class Manager {
         return foundEntities;
     }
 
-    public void setPaused(boolean pause) {
-        this.paused = pause;
-    }
-
-    public boolean isPaused() {
-        return paused;
-    }
-
     public int randInt(int start, int end) {
         long range = (long)end - (long)start + 1;
         long fraction = (long)(range * rnd.nextDouble());
@@ -151,7 +146,8 @@ public class Manager {
 
     public Map<String, Object> getData(String dataType) {
         try {
-            InputStream input = new FileInputStream(new File(String.format("../src/com/gaugestructures/last_ditch/cfg/%s.yml", dataType)));
+            InputStream input = new FileInputStream(
+                new File(String.format("../src/com/gaugestructures/last_ditch/cfg/%s.yml", dataType)));
 
             @SuppressWarnings("unchecked")
             Map<String, Object> data = (Map<String, Object>)yaml.load(input);
@@ -162,6 +158,20 @@ public class Manager {
         }
 
         return null;
+    }
+
+    public final void setTime(TimeSystem time) {
+        this.time = time;
+    }
+
+    public TimeSystem getTime() { return time; }
+
+    public void setPaused(boolean pause) {
+        this.paused = pause;
+    }
+
+    public boolean isPaused() {
+        return paused;
     }
 
     public String getPlayer() {

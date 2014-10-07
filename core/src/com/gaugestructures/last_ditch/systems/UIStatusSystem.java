@@ -16,20 +16,19 @@ import java.util.Map;
 
 public class UIStatusSystem extends GameSystem {
     private boolean active = false;
+
     private Manager mgr;
-    private Window window;
     private Label nameLabel, occupationLabel;
     private Label dmgLabel, armorLabel;
-    private Table table, tableMaleModel, tableFemaleModel, statsTable, skillsTable, attributesTable, addInfoTable;
+    private Table table, tableMaleModel, tableFemaleModel, statsTable, attributesTable, addInfoTable;
     private Image empty;
     private Image maleLHead, maleRHead, maleLArm, maleRArm, maleLHand, maleRHand;
-    private Image maleTorso, maleBelt, maleLLeg, maleRLeg, maleLFoot, maleRFoot;
+    private Image maleTorso, maleLLeg, maleRLeg, maleLFoot, maleRFoot;
     private Image femaleLHead, femaleRHead, femaleLArm, femaleRArm, femaleLHand, femaleRHand;
-    private Image femaleTorso, femaleBelt, femaleLLeg, femaleRLeg, femaleLFoot, femaleRFoot;
+    private Image femaleTorso, femaleLLeg, femaleRLeg, femaleLFoot, femaleRFoot;
 
-    public UIStatusSystem(Manager mgr, Window window) {
+    public UIStatusSystem(Manager mgr) {
         this.mgr = mgr;
-        this.window = window;
 
         setupMain();
         setupModel();
@@ -174,7 +173,6 @@ public class UIStatusSystem extends GameSystem {
     private void setupAttributes() {
         addInfoTable = new Table();
         attributesTable = new Table();
-        skillsTable = new Table();
 
         updateAttributesList();
 
@@ -209,8 +207,6 @@ public class UIStatusSystem extends GameSystem {
 
             attributesTable.add(attrLabel).width(120).height(20).row();
         }
-
-
     }
 
     public void activate() {
@@ -219,10 +215,6 @@ public class UIStatusSystem extends GameSystem {
 
     public void deactivate() {
         active = false;
-    }
-
-    public void toggleActive() {
-        active = !active;
     }
 
     public Table getTable() {

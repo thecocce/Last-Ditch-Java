@@ -16,14 +16,14 @@ import com.gaugestructures.last_ditch.components.InventoryComp;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UIEquipSystem extends GameSystem {
+public class UIEquipmentSystem extends GameSystem {
     private boolean active = false, toggle = false;
+
     private Manager mgr;
-    private Window window;
     private Table table;
+    private Label desc;
     private EquipmentSystem equipment;
     private InventorySystem inventory;
-    private Label desc;
     private ArrayList<String> lHeadItems, rHeadItems, lArmItems, rArmItems, torsoItems, beltItems;
     private ArrayList<String> lHandItems, rHandItems,  lLegItems, rLegItems, lFootItems, rFootItems;
     private Array<String> lHeadList, rHeadList, lArmList, rArmList, torsoList, beltList;
@@ -31,11 +31,10 @@ public class UIEquipSystem extends GameSystem {
     private SelectBox<String> lHeadBox, rHeadBox, lArmBox, rArmBox, torsoBox, beltBox;
     private SelectBox<String> lHandBox, rHandBox, lLegBox, rLegBox, lFootBox, rFootBox;
 
-    public UIEquipSystem(Manager mgr, EquipmentSystem equipment, InventorySystem inventory, Window window) {
+    public UIEquipmentSystem(Manager mgr, EquipmentSystem equipment, InventorySystem inventory) {
         this.mgr = mgr;
-        this.window = window;
-        this.inventory = inventory;
         this.equipment = equipment;
+        this.inventory = inventory;
 
         setup();
         setupEquipmentLists();
@@ -179,49 +178,6 @@ public class UIEquipSystem extends GameSystem {
         table.add(desc).padTop(6).colspan(3).width(240);
     }
 
-    private void setEquipment(String slot, int index) {
-        String item = "";
-        InventoryComp invComp = mgr.comp(mgr.getPlayer(), InventoryComp.class);
-
-        if(index == 0) {
-            item = equipment.dequip(mgr.getPlayer(), slot);
-
-            if(item != null && !item.equals("")) {
-                inventory.addItem(invComp, item);
-            }
-            return;
-        }
-
-        if(slot.equals("lHead")) {
-            item = lHeadItems.get(index - 1);
-            System.out.println(item);
-        } else if (slot.equals("rHead")) {
-            item = rHeadItems.get(index - 1);
-        } else if (slot.equals("lHand")) {
-            item = lHandItems.get(index - 1);
-        } else if (slot.equals("rHand")) {
-            item = rHandItems.get(index - 1);
-        } else if (slot.equals("lArm")) {
-            item = lArmItems.get(index - 1);
-        } else if (slot.equals("rArm")) {
-            item = rArmItems.get(index - 1);
-        } else if (slot.equals("torso")) {
-            item = torsoItems.get(index - 1);
-        } else if (slot.equals("belt")) {
-            item = beltItems.get(index - 1);
-        } else if (slot.equals("lLeg")) {
-            item = lLegItems.get(index - 1);
-        } else if (slot.equals("rLeg")) {
-            item = rLegItems.get(index - 1);
-        } else if (slot.equals("lFoot")) {
-            item = lFootItems.get(index - 1);
-        } else if (slot.equals("rFoot")) {
-            item = rFootItems.get(index - 1);
-        }
-        equipment.equip(mgr.getPlayer(), slot, item);
-        inventory.removeItem(invComp, item);
-    }
-
     public void setupEquipmentLists() {
         lHeadItems = new ArrayList<String>();
         rHeadItems = new ArrayList<String>();
@@ -276,6 +232,50 @@ public class UIEquipSystem extends GameSystem {
         rLegBox.setItems(rLegList);
         lFootBox.setItems(lFootList);
         rFootBox.setItems(rFootList);
+    }
+
+
+    private void setEquipment(String slot, int index) {
+        String item = "";
+        InventoryComp invComp = mgr.comp(mgr.getPlayer(), InventoryComp.class);
+
+        if(index == 0) {
+            item = equipment.dequip(mgr.getPlayer(), slot);
+
+            if(item != null && !item.equals("")) {
+                inventory.addItem(invComp, item);
+            }
+            return;
+        }
+
+        if(slot.equals("lHead")) {
+            item = lHeadItems.get(index - 1);
+        } else if (slot.equals("rHead")) {
+            item = rHeadItems.get(index - 1);
+        } else if (slot.equals("lHand")) {
+            item = lHandItems.get(index - 1);
+        } else if (slot.equals("rHand")) {
+            item = rHandItems.get(index - 1);
+        } else if (slot.equals("lArm")) {
+            item = lArmItems.get(index - 1);
+        } else if (slot.equals("rArm")) {
+            item = rArmItems.get(index - 1);
+        } else if (slot.equals("torso")) {
+            item = torsoItems.get(index - 1);
+        } else if (slot.equals("belt")) {
+            item = beltItems.get(index - 1);
+        } else if (slot.equals("lLeg")) {
+            item = lLegItems.get(index - 1);
+        } else if (slot.equals("rLeg")) {
+            item = rLegItems.get(index - 1);
+        } else if (slot.equals("lFoot")) {
+            item = lFootItems.get(index - 1);
+        } else if (slot.equals("rFoot")) {
+            item = rFootItems.get(index - 1);
+        }
+
+        equipment.equip(mgr.getPlayer(), slot, item);
+        inventory.removeItem(invComp, item);
     }
 
     public void updateEquipmentLists() {
@@ -556,8 +556,6 @@ public class UIEquipSystem extends GameSystem {
                 rFootList.add(infoComp.getName());
             }
         }
-
-        System.out.println(lHeadItems.toString());
 
         lHeadBox.setItems(lHeadList);
         rHeadBox.setItems(rHeadList);

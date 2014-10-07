@@ -1,6 +1,6 @@
 package com.gaugestructures.last_ditch.components;
 
-public class ResourcesComp extends Component {
+public class ResourcesComp extends GameComponent {
     private float water = 0, energy = 0, fuel = 0;
 
     public float getAmount(String type) {

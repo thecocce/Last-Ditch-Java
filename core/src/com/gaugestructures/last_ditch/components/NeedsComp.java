@@ -1,6 +1,6 @@
 package com.gaugestructures.last_ditch.components;
 
-public class NeedsComp extends Component {
+public class NeedsComp extends GameComponent {
     private float hunger = 1f, thirst = 1f, sanity = 1f;
     private float hungerRate = -0.000027f, thirstRate = -0.000084f, sanityRate = -0.0000069f;
     private float energy = 1f, energyMax = 1f, energyFatigueRate = -0.000193f;

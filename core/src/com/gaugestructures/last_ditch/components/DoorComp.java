@@ -1,6 +1,6 @@
 package com.gaugestructures.last_ditch.components;
 
-public class DoorComp extends Component {
+public class DoorComp extends GameComponent {
     private boolean open = false, locked = false;
 
     public boolean isOpen() {

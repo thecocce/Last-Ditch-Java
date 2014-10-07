@@ -1,7 +1,7 @@
 package com.gaugestructures.last_ditch.components;
 
-public class SizeComp extends Component {
-    private float w = 0, h = 0;
+public class SizeComp extends GameComponent {
+    private float w, h;
 
     public SizeComp(float w, float h) {
         this.w = w;

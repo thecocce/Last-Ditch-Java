@@ -1,16 +1,18 @@
 package com.gaugestructures.last_ditch.components;
 
-public class ItemComp extends Component {
+public class ItemComp extends GameComponent {
     private boolean usable = false;
+    private float value;
     private float quality = 0.5f, condition = 1f, weight = 0.5f;
     private float baseValue = 1f, decayRate = 0.01f;
-    private float value = baseValue * (2 * quality + 1 * condition);
 
     public ItemComp() {}
 
     public ItemComp(float quality, float condition) {
         this.quality = quality;
         this.condition = condition;
+
+        value = baseValue * (2 * quality + 1 * condition);
     }
 
     public boolean isUsable() {

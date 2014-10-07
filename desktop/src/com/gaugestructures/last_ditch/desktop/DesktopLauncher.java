@@ -7,7 +7,7 @@ import com.gaugestructures.last_ditch.C;
 import com.gaugestructures.last_ditch.LastDitch;
 
 public class DesktopLauncher {
-	public static void main (String[] arg) {
+	public static void main(String[] arg) {
 //        TexturePacker.process("gfx", "gfx", "graphics");
 
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();

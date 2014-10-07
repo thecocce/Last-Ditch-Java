@@ -3,11 +3,12 @@ package com.gaugestructures.last_ditch.components;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class Room extends Component {
-    private Random rnd = new Random();
+public class RoomComp extends GameComponent {
     private int x, y, x1, y1, x2, y2, w, h;
 
-    public Room(int x, int y, int w, int h) {
+    private Random rnd = new Random();
+
+    public RoomComp(int x, int y, int w, int h) {
         this.w = w;
         this.h = h;
         this.x1 = this.x = x;
@@ -21,11 +22,11 @@ public class Room extends Component {
                  this.y2 < y1 || y2 < this.y1);
     }
 
-    public void expand(ArrayList<Room> rooms, Room master) {
+    public void expand(ArrayList<RoomComp> rooms, RoomComp master) {
         boolean check = false;
         int direction = rnd.nextInt(4);
 
-        for (Room room : rooms) {
+        for (RoomComp room : rooms) {
             if (room == this) {
                 continue;
             }
