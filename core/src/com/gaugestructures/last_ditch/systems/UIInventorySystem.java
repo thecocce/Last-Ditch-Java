@@ -23,14 +23,16 @@ public class UIInventorySystem extends GameSystem {
     private Manager mgr;
     private Skin skin;
     private Table table;
+    private ActionsSystem actions;
     private InventorySystem inventory;
     private UISystem ui;
     private ImageButton selection, prevSelection;
     private ArrayList<ImageButton> slots;
     private Label itemName, itemDesc, itemValue, itemWeight, itemQualityDur;
 
-    public UIInventorySystem(Manager mgr, InventorySystem inventory, UISystem ui) {
+    public UIInventorySystem(Manager mgr, ActionsSystem actions, InventorySystem inventory, UISystem ui) {
         this.mgr = mgr;
+        this.actions = actions;
         this.inventory = inventory;
         this.ui = ui;
 
@@ -118,7 +120,7 @@ public class UIInventorySystem extends GameSystem {
 
     private void setActiveAction() {
         if (selection == null) {
-            ui.setActiveAction(null);
+            ui.setHoverAction(null);
             return;
         }
 
@@ -130,9 +132,9 @@ public class UIInventorySystem extends GameSystem {
             ItemComp itemComp = mgr.comp(item, ItemComp.class);
 
             if (itemComp != null && itemComp.isUsable()) {
-                TypeComp typeComp = mgr.comp(item, TypeComp.class);
+                String action = actions.createAction(item);
 
-                ui.setActiveAction(typeComp.getType());
+                ui.setHoverAction(action);
             }
         }
     }

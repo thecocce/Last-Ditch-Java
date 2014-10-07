@@ -1,5 +1,6 @@
 package com.gaugestructures.last_ditch.systems;
 
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -14,6 +15,7 @@ import com.gaugestructures.last_ditch.C;
 import com.gaugestructures.last_ditch.Manager;
 import com.gaugestructures.last_ditch.components.InventoryComp;
 import com.gaugestructures.last_ditch.components.NeedsComp;
+import com.gaugestructures.last_ditch.components.RenderComp;
 
 import java.util.ArrayList;
 
@@ -22,6 +24,7 @@ public class UIBaseSystem extends GameSystem {
 
     private Manager mgr;
     private Skin skin;
+    private TextureAtlas atlas;
     private Stage stage;
     private TimeSystem time;
     private UISystem ui;
@@ -37,6 +40,7 @@ public class UIBaseSystem extends GameSystem {
         this.stage = stage;
         this.time = mgr.getTime();
 
+        atlas = mgr.getAtlas();
         skin = mgr.getSkin();
 
         setup();
@@ -144,30 +148,32 @@ public class UIBaseSystem extends GameSystem {
     }
 
     private void setSlotAction(ImageButton slot, String action) {
+        RenderComp renderComp = mgr.comp(action, RenderComp.class);
+
         ImageButton.ImageButtonStyle style = new ImageButton.ImageButtonStyle(slot.getStyle());
 
         if (action != null) {
-            style.imageUp = new TextureRegionDrawable(mgr.getAtlas().findRegion(String.format("items/%s", action)));
+            style.imageUp = new TextureRegionDrawable(renderComp.getRegion());
         } else {
-            style.imageUp = new TextureRegionDrawable(mgr.getAtlas().findRegion("environ/empty"));
+            style.imageUp = new TextureRegionDrawable(atlas.findRegion("environ/empty"));
         }
 
         slot.setStyle(style);
 
-        ui.setActiveAction(null);
+        ui.setHoverAction(null);
     }
 
     private void enterSlot(ImageButton slot) {
         if (selection != null) {
             ImageButton.ImageButtonStyle style = new ImageButton.ImageButtonStyle(selection.getStyle());
-            style.up = new TextureRegionDrawable(mgr.getAtlas().findRegion("ui/baseSlot"));
+            style.up = new TextureRegionDrawable(atlas.findRegion("ui/baseSlot"));
             selection.setStyle(style);
         }
 
         selection = slot;
 
         ImageButton.ImageButtonStyle style = new ImageButton.ImageButtonStyle(selection.getStyle());
-        style.up = new TextureRegionDrawable(mgr.getAtlas().findRegion("ui/baseSelection"));
+        style.up = new TextureRegionDrawable(atlas.findRegion("ui/baseSelection"));
         selection.setStyle(style);
     }
 
@@ -177,7 +183,7 @@ public class UIBaseSystem extends GameSystem {
         } else {
             if (selection != null) {
                 ImageButton.ImageButtonStyle style = new ImageButton.ImageButtonStyle(selection.getStyle());
-                style.up = new TextureRegionDrawable(mgr.getAtlas().findRegion("ui/baseSlot"));
+                style.up = new TextureRegionDrawable(atlas.findRegion("ui/baseSlot"));
                 selection.setStyle(style);
 
                 selection = null;

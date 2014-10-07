@@ -27,6 +27,7 @@ canteen1Water:
     desc: >
         This is a canteen of clean drinking water.
     usable: true
+    actionType: use
     weight: 0.6
     baseValue: 0.07
 
@@ -44,6 +45,7 @@ canister1Water:
     desc: >
         This is a large canister of clean water.
     usable: true
+    actionType: use
     weight: 1.4
     baseValue: 0.21
 
@@ -96,6 +98,7 @@ rations1:
     desc: >
         These are basic rations.
     usable: true
+    actionType: use
     weight: 0.5
     baseValue: 0.06
 
@@ -113,6 +116,7 @@ handgun1:
     desc: >
         This is a handgun that fires small energized projectiles.
     usable: true
+    actionType: fire
     stats:
         dmg: 1.0
     equippable:
@@ -204,6 +208,7 @@ syringe1:
     desc: >
         A drug syringe.
     usable: true
+    actionType: use
     weight: 0.01
     baseValue: 1.8
 
@@ -212,6 +217,7 @@ syringe2:
     desc: >
         A drug syringe.
     usable: true
+    actionType: use
     weight: 0.01
     baseValue: 1.8
 
@@ -220,6 +226,7 @@ syringe3:
     desc: >
         A drug syringe.
     usable: true
+    actionType: use
     weight: 0.01
     baseValue: 1.8
 

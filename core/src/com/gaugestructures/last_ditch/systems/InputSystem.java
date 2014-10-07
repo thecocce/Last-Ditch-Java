@@ -74,7 +74,7 @@ public class InputSystem extends GameSystem implements InputProcessor {
                     if (ui.getActiveIcon() == null) {
                         map.dropItem(player);
                     } else {
-                        ui.setActiveAction(null);
+                        ui.setHoverAction(null);
                     }
                 }
             }

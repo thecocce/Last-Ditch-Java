@@ -46,7 +46,7 @@ public class UISystem extends GameSystem {
 
         uiBase = new UIBaseSystem(mgr, stage, this);
         uiActions = new UIActionsSystem(mgr, actions, crafting, inventory);
-        uiInventory = new UIInventorySystem(mgr, inventory, this);
+        uiInventory = new UIInventorySystem(mgr, actions, inventory, this);
         uiEquipment = new UIEquipmentSystem(mgr, equipment, inventory);
         uiStatus = new UIStatusSystem(mgr);
 
@@ -174,14 +174,16 @@ public class UISystem extends GameSystem {
         return activeAction;
     }
 
-    public void setActiveAction(String action) {
+    public void setHoverAction(String action) {
         if (action == null) {
             activeAction = null;
             activeIcon = null;
         } else {
             activeAction = action;
 
-            TextureRegion actionRegion = mgr.getAtlas().findRegion(String.format("items/%s", action));
+            RenderComp renderComp = mgr.comp(action, RenderComp.class);
+
+            TextureRegion actionRegion = renderComp.getRegion();
             activeIcon = new Image(actionRegion);
         }
     }
