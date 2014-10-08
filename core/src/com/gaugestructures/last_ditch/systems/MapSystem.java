@@ -35,6 +35,7 @@ public class MapSystem extends GameSystem {
     private Random rnd = new Random();
     private TimeSystem time;
     private ActionsSystem actions;
+    private EquipmentSystem equipment;
     private InventorySystem inventory;
     private PhysicsSystem physics;
     private UISystem ui;
@@ -45,10 +46,11 @@ public class MapSystem extends GameSystem {
     private ArrayList<RoomComp> rooms = new ArrayList<RoomComp>();
     private TextureRegion[][][] tiles = new TextureRegion[numOfChunks][C.CHUNK_SIZE][C.CHUNK_SIZE];
 
-    public MapSystem(Manager mgr, ActionsSystem actions, InventorySystem inventory, UISystem ui) {
+    public MapSystem(Manager mgr, ActionsSystem actions, EquipmentSystem equipment, InventorySystem inventory, UISystem ui) {
         this.mgr = mgr;
         this.time = mgr.getTime();
         this.actions = actions;
+        this.equipment = equipment;
         this.inventory = inventory;
         this.ui = ui;
         this.uiActions = ui.getActions();
@@ -353,15 +355,21 @@ public class MapSystem extends GameSystem {
             String item = invComp.getItem(index);
 
             if (item != null) {
-                TypeComp itemTypeComp = mgr.comp(item, TypeComp.class);
+                ItemComp iItemComp = mgr.comp(item, ItemComp.class);
+
+                if (iItemComp.isEquipped()) {
+                    equipment.dequipItem(mgr.getPlayer(), item);
+                }
+
+                TypeComp iTypeComp = mgr.comp(item, TypeComp.class);
 
                 PositionComp itemPosComp = new PositionComp(
                     posComp.getX() + rotComp.getX(),
                     posComp.getY() + rotComp.getY());
 
                 RenderComp itemRenderComp = new RenderComp(
-                    String.format("items/%s", itemTypeComp.getType()),
-                    atlas.findRegion(String.format("items/%s", itemTypeComp.getType())));
+                    String.format("items/%s", iTypeComp.getType()),
+                    atlas.findRegion(String.format("items/%s", iTypeComp.getType())));
 
                 mgr.addComp(item, itemPosComp);
                 mgr.addComp(item, itemRenderComp);

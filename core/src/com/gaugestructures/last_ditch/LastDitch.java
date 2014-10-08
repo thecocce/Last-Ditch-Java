@@ -59,7 +59,7 @@ public class LastDitch extends ApplicationAdapter {
 
         ui = new UISystem(mgr, actions, crafting, equipment, inventory);
         ai = new AISystem(mgr);
-        map = new MapSystem(mgr, actions, inventory, ui);
+        map = new MapSystem(mgr, actions, equipment, inventory, ui);
         skillTest = new SkillTestSystem(mgr, actions, crafting, inventory, ui);
         input = new InputSystem(mgr, map, actions, inventory, skillTest, ui);
         render = new RenderSystem(mgr, map);

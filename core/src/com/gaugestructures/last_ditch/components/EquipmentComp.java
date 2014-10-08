@@ -3,30 +3,60 @@ package com.gaugestructures.last_ditch.components;
 public class EquipmentComp extends GameComponent {
     private String lHead, rHead, lHand, rHand, lArm, rArm, torso, belt, lLeg, rLeg, lFoot, rFoot;
 
-    public String getSlot(String slot) {
-        if(slot.equals("lHead")) {
+    public String getItemSlot(String item) {
+        if (lHead != null && lHead.equals(item)) {
+            return "lHead";
+        } else if (rHead != null && rHead.equals(item)) {
+            return "rHead";
+        } else if (lHand != null && lHand.equals(item)) {
+            return "lHand";
+        } else if (rHand != null && rHand.equals(item)) {
+            return "rHand";
+        } else if (lArm != null && lArm.equals(item)) {
+            return "lArm";
+        } else if (rArm != null && rArm.equals(item)) {
+            return "rArm";
+        } else if (torso != null && torso.equals(item)) {
+            return "torso";
+        } else if (belt != null && belt.equals(item)) {
+            return "belt";
+        } else if (lLeg != null && lLeg.equals(item)) {
+            return "lLeg";
+        } else if (rLeg != null && rLeg.equals(item)) {
+            return "rLeg";
+        } else if (lFoot != null && lFoot.equals(item)) {
+            return "lFoot";
+        } else if (rFoot != null && rFoot.equals(item)) {
+            return "rFoot";
+        }
+
+        return null;
+    }
+
+    public String getSlotByName(String slotName) {
+        if (slotName.equals("lHead")) {
             return lHead;
-        } else if(slot.equals("rHead")) {
+        } else if (slotName.equals("rHead")) {
             return rHead;
-        } else if(slot.equals("lHand")) {
+        } else if (slotName.equals("lHand")) {
             return lHand;
-        } else if(slot.equals("rHand")) {
+        } else if (slotName.equals("rHand")) {
             return rHand;
-        } else if(slot.equals("lArm")) {
+        } else if (slotName.equals("lArm")) {
             return lArm;
-        } else if(slot.equals("rArm")) {
+        } else if (slotName.equals("rArm")) {
             return rArm;
-        } else if(slot.equals("torso")) {
+        } else if (slotName.equals("torso")) {
             return torso;
-        } else if(slot.equals("belt")) {
+        } else if (slotName.equals("belt")) {
             return belt;
-        } else if(slot.equals("lLeg")) {
+        } else if (slotName.equals("lLeg")) {
             return lLeg;
-        } else if(slot.equals("rLeg")) {
+        } else if (slotName.equals("rLeg")) {
             return rLeg;
-        } else if(slot.equals("lFoot")) {
+        } else if (slotName.equals("lFoot")) {
             return lFoot;
-        } else if(slot.equals("rFoot")) {
+        } else if (slotName.equals("rFoot")) {
             return rFoot;
         } else {
             return "";
@@ -34,29 +64,29 @@ public class EquipmentComp extends GameComponent {
     }
 
     public void setSlot(String slot, String item) {
-        if(slot.equals("lHead")) {
+        if (slot.equals("lHead")) {
             lHead = item;
-        } else if(slot.equals("rHead")) {
+        } else if (slot.equals("rHead")) {
             rHead = item;
-        } else if(slot.equals("lHand")) {
+        } else if (slot.equals("lHand")) {
             lHand = item;
-        } else if(slot.equals("rHand")) {
+        } else if (slot.equals("rHand")) {
             rHand = item;
-        } else if(slot.equals("lArm")) {
+        } else if (slot.equals("lArm")) {
             lArm = item;
-        } else if(slot.equals("rArm")) {
+        } else if (slot.equals("rArm")) {
             rArm = item;
-        } else if(slot.equals("torso")) {
+        } else if (slot.equals("torso")) {
             torso = item;
-        } else if(slot.equals("belt")) {
+        } else if (slot.equals("belt")) {
             belt = item;
-        } else if(slot.equals("lLeg")) {
+        } else if (slot.equals("lLeg")) {
             lLeg = item;
-        } else if(slot.equals("rLeg")) {
+        } else if (slot.equals("rLeg")) {
             rLeg = item;
-        } else if(slot.equals("lFoot")) {
+        } else if (slot.equals("lFoot")) {
             lFoot = item;
-        } else if(slot.equals("rFoot")) {
+        } else if (slot.equals("rFoot")) {
             rFoot = item;
         }
     }

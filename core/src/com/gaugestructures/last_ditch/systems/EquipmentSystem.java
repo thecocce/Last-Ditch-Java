@@ -65,7 +65,7 @@ public class EquipmentSystem extends GameSystem {
     public String dequip(String entity, String slot) {
         EquipmentComp equipComp = mgr.comp(entity, EquipmentComp.class);
 
-        String item = equipComp.getSlot(slot);
+        String item = equipComp.getSlotByName(slot);
         equipComp.setSlot(slot, null);
 
         if (item != null && !item.equals("")) {
@@ -111,6 +111,60 @@ public class EquipmentSystem extends GameSystem {
 
             itemComp.setEquipped(false);
         }
+
+        return item;
+    }
+
+    public String dequipItem(String entity, String item) {
+        EquipmentComp equipComp = mgr.comp(entity, EquipmentComp.class);
+
+        String slot = equipComp.getItemSlot(item);
+
+        ui.getEquipment().setSelectBoxItem(slot, "none");
+
+        equipComp.setSlot(slot, null);
+
+        Map<String, Object> itemData = mgr.getData("items");
+        String type = mgr.comp(item, TypeComp.class).getType();
+
+        StatsComp statsComp = mgr.comp(entity, StatsComp.class);
+
+        @SuppressWarnings("unchecked")
+        Map<String, Object> typeData = (Map<String, Object>)itemData.get(type);
+
+        @SuppressWarnings("unchecked")
+        Map<String, Object> statsData = (Map<String, Object>)typeData.get("stats");
+
+        if (statsData != null) {
+            Double dmg = (Double)statsData.get("dmg");
+            if (dmg != null) {
+                statsComp.setDmg(0);
+            }
+
+            Double armor = (Double)statsData.get("armor");
+            if (armor != null) {
+                statsComp.setArmor(0);
+            }
+
+            uiStatus.updateStatsList();
+        }
+
+        AttributesComp attrComp = mgr.comp(entity, AttributesComp.class);
+
+        @SuppressWarnings("unchecked")
+        Map<String, Object> attributesData = (Map<String, Object>)typeData.get("attributes");
+        if (attributesData != null) {
+            for (Map.Entry<String, Object> entry : attributesData.entrySet()) {
+                Double runningMod = attrComp.getModifiers().get(entry.getKey()) - (Double)entry.getValue();
+                attrComp.getModifiers().put(entry.getKey(), runningMod.floatValue());
+            }
+
+            uiStatus.updateAttributesList();
+        }
+
+        ItemComp itemComp = mgr.comp(item, ItemComp.class);
+
+        itemComp.setEquipped(false);
 
         return item;
     }

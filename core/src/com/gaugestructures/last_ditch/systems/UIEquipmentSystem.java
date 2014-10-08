@@ -575,7 +575,37 @@ public class UIEquipmentSystem extends GameSystem {
         active = false;
     }
 
+    public void setSelectBoxItem(String slotName, String item) {
+        if (slotName.equals("lHead")) {
+            lHeadBox.setSelected(item);
+        } else if (slotName.equals("rHead")) {
+            rHeadBox.setSelected(item);
+        } else if (slotName.equals("lHand")) {
+            lHandBox.setSelected(item);
+        } else if (slotName.equals("rHand")) {
+            rHandBox.setSelected(item);
+        } else if (slotName.equals("lArm")) {
+            lArmBox.setSelected(item);
+        } else if (slotName.equals("rArm")) {
+            rArmBox.setSelected(item);
+        } else if (slotName.equals("torso")) {
+            torsoBox.setSelected(item);
+        } else if (slotName.equals("belt")) {
+            beltBox.setSelected(item);
+        } else if (slotName.equals("lLeg")) {
+            lLegBox.setSelected(item);
+        } else if (slotName.equals("rLeg")) {
+            rLegBox.setSelected(item);
+        } else if (slotName.equals("lFoot")) {
+            lFootBox.setSelected(item);
+        } else if (slotName.equals("rFoot")) {
+            rFootBox.setSelected(item);
+        }
+    }
+
     public Table getTable() {
         return table;
     }
+
+
 }
