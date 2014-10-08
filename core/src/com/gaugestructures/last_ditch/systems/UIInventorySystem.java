@@ -132,9 +132,7 @@ public class UIInventorySystem extends GameSystem {
             ItemComp itemComp = mgr.comp(item, ItemComp.class);
 
             if (itemComp != null && itemComp.isUsable()) {
-                String action = actions.createAction(item);
-
-                ui.setHoverAction(action);
+                ui.setHoverAction(actions.createAction(item));
             }
         }
     }
@@ -170,16 +168,35 @@ public class UIInventorySystem extends GameSystem {
     }
 
     private void enterSlot(ImageButton slot) {
+        int index = getSlotIndex(slot);
+        InventoryComp invComp = mgr.comp(player, InventoryComp.class);
+        ItemComp itemComp = mgr.comp(invComp.getItem(index), ItemComp.class);
+
         if(selection != null) {
             ImageButton.ImageButtonStyle style = new ImageButton.ImageButtonStyle(selection.getStyle());
-            style.up = new TextureRegionDrawable(mgr.getAtlas().findRegion("ui/invSlot"));
+
+            if (itemComp != null && itemComp.isEquipped()) {
+                style.up = new TextureRegionDrawable(mgr.getAtlas().findRegion("ui/invSlotEquipped"));
+            } else {
+                style.up = new TextureRegionDrawable(mgr.getAtlas().findRegion("ui/invSlot"));
+            }
+
             selection.setStyle(style);
         }
 
         selection = slot;
 
+        index = getSlotIndex(slot);
+        itemComp = mgr.comp(invComp.getItem(index), ItemComp.class);
+
         ImageButton.ImageButtonStyle style = new ImageButton.ImageButtonStyle(selection.getStyle());
-        style.up = new TextureRegionDrawable(mgr.getAtlas().findRegion("ui/invSelection"));
+
+        if (itemComp != null && itemComp.isEquipped()) {
+            style.up = new TextureRegionDrawable(mgr.getAtlas().findRegion("ui/invSelectionEquipped"));
+        } else {
+            style.up = new TextureRegionDrawable(mgr.getAtlas().findRegion("ui/invSelection"));
+        }
+
         selection.setStyle(style);
     }
 
@@ -188,8 +205,18 @@ public class UIInventorySystem extends GameSystem {
             noExit = false;
         } else {
             if (selection != null) {
+                int index = getSlotIndex(selection);
+                InventoryComp invComp = mgr.comp(player, InventoryComp.class);
+                ItemComp itemComp = mgr.comp(invComp.getItem(index), ItemComp.class);
+
                 ImageButton.ImageButtonStyle style = new ImageButton.ImageButtonStyle(selection.getStyle());
-                style.up = new TextureRegionDrawable(mgr.getAtlas().findRegion("ui/invSlot"));
+
+                if (itemComp != null && itemComp.isEquipped()) {
+                    style.up = new TextureRegionDrawable(mgr.getAtlas().findRegion("ui/invSlotEquipped"));
+                } else {
+                    style.up = new TextureRegionDrawable(mgr.getAtlas().findRegion("ui/invSlot"));
+                }
+
                 selection.setStyle(style);
 
                 selection = null;

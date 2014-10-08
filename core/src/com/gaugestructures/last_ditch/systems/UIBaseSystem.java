@@ -18,6 +18,8 @@ import com.gaugestructures.last_ditch.components.NeedsComp;
 import com.gaugestructures.last_ditch.components.RenderComp;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class UIBaseSystem extends GameSystem {
     private boolean active = true, noExit = false;
@@ -25,20 +27,23 @@ public class UIBaseSystem extends GameSystem {
     private Manager mgr;
     private Skin skin;
     private TextureAtlas atlas;
-    private Stage stage;
     private TimeSystem time;
+    private ActionsSystem actions;
     private UISystem ui;
+    private Stage stage;
     private ImageButton selection;
     private ImageButton hungerBar, thirstBar, energyBar, sanityBar;
     private Table tableInfo, tableNeeds, tableSlots;
     private Label timeLabel, dateLabel, moneyLabel, weightLabel;
     private ArrayList<ImageButton> slots = new ArrayList<ImageButton>();
+    private Map<ImageButton, String> baseActions = new HashMap<ImageButton, String>();
 
-    public UIBaseSystem(Manager mgr, Stage stage, UISystem ui) {
+    public UIBaseSystem(Manager mgr, Stage stage, ActionsSystem actions, UISystem ui) {
         this.mgr = mgr;
         this.ui = ui;
         this.stage = stage;
         this.time = mgr.getTime();
+        this.actions = actions;
 
         atlas = mgr.getAtlas();
         skin = mgr.getSkin();
@@ -118,7 +123,11 @@ public class UIBaseSystem extends GameSystem {
                     noExit = true;
 
                     if (button == 0) {
-                        if (ui.getActiveIcon() != null) {
+                        String action = baseActions.get(slot);
+
+                        if (action != null) {
+                            actions.initiateAction(action);
+                        } else if (ui.getActiveIcon() != null) {
                             setSlotAction(slot, ui.getActiveAction());
                         }
                     } else if (button == 1) {
@@ -153,8 +162,10 @@ public class UIBaseSystem extends GameSystem {
         ImageButton.ImageButtonStyle style = new ImageButton.ImageButtonStyle(slot.getStyle());
 
         if (action != null) {
+            baseActions.put(slot, action);
             style.imageUp = new TextureRegionDrawable(renderComp.getRegion());
         } else {
+            baseActions.remove(slot);
             style.imageUp = new TextureRegionDrawable(atlas.findRegion("environ/empty"));
         }
 

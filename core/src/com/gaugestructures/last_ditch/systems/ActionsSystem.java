@@ -46,6 +46,14 @@ public class ActionsSystem extends GameSystem {
         return action;
     }
 
+    public void initiateAction(String action) {
+        ActionComp actionComp = mgr.comp(action, ActionComp.class);
+
+        TypeComp iTypeComp = mgr.comp(actionComp.getItem(), TypeComp.class);
+
+        System.out.println(iTypeComp.getType());
+    }
+
     public void setCurStation(String station) {
         curStation = station;
     }

@@ -294,14 +294,35 @@ public class InventorySystem extends GameSystem {
             InventoryComp invComp = mgr.comp(mgr.getPlayer(), InventoryComp.class);
 
             for(int i = 0; i < C.INVENTORY_SLOTS; i++) {
-                TypeComp typeComp = mgr.comp(invComp.getItem(i), TypeComp.class);
+                String item = invComp.getItem(i);
+                ItemComp itemComp = mgr.comp(item, ItemComp.class);
+                TypeComp typeComp = mgr.comp(item, TypeComp.class);
 
                 if(typeComp != null) {
+                    ImageButton slot = uiInventory.getSlot(i);
                     ImageButton.ImageButtonStyle style = new ImageButton.ImageButtonStyle(uiInventory.getSlot(i).getStyle());
+
+                    if (itemComp.isEquipped()) {
+                        if (slot == uiInventory.getSelection()) {
+                            style.up = new TextureRegionDrawable(
+                                atlas.findRegion("ui/invSelectionEquipped"));
+                        } else {
+                            style.up = new TextureRegionDrawable(
+                                atlas.findRegion("ui/invSlotEquipped"));
+                        }
+                    } else {
+                        if (slot == uiInventory.getSelection()) {
+                            style.up = new TextureRegionDrawable(
+                                atlas.findRegion("ui/invSelection"));
+                        } else {
+                            style.up = new TextureRegionDrawable(
+                                atlas.findRegion("ui/invSlot"));
+                        }
+                    }
                     style.imageUp = new TextureRegionDrawable(
                         atlas.findRegion(String.format("items/%s", typeComp.getType())));
 
-                    uiInventory.getSlot(i).setStyle(style);
+                    slot.setStyle(style);
                 } else {
                     ImageButton.ImageButtonStyle style = new ImageButton.ImageButtonStyle(uiInventory.getSlot(i).getStyle());
                     style.imageUp = new TextureRegionDrawable(

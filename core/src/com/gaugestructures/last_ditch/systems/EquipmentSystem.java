@@ -57,10 +57,9 @@ public class EquipmentSystem extends GameSystem {
             uiStatus.updateAttributesList();
         }
 
-        InventoryComp invComp = mgr.comp(mgr.getPlayer(), InventoryComp.class);
         ItemComp itemComp = mgr.comp(item, ItemComp.class);
 
-        invComp.setWeight(invComp.getWeight() + itemComp.getWeight());
+        itemComp.setEquipped(true);
     }
 
     public String dequip(String entity, String slot) {
@@ -108,10 +107,9 @@ public class EquipmentSystem extends GameSystem {
                 uiStatus.updateAttributesList();
             }
 
-            InventoryComp invComp = mgr.comp(mgr.getPlayer(), InventoryComp.class);
             ItemComp itemComp = mgr.comp(item, ItemComp.class);
 
-            invComp.setWeight(invComp.getWeight() - itemComp.getWeight());
+            itemComp.setEquipped(false);
         }
 
         return item;

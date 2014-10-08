@@ -44,7 +44,7 @@ public class UISystem extends GameSystem {
         window.setMovable(false);
         window.padTop(9);
 
-        uiBase = new UIBaseSystem(mgr, stage, this);
+        uiBase = new UIBaseSystem(mgr, stage, actions, this);
         uiActions = new UIActionsSystem(mgr, actions, crafting, inventory);
         uiInventory = new UIInventorySystem(mgr, actions, inventory, this);
         uiEquipment = new UIEquipmentSystem(mgr, equipment, inventory);
@@ -188,7 +188,7 @@ public class UISystem extends GameSystem {
         }
     }
 
-    public void setIconPosition(float screenX, float screenY) {
+    public void setHoverActionPosition(float screenX, float screenY) {
         iconX = screenX + C.BTW * focus.getX() - C.WIDTH / 2 - 14;
         iconY = C.HEIGHT - screenY + C.BTW * focus.getY() - C.HEIGHT / 2 - 14;
     }

@@ -8,10 +8,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Array;
 import com.gaugestructures.last_ditch.Manager;
-import com.gaugestructures.last_ditch.components.EquipmentComp;
-import com.gaugestructures.last_ditch.components.EquippableComp;
-import com.gaugestructures.last_ditch.components.InfoComp;
-import com.gaugestructures.last_ditch.components.InventoryComp;
+import com.gaugestructures.last_ditch.components.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -237,14 +234,10 @@ public class UIEquipmentSystem extends GameSystem {
 
     private void setEquipment(String slot, int index) {
         String item = "";
-        InventoryComp invComp = mgr.comp(mgr.getPlayer(), InventoryComp.class);
+        inventory.setUpdateSlots(true);
 
         if(index == 0) {
-            item = equipment.dequip(mgr.getPlayer(), slot);
-
-            if(item != null && !item.equals("")) {
-                inventory.addItem(invComp, item);
-            }
+            equipment.dequip(mgr.getPlayer(), slot);
             return;
         }
 
@@ -275,7 +268,6 @@ public class UIEquipmentSystem extends GameSystem {
         }
 
         equipment.equip(mgr.getPlayer(), slot, item);
-        inventory.removeItem(invComp, item);
     }
 
     public void updateEquipmentLists() {
@@ -324,99 +316,103 @@ public class UIEquipmentSystem extends GameSystem {
             EquippableComp equippableComp = mgr.comp(item, EquippableComp.class);
 
             if(equippableComp != null) {
-                List<String> types = equippableComp.getTypes();
-                String name = mgr.comp(item, InfoComp.class).getName();
+                ItemComp itemComp = mgr.comp(item, ItemComp.class);
 
-                if(types.contains("head")) {
-                    lHeadItems.add(item);
-                    rHeadItems.add(item);
+                if (!itemComp.isEquipped()) {
+                    List<String> types = equippableComp.getTypes();
+                    String name = mgr.comp(item, InfoComp.class).getName();
 
-                    if (lHeadList.contains(name, false)) {
-                        lHeadList.add(name + " ");
-                    } else {
-                        lHeadList.add(name);
-                    }
+                    if (types.contains("head")) {
+                        lHeadItems.add(item);
+                        rHeadItems.add(item);
 
-                    if (rHeadList.contains(name, false)) {
-                        rHeadList.add(name + " ");
-                    } else {
-                        rHeadList.add(name);
-                    }
-                } else if(types.contains("arm")) {
-                    lArmItems.add(item);
-                    rArmItems.add(item);
+                        if (lHeadList.contains(name, false)) {
+                            lHeadList.add(name + " ");
+                        } else {
+                            lHeadList.add(name);
+                        }
 
-                    if (lArmList.contains(name, false)) {
-                        lArmList.add(name + " ");
-                    } else {
-                        lArmList.add(name);
-                    }
+                        if (rHeadList.contains(name, false)) {
+                            rHeadList.add(name + " ");
+                        } else {
+                            rHeadList.add(name);
+                        }
+                    } else if (types.contains("arm")) {
+                        lArmItems.add(item);
+                        rArmItems.add(item);
 
-                    if (rArmList.contains(name, false)) {
-                        rArmList.add(name + " ");
-                    } else {
-                        rArmList.add(name);
-                    }
-                } else if(types.contains("torso")) {
-                    torsoItems.add(item);
+                        if (lArmList.contains(name, false)) {
+                            lArmList.add(name + " ");
+                        } else {
+                            lArmList.add(name);
+                        }
 
-                    if (torsoList.contains(name, false)) {
-                        torsoList.add(name + " ");
-                    } else {
-                        torsoList.add(name);
-                    }
-                } else if(types.contains("hand")) {
-                    lHandItems.add(item);
-                    rHandItems.add(item);
+                        if (rArmList.contains(name, false)) {
+                            rArmList.add(name + " ");
+                        } else {
+                            rArmList.add(name);
+                        }
+                    } else if (types.contains("torso")) {
+                        torsoItems.add(item);
 
-                    if (lHandList.contains(name, false)) {
-                        lHandList.add(name + " ");
-                    } else {
-                        lHandList.add(name);
-                    }
+                        if (torsoList.contains(name, false)) {
+                            torsoList.add(name + " ");
+                        } else {
+                            torsoList.add(name);
+                        }
+                    } else if (types.contains("hand")) {
+                        lHandItems.add(item);
+                        rHandItems.add(item);
 
-                    if (rHandList.contains(name, false)) {
-                        rHandList.add(name + " ");
-                    } else {
-                        rHandList.add(name);
-                    }
-                } else if(types.contains("belt")) {
-                    beltItems.add(item);
+                        if (lHandList.contains(name, false)) {
+                            lHandList.add(name + " ");
+                        } else {
+                            lHandList.add(name);
+                        }
 
-                    if (beltList.contains(name, false)) {
-                        beltList.add(name + " ");
-                    } else {
-                        beltList.add(name);
-                    }
-                } else if(types.contains("leg")) {
-                    lLegItems.add(item);
-                    rLegItems.add(item);
+                        if (rHandList.contains(name, false)) {
+                            rHandList.add(name + " ");
+                        } else {
+                            rHandList.add(name);
+                        }
+                    } else if (types.contains("belt")) {
+                        beltItems.add(item);
 
-                    if (lLegList.contains(name, false)) {
-                        lLegList.add(name + " ");
-                    } else {
-                        lLegList.add(name);
-                    }
+                        if (beltList.contains(name, false)) {
+                            beltList.add(name + " ");
+                        } else {
+                            beltList.add(name);
+                        }
+                    } else if (types.contains("leg")) {
+                        lLegItems.add(item);
+                        rLegItems.add(item);
 
-                    if (rLegList.contains(name, false)) {
-                        rLegList.add(name + " ");
-                    } else {
-                        rLegList.add(name);
-                    }
-                } else if(types.contains("foot")) {
-                    lFootItems.add(item);
-                    rFootItems.add(item);
+                        if (lLegList.contains(name, false)) {
+                            lLegList.add(name + " ");
+                        } else {
+                            lLegList.add(name);
+                        }
 
-                    if (lFootList.contains(name, false)) {
-                        lFootList.add(name + " ");
-                    } else {
-                        lFootList.add(name);
-                    }
+                        if (rLegList.contains(name, false)) {
+                            rLegList.add(name + " ");
+                        } else {
+                            rLegList.add(name);
+                        }
+                    } else if (types.contains("foot")) {
+                        lFootItems.add(item);
+                        rFootItems.add(item);
 
-                    if (rFootList.contains(name, false)) {
-                        rFootList.add(name + " ");
-                    } else {
-                        rFootList.add(name);
+                        if (lFootList.contains(name, false)) {
+                            lFootList.add(name + " ");
+                        } else {
+                            lFootList.add(name);
+                        }
+
+                        if (rFootList.contains(name, false)) {
+                            rFootList.add(name + " ");
+                        } else {
+                            rFootList.add(name);
+                        }
                     }
                 }
             }

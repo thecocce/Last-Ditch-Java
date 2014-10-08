@@ -214,7 +214,7 @@ public class InputSystem extends GameSystem implements InputProcessor {
     @Override
     public boolean mouseMoved(int screenX, int screenY) {
         if (ui.getInventory().isActive()) {
-            ui.setIconPosition(screenX, screenY);
+            ui.setHoverActionPosition(screenX, screenY);
         }
 
         return true;

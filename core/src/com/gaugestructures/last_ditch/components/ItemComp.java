@@ -1,7 +1,7 @@
 package com.gaugestructures.last_ditch.components;
 
 public class ItemComp extends GameComponent {
-    private boolean usable = false;
+    private boolean usable = false, equipped = false;
     private float value;
     private float quality = 0.5f, condition = 1f, weight = 0.5f;
     private float baseValue = 1f, decayRate = 0.01f;
@@ -58,6 +58,14 @@ public class ItemComp extends GameComponent {
 
     public float getValue() {
         return value;
+    }
+
+    public boolean isEquipped() {
+        return equipped;
+    }
+
+    public void setEquipped(boolean equipped) {
+        this.equipped = equipped;
     }
 
     public void setCondition(float condition) {
